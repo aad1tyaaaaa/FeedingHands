@@ -1,0 +1,46 @@
+/* Container Styling */
+.volunteer-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  /* Title Styling */
+  h4 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+  
+  /* Volunteer Card Styling */
+  .volunteer-card {
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 12px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .volunteer-card:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Text Styling */
+  .volunteer-card p {
+    font-size: 18px;
+    margin: 5px 0;
+    color: #333;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 600px) {
+    .volunteer-card {
+      padding: 12px;
+      font-size: 16px;
+    }
+  }
+  

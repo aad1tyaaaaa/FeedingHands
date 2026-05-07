@@ -1,0 +1,107 @@
+/* components/RoleSelection.css */
+.role-selection-container {
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(135deg, #fff5e6 0%, #ffe9d6 100%);
+  text-align: center;
+}
+
+.welcome-title {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-family: "Poppins", sans-serif;
+}
+
+.welcome-subtitle {
+  color: #7f8c8d;
+  margin-bottom: 3rem;
+  font-size: 1.2rem;
+}
+
+.role-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.role-error {
+  max-width: 620px;
+  margin: 0 auto 1.5rem;
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  background: #ffe6e6;
+  color: #bf1f1f;
+  border: 1px solid #ffcbcb;
+}
+
+.role-card {
+  background: white;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.role-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.card-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+}
+
+.role-card h2 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.role-card p {
+  color: #7f8c8d;
+  margin-bottom: 2rem;
+  min-height: 60px;
+}
+
+.role-button {
+  background: #ff9800;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.role-button:hover {
+  background: #f57c00;
+  transform: scale(1.05);
+}
+
+/* Color accents */
+.donor-card {
+  border-bottom: 4px solid #e67e22;
+}
+.volunteer-card {
+  border-bottom: 4px solid #27ae60;
+}
+.organization-card {
+  border-bottom: 4px solid #2980b9;
+}
+
+@media (max-width: 768px) {
+  .role-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome-title {
+    font-size: 2rem;
+  }
+}

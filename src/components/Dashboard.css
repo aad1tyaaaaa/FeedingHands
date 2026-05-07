@@ -1,0 +1,686 @@
+/* Dashboard.css - Modern Food Donation Dashboard Styling */
+
+:root {
+  --primary: #4caf50; /* Keep this green - represents growth, sustainability */
+  --primary-dark: #2e7d32; /* Slightly darker green for contrast */
+  --primary-light: #a5d6a7; /* Light green for subtle elements */
+
+  --accent: #ff8a65; /* Warm orange - represents food, warmth, compassion */
+  --accent-light: #ffccbc; /* Light orange for highlights */
+
+  --secondary: #5c6bc0; /* Trustworthy blue - represents reliability */
+  --secondary-light: #c5cae9; /* Light blue for secondary elements */
+
+  --text-light: #f8f9fa; /* Light text for dark backgrounds */
+  --text-dark: #37474f; /* Slightly softer than black for better readability */
+
+  --bg-gradient: linear-gradient(
+    135deg,
+    #2e7d32 0%,
+    #43a047 100%
+  ); /* Green gradient */
+  --accent-gradient: linear-gradient(
+    135deg,
+    #ff8a65 0%,
+    #ff5722 100%
+  ); /* Warm gradient */
+
+  --card-gradient: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+
+  /* Keep your shadow and border radius definitions */
+}
+
+/* Base styles and resets */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", sans-serif;
+  background: #f0f2f5;
+  color: var(--text-dark);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Dashboard Container */
+.dashboard {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: auto;
+  grid-gap: 1.5rem;
+  grid-template-areas:
+    "profile profile stats stats"
+    "chart chart chart chart"
+    "cta cta cta cta";
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Profile Section */
+.profile {
+  grid-area: profile;
+  background: var(--bg-gradient);
+  color: var(--text-light);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition);
+  animation: slideInLeft 0.6s ease-out;
+}
+
+.profile::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 60%
+  );
+  transform: rotate(45deg);
+  z-index: 0;
+  animation: shimmer 15s infinite linear;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.1);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.profile-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  object-fit: cover;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.05);
+  transition: var(--transition);
+  animation: pulse 2s infinite alternate;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(1);
+    box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.05);
+  }
+  to {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
+  }
+}
+
+.profile h2 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+}
+
+.profile p {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+  color: yellow;
+}
+
+.progress {
+  width: 100%;
+  margin-top: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.progress span {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-light), var(--accent));
+  border-radius: 50px;
+  transition: width 1s cubic-bezier(0.65, 0, 0.35, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmerProgress 2s infinite;
+}
+
+@keyframes shimmerProgress {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.progress small {
+  display: block;
+  margin-top: 0.5rem;
+  text-align: right;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+/* Stats Section */
+.stats {
+  grid-area: stats;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 1.5rem;
+  animation: slideInRight 0.6s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.stat-card {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.stat-card::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-light), var(--primary));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card:hover::before {
+  transform: scaleX(1);
+}
+
+.stat-card h4 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 0.8rem;
+  color: #6c757d;
+}
+
+.stat-card p {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  line-height: 1;
+  position: relative;
+  display: inline-block;
+}
+
+.stat-card p::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: white;
+  transform-origin: right;
+  transform: scaleX(1);
+  animation: numberReveal 1.5s forwards cubic-bezier(0.85, 0, 0.15, 1);
+}
+
+@keyframes numberReveal {
+  0% {
+    transform: scaleX(1);
+  }
+  100% {
+    transform: scaleX(0);
+  }
+}
+
+/* Chart Section */
+.HalfDash {
+  grid-area: chart;
+  width: 100%;
+  animation: slideUpFade 0.8s ease-out;
+  animation-delay: 0.3s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chart {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  height: 100%;
+}
+
+.chart:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.chart h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+}
+
+.chart h4::before {
+  content: "📈";
+  margin-right: 8px;
+  font-size: 1.4rem;
+}
+
+/* Call to Action Section */
+.cta {
+  grid-area: cta;
+  display: flex;
+  gap: 1rem;
+  animation: popIn 0.8s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  animation-delay: 0.5s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  70% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.cta button {
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: var(--transition);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.donate-button {
+  background: var(--primary);
+  color: white;
+}
+
+.donate-button::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  top: 0;
+  left: -100%;
+  transition: var(--transition);
+}
+
+.donate-button:hover {
+  background: var(--primary-dark);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.donate-button:hover::before {
+  animation: shine 1.5s infinite;
+}
+
+@keyframes shine {
+  from {
+    left: -100%;
+  }
+  to {
+    left: 100%;
+  }
+}
+
+.register-button {
+  background: white;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+}
+
+.register-button:hover {
+  background: rgba(76, 175, 80, 0.1);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .dashboard {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "profile profile"
+      "stats stats"
+      "chart chart"
+      "cta cta";
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "profile"
+      "stats"
+      "chart"
+      "cta";
+    padding: 1rem;
+    margin: 1rem;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .cta {
+    flex-direction: column;
+  }
+
+  .profile-img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .profile h2 {
+    font-size: 1.5rem;
+  }
+
+  .stat-card p {
+    font-size: 2rem;
+  }
+}
+
+/* Additional Enhancements */
+/* Subtle hover effects */
+.chart canvas:hover {
+  filter: brightness(1.03);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-light);
+  border-radius: 10px;
+  border: 3px solid #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* Loading state styles - for when data is fetching */
+.dashboard.loading .stat-card p {
+  opacity: 0.6;
+}
+
+.dashboard.loading .progress-fill {
+  animation: pulseLoading 1.5s infinite alternate;
+}
+
+@keyframes pulseLoading {
+  0% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Custom styles for chart tooltips */
+.chartjs-tooltip {
+  background: var(--bg-gradient) !important;
+  border-radius: 10px !important;
+  padding: 10px !important;
+  color: white !important;
+  box-shadow: var(--shadow-md) !important;
+  border: none !important;
+}
+
+/* Additional element styles for button variations */
+.secondary-button {
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--primary-dark);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.accent-button {
+  background: var(--accent);
+  color: white;
+}
+
+/* Specific animations for first load */
+.dashboard:not(.loaded) .chart canvas {
+  animation: drawIn 1.5s ease-out;
+}
+
+@keyframes drawIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+/* Sidebar wrapper */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+/* Hamburger icon */
+.menu-icon {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: rgb(41, 150, 19);
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
+  z-index: 1001;
+}
+
+/* Sidebar menu */
+.menu {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 250px;
+  height: 100vh;
+  background-color: #0f9b16;
+  color: white;
+  transition: left 0.3s ease;
+  padding-top: 60px;
+  z-index: 1000;
+}
+
+.menu.open {
+  left: 0;
+}
+
+/* Close button inside menu */
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+/* List items */
+.menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu ul li {
+  padding: 16px 24px;
+  border-bottom: 1px solid #333;
+  cursor: pointer;
+}
+
+.menu ul li:hover {
+  background-color: #333;
+}
+
+/* Background overlay */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 999;
+}

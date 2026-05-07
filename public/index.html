@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Food Donation App</title>
+
+    <!-- Security Policy -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="frame-ancestors 'self' https://www.google.com https://recaptcha.google.com/recaptcha/ https://www.gstatic.com/recaptcha/;"
+    />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@100..900&family=Montserrat:wght@100..900&family=Roboto:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Leaflet Map CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    />
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css" />
+
+    <!-- Web Manifest & Favicon -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    <!-- Google Maps API -->
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"
+      async
+      defer
+    ></script>
+  </head>
+
+  <body>
+    <div id="root"></div>
+
+    <!-- React App -->
+    <script src="./dist/index.js"></script>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+      import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+      const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_AUTH_DOMAIN",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_STORAGE_BUCKET",
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        appId: "YOUR_APP_ID",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+    </script>
+
+    <!-- CodeSandbox Scripts -->
+    <script
+      crossorigin
+      type="text/javascript"
+      src="https://codesandbox.io/static/js/vendors~embed~sandbox-startup.94f8a764c.chunk.js"
+    ></script>
+    <script
+      crossorigin
+      type="text/javascript"
+      src="https://codesandbox.io/static/js/default~app~embed~sandbox~sandbox-startup.3ff9f1307.chunk.js"
+    ></script>
+    <script
+      crossorigin
+      type="text/javascript"
+      src="https://codesandbox.io/static/js/sandbox-startup.fad738f3e.js"
+    ></script>
+
+    <script src="//codesandbox.io/static/browserfs12/browserfs.min.js"></script>
+    <script>
+      window.process = BrowserFS.BFSRequire("process");
+      window.Buffer = BrowserFS.BFSRequire("buffer").Buffer;
+    </script>
+
+    <!-- Chatbot Script -->
+    <script>
+(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="yjdpcsT5vE7OpzrkI5BYv";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+</script>
+  </body>
+</html>

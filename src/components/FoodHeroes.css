@@ -1,0 +1,152 @@
+/* General Styles */
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f7f7f7;
+  color: #333;
+}
+
+/* Container */
+.food-heroes-container {
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+}
+
+/* Header */
+.food-heroes-header {
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  color: white;
+  padding: 30px 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.food-heroes-header h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.food-heroes-header p {
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+/* Hero Section */
+.food-heroes-section {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  margin-top: 30px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  gap: 20px;
+}
+
+.food-heroes-image {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 10px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.food-heroes-image:hover {
+  transform: scale(1.05);
+}
+
+.food-heroes-text {
+  max-width: 500px;
+  padding: 20px;
+  text-align: left;
+}
+
+.food-heroes-text h2 {
+  font-size: 24px;
+  color: #e63946;
+}
+
+.food-heroes-text p {
+  font-size: 16px;
+  margin-top: 10px;
+  color: #222;
+}
+
+/* Donate Button */
+.food-heroes-btn {
+  display: inline-block;
+  padding: 12px 20px;
+  margin-top: 20px;
+  font-size: 16px;
+  color: white;
+  background: #e63946;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background 0.3s ease-in-out;
+  position: relative;
+  z-index: 2;
+}
+
+.food-heroes-btn:hover {
+  background: #d62839;
+}
+
+/* Contact Section */
+.food-heroes-contact {
+  margin-top: 40px;
+  background: #f1f1f1;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.food-heroes-contact h2 {
+  font-size: 22px;
+  color: #2d6a4f;
+}
+
+.food-heroes-contact p {
+  font-size: 16px;
+  margin: 5px 0;
+}
+
+/* Footer */
+.food-heroes-footer {
+  margin-top: 20px;
+  padding: 15px;
+  background: #222;
+  color: white;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.food-heroes-footer a {
+  color: #ff9a9e;
+  text-decoration: none;
+}
+
+.food-heroes-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .food-heroes-section {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .food-heroes-text {
+    text-align: center;
+    padding: 0;
+  }
+
+  .food-heroes-btn {
+    width: 80%;
+    max-width: 250px;
+  }
+}

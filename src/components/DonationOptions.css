@@ -1,0 +1,220 @@
+/* DonationOptions.css - Responsive and attractive CSS */
+.donation-options-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .donation-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    color: #2c3e50;
+    font-size: 2.5rem;
+    font-weight: 700;
+    position: relative;
+    padding-bottom: 0.75rem;
+  }
+  
+  .donation-header:after {
+    content: '';
+    position: absolute;
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 4px;
+  }
+  
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2.5rem;
+    padding: 1rem 0;
+  }
+  
+  .option-card {
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border-top: 5px solid var(--accent-color, #3498db);
+  }
+  
+  .option-card:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      rgba(var(--rgb-accent-color, 52, 152, 219), 0.05) 0%,
+      rgba(var(--rgb-accent-color, 52, 152, 219), 0) 70%
+    );
+    z-index: 0;
+  }
+  
+  .option-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+  }
+  
+  .card-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .card-title {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .card-description {
+    color: #7f8c8d;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .donate-button {
+    background-color: var(--accent-color, #3498db);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(var(--rgb-accent-color, 52, 152, 219), 0.3);
+    position: relative;
+    z-index: 1;
+  }
+  
+  .donate-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(var(--rgb-accent-color, 52, 152, 219), 0.4);
+    background-color: rgba(var(--rgb-accent-color, 52, 152, 219), 0.9);
+  }
+  
+  .donate-button:active {
+    transform: translateY(-1px);
+  }
+  
+  /* Custom RGB variables for each card to use in gradients */
+  .option-card[style*='--accent-color: #2ecc71'] {
+    --rgb-accent-color: 46, 204, 113;
+  }
+  
+  .option-card[style*='--accent-color: #e67e22'] {
+    --rgb-accent-color: 230, 126, 34;
+  }
+  
+  .option-card[style*='--accent-color: #9b59b6'] {
+    --rgb-accent-color: 155, 89, 182;
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 992px) {
+    .options-grid {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+    
+    .donation-header {
+      font-size: 2.2rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .donation-options-container {
+      padding: 1.5rem;
+    }
+    
+    .donation-header {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .options-grid {
+      grid-template-columns: 1fr;
+      max-width: 450px;
+      margin: 0 auto;
+    }
+    
+    .option-card {
+      padding: 2rem 1.5rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .donation-header {
+      font-size: 1.8rem;
+    }
+    
+    .card-icon {
+      font-size: 3rem;
+    }
+    
+    .card-title {
+      font-size: 1.3rem;
+    }
+    
+    .donate-button {
+      padding: 0.7rem 1.8rem;
+    }
+  }
+  
+  /* Animation effects */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .option-card {
+    animation: fadeIn 0.6s ease forwards;
+  }
+  
+  .option-card:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+  
+  .option-card:nth-child(2) {
+    animation-delay: 0.25s;
+  }
+  
+  .option-card:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+  
+  /* Optional - Add a nice loading state */
+  .options-grid.loading {
+    opacity: 0;
+  }
+  
+  .options-grid {
+    transition: opacity 0.5s ease;
+  }

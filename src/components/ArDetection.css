@@ -1,0 +1,69 @@
+.App {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .camera-connection-ui {
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    max-width: 400px;
+  }
+  
+  .input-group {
+    margin-bottom: 15px;
+  }
+  
+  .input-group label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .input-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  
+  .webcam-container {
+    margin: 20px auto;
+    max-width: 640px;
+  }
+  
+  .result-container {
+    margin: 20px auto;
+    max-width: 600px;
+  }
+  
+  .status-box {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  
+  .status-box h3 {
+    margin-bottom: 10px;
+  }
+  
+  #freshness-indicator,
+  #expiry-indicator,
+  #confidence-indicator {
+    font-size: 1.2em;
+    font-weight: bold;
+  }

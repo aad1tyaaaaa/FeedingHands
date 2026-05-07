@@ -1,0 +1,113 @@
+/* General Styles */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f4f4f4;
+}
+
+div.dashboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.main-content {
+  width: 100%;
+  max-width: 1200px;
+  background: white;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: #4caf50;
+  color: white;
+  border-radius: 10px;
+}
+
+.user-profile {
+  background: white;
+  color: #4caf50;
+  padding: 10px;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.stat-card {
+  background: #e8f5e9;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+/* Chart Section */
+.chart-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Recent Donations Table */
+.recent-donations {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.recent-donations table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.recent-donations th,
+.recent-donations td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.recent-donations th {
+  background: #4caf50;
+  color: white;
+}
+
+.action-btn {
+  background: #4caf50;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-container {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .recent-donations table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}

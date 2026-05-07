@@ -1,0 +1,149 @@
+.tracker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.tracker-step {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.step-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #ddd;
+  text-align: center;
+  line-height: 30px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.tracker-step .step-label {
+  margin: 0 8px;
+  font-size: 14px;
+}
+
+.step-line {
+  width: 50px;
+  height: 4px;
+  background-color: #ddd;
+  transition: background-color 0.3s;
+}
+
+.step-circle.completed {
+  background-color: #4caf50; /* Green for completed */
+  color: #fff;
+}
+
+.step-circle.current {
+  background-color: #ffc107; /* Amber for current */
+  color: #fff;
+}
+
+.step-line.completed {
+  background-color: #4caf50;
+}
+.step-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 2px solid #ddd;
+}
+
+.step-circle.completed {
+  background-color: #4caf50;
+  border-color: #4caf50;
+  color: white;
+}
+
+.step-circle.current {
+  background-color: #ffc107;
+  border-color: #ffc107;
+  color: black;
+}
+
+.step-line {
+  height: 2px;
+  background-color: #ddd;
+  flex-grow: 1;
+  margin: 0 10px;
+}
+
+.step-line.completed {
+  background-color: #4caf50;
+}
+.donation-history {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.history-item {
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+/* Add these new styles */
+.current-tracking {
+  margin-bottom: 2rem;
+}
+
+.donation-history {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 2rem 0;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  margin: 0.5rem 0;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.history-status {
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+.history-date {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.navigation-links {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.action-button {
+  padding: 0.8rem 1.5rem;
+  background: #2196f3;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background 0.3s ease;
+}
+
+.action-button:hover {
+  background: #1976d2;
+}

@@ -1,0 +1,274 @@
+.activity {
+  text-align: center;
+  padding: 50px;
+  background-color: #fff;
+}
+
+.activity-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #000;
+}
+
+.activity-subtitle {
+  font-size: 1rem;
+  color: gray;
+  margin-bottom: 40px;
+}
+
+.activity-container {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+}
+
+.activity-card {
+  background: #fff;
+  padding: 20px;
+  width: 250px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.activity-icon {
+  font-size: 3rem;
+  color: #4caf50;
+}
+
+.activity-card h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.activity-card p {
+  font-size: 1rem;
+  color: #333;
+}
+
+.activity-button {
+  margin-top: 15px;
+  background: #4caf50;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.activity-button:hover {
+  background: #388e3c;
+}
+
+/* Base styles you provided */
+.activity {
+  text-align: center;
+  padding: 50px;
+  background-color: #fff;
+}
+
+.activity-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #000;
+}
+
+.activity-subtitle {
+  font-size: 1rem;
+  color: gray;
+  margin-bottom: 40px;
+}
+
+.activity-container {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+}
+
+.activity-card {
+  background: #fff;
+  padding: 20px;
+  width: 250px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.activity-icon {
+  font-size: 3rem;
+  color: #4caf50;
+}
+
+.activity-card h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.activity-card p {
+  font-size: 1rem;
+  color: #333;
+}
+
+.activity-button {
+  margin-top: 15px;
+  background: #4caf50;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.activity-button:hover {
+  background: #388e3c;
+}
+
+/* Mobile devices (up to 480px) */
+@media screen and (max-width: 480px) {
+  .activity {
+    padding: 20px;
+  }
+
+  .activity-title {
+    font-size: 1.8rem;
+  }
+
+  .activity-subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 25px;
+  }
+
+  .activity-container {
+    flex-direction: column;
+    gap: 25px;
+    align-items: center;
+  }
+
+  .activity-card {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .activity-icon {
+    font-size: 2.5rem;
+  }
+
+  .activity-card h2 {
+    font-size: 1.3rem;
+  }
+
+  .activity-card p {
+    font-size: 0.9rem;
+  }
+}
+
+/* Tablets (481px - 768px) */
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  .activity {
+    padding: 30px;
+  }
+
+  .activity-title {
+    font-size: 2rem;
+  }
+
+  .activity-container {
+    flex-wrap: wrap;
+    gap: 30px;
+  }
+
+  .activity-card {
+    width: calc(50% - 30px);
+    min-width: 200px;
+  }
+}
+
+/* Small laptops (769px - 1024px) */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .activity-container {
+    gap: 30px;
+  }
+
+  .activity-card {
+    width: 220px;
+  }
+}
+
+/* Large laptops and desktops (1025px - 1200px) */
+@media screen and (min-width: 1025px) and (max-width: 1200px) {
+  .activity-container {
+    gap: 40px;
+  }
+
+  .activity-card {
+    width: 240px;
+  }
+}
+
+/* Extra large screens (above 1200px) */
+@media screen and (min-width: 1201px) {
+  .activity {
+    padding: 60px;
+  }
+
+  .activity-container {
+    gap: 50px;
+  }
+}
+
+/* Landscape mode for mobile */
+@media screen and (max-height: 480px) and (orientation: landscape) {
+  .activity {
+    padding: 15px;
+  }
+
+  .activity-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .activity-card {
+    width: calc(33.33% - 20px);
+    min-width: 200px;
+    padding: 15px;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .activity-card {
+    border: 2px solid #000;
+    box-shadow: none;
+  }
+
+  .activity-button {
+    border: 2px solid #000;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .activity-button {
+    transition: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .activity {
+    padding: 20px;
+  }
+
+  .activity-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+
+  .activity-button {
+    display: none;
+  }
+}

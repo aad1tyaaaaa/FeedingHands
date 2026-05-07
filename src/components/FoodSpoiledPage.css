@@ -1,0 +1,50 @@
+.food-spoiled-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .food-spoiled-container h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    line-height: 1.2;
+  }
+  
+  .food-spoiled-container p {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 768px) {
+    .food-spoiled-container h1 {
+      font-size: 2rem;
+    }
+  
+    .food-spoiled-container p {
+      font-size: 1rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .food-spoiled-container h1 {
+      font-size: 1.5rem;
+    }
+  
+    .food-spoiled-container p {
+      font-size: 0.9rem;
+    }
+  
+    .food-spoiled-container {
+      padding: 10px;
+    }
+  }

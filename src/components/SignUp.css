@@ -1,0 +1,128 @@
+.signup-container {
+  max-width: 450px;
+  margin: 4rem auto;
+  padding: 2.5rem;
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.signup-container:hover {
+  transform: translateY(-2px);
+}
+
+.signup-container h2 {
+  text-align: center;
+  color: #2c3e50;
+  font-size: 2.2rem;
+  margin-bottom: 2rem;
+  font-weight: 600;
+}
+
+.signup-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.signup-container input {
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.signup-container input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.signup-container button {
+  padding: 1rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.signup-container button:hover {
+  background: #2980b9;
+  transform: translateY(-1px);
+}
+
+.signup-container button:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.status-message {
+  text-align: center;
+  padding: 0.8rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  margin-top: 1rem;
+}
+
+.status-message.success {
+  background: #e8f6ef;
+  color: #27ae60;
+  border: 1px solid #a9dfbf;
+}
+
+.status-message.error {
+  background: #fdecea;
+  color: #e74c3c;
+  border: 1px solid #f5b7b1;
+}
+
+@media (max-width: 480px) {
+  .signup-container {
+    margin: 2rem 1rem;
+    padding: 1.5rem;
+  }
+
+  .signup-container h2 {
+    font-size: 1.8rem;
+  }
+
+  .signup-container input,
+  .signup-container button {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .signup-container {
+    max-width: 90%;
+  }
+}
