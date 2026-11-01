@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import "./PersonaTheme.css";
 import "./Tracking.css";
 import { useFoodTracking } from "./FoodTrackingContext";
 import { Link } from "react-router-dom";
@@ -31,15 +32,17 @@ const Tracking = () => {
   }, [currentStep, donationHistory, setDonationHistory]);
 
   return (
-    <div className="tracking-page">
+    <div className="fh-theme donor-tracking">
+      <div className="fh-blob" aria-hidden="true" />
+      <div className="fh-page tracking-page">
       <div className="tracking-header">
-        <h2>Donation Tracking</h2>
+        <h2 className="fh-title">Donation Tracking</h2>
         <p>Track the status of your food donation</p>
       </div>
 
       {/* Current Donation Progress */}
-      <div className="current-tracking">
-        <h3>Current Donation Status</h3>
+      <div className="current-tracking fh-card">
+        <h3 className="fh-label">Current Donation Status</h3>
         <div className="tracker">
           {steps.map((step, index) => {
             const isCompleted = index < currentStep;
@@ -70,16 +73,17 @@ const Tracking = () => {
       {/* Navigation Links */}
       <div className="tracking-footer">
         <div className="navigation-links">
-          <Link to="/Donate" className="action-button">
+          <Link to="/Donate" className="action-button fh-btn">
             New Donation
           </Link>
-          <Link to="/NgoDashboard" className="action-button">
+          <Link to="/NgoDashboard" className="action-button fh-btn">
             NGO Dashboard
           </Link>
-          <Link to="/VolunteerDashboard" className="action-button">
+          <Link to="/VolunteerDashboard" className="action-button fh-btn">
             Volunteer Dashboard
           </Link>
         </div>
+      </div>
       </div>
     </div>
   );

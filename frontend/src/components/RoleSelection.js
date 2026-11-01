@@ -1,6 +1,7 @@
 // components/RoleSelection.js
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./PersonaTheme.css";
 import "./RoleSelection.css";
 import { apiFetch, setToken } from "../api/client";
 
@@ -55,17 +56,18 @@ const RoleSelection = () => {
   };
 
   return (
-    <div className="role-selection-container">
-      <h1 className="welcome-title">Join the Food Revolution</h1>
+    <div className="role-selection-container fh-theme">
+      <div className="fh-blob" aria-hidden="true" />
+      <h1 className="welcome-title fh-title">Join the Food <em>Revolution</em></h1>
       <p className="welcome-subtitle">Select your role to continue</p>
-      {message && <div className="role-error">{message}</div>}
+      {message && <div className="role-error" role="alert">{message}</div>}
       <div className="role-cards">
-        <div className="role-card donor-card">
-          <div className="card-icon">🍲</div>
+        <div className="role-card fh-card donor-card">
+          <div className="card-icon" aria-hidden="true">🍲</div>
           <h2>Food Donor</h2>
           <p>Individuals or businesses who want to donate meals, ingredients, or supplies.</p>
           <button
-            className="role-button"
+            className="role-button fh-btn"
             onClick={() => handleRoleSelect("donor")}
             disabled={loading}
           >
@@ -73,12 +75,12 @@ const RoleSelection = () => {
           </button>
         </div>
 
-        <div className="role-card volunteer-card">
-          <div className="card-icon">🤝</div>
+        <div className="role-card fh-card volunteer-card">
+          <div className="card-icon" aria-hidden="true">🤝</div>
           <h2>Volunteer</h2>
           <p>Help with collection, sorting, delivery, and community outreach.</p>
           <button
-            className="role-button"
+            className="role-button fh-btn"
             onClick={() => handleRoleSelect("volunteer")}
             disabled={loading}
           >
@@ -86,12 +88,12 @@ const RoleSelection = () => {
           </button>
         </div>
 
-        <div className="role-card organization-card">
-          <div className="card-icon">🏢</div>
+        <div className="role-card fh-card organization-card">
+          <div className="card-icon" aria-hidden="true">🏢</div>
           <h2>Organization</h2>
           <p>Teams, NGOs, or community groups coordinating food distribution.</p>
           <button
-            className="role-button"
+            className="role-button fh-btn"
             onClick={() => handleRoleSelect("organization")}
             disabled={loading}
           >

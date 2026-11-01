@@ -1,217 +1,61 @@
-/* Biogas Page CSS */
-.biogas-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
-  }
-  
-  .biogas-hero {
-    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1589923188900-85dae523342b');
-    background-size: cover;
-    background-position: center;
-    color: white;
-    border-radius: 15px;
-    padding: 4rem 2rem;
-    margin-bottom: 2rem;
-    text-align: center;
-  }
-  
-  .hero-content h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-  }
-  
-  .benefits-section {
-    margin: 4rem 0;
-    text-align: center;
-  }
-  
-  .benefits-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
-  }
-  
-  .benefit-card {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  }
-  
-  .benefit-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-  }
-  
-  .donation-form {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 5px 25px rgba(0,0,0,0.1);
-    margin: 2rem 0;
-  }
-  
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin: 2rem 0;
-  }
-  
-  .form-group {
-    margin-bottom: 1.5rem;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: #2c3e50;
-  }
-  
-  .form-group input,
-  .form-group select {
-    width: 100%;
-    padding: 1rem;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-  }
-  
-  .form-group input:focus,
-  .form-group select:focus {
-    border-color: #4CAF50;
-    outline: none;
-    box-shadow: 0 0 8px rgba(76,175,80,0.1);
-  }
-  
-  .quantity-input {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .quantity-input input {
-    flex: 1;
-  }
-  
-  .submit-btn {
-    display: block;
-    width: 100%;
-    max-width: 300px;
-    margin: 2rem auto 0;
-    padding: 1.2rem;
-    background: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 50px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  
-  .submit-btn:hover {
-    background: #45a049;
-    transform: translateY(-2px);
-  }
-  
-  .process-section {
-    margin: 4rem 0;
-    text-align: center;
-  }
-  
-  .process-steps {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
-  }
-  
-  .step {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  }
-  
-  .step-number {
-    width: 40px;
-    height: 40px;
-    background: #4CAF50;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1rem;
-  }
-  
-  .faq-section {
-    margin: 4rem 0;
-    text-align: center;
-  }
-  
-  .faq-toggle {
-    background: none;
-    border: none;
-    color: #4CAF50;
-    font-size: 1.1rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 0 auto;
-  }
-  
-  .faq-content {
-    margin-top: 2rem;
-    text-align: left;
-    max-width: 800px;
-    margin: 2rem auto;
-  }
-  
-  .faq-item {
-    background: #fff;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    border-radius: 10px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .hero-content h1 {
-      font-size: 2rem;
-      flex-direction: column;
-    }
-  
-    .process-steps {
-      grid-template-columns: 1fr;
-    }
-  
-    .donation-form {
-      padding: 1.5rem;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .biogas-hero {
-      padding: 2rem 1rem;
-    }
-  
-    .hero-content h1 {
-      font-size: 1.5rem;
-    }
-  
-    .form-group input,
-    .form-group select {
-      padding: 0.8rem;
-    }
-  }
+/* /BiogasDonation — every rule scoped under .biogas-page */
+
+.biogas-page .biogas-hero { margin-bottom: 40px; }
+.biogas-page .hero-content .fh-title { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3em; margin: 14px 0 12px; }
+.biogas-page .hero-content .fh-title svg { color: var(--accent); font-size: 0.7em; }
+.biogas-page .hero-content p { margin: 0; font-size: 1.15rem; color: #444; }
+
+.biogas-page h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 20px;
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.biogas-page h2 svg { color: var(--accent); }
+
+.biogas-page .benefits-section { margin-bottom: 40px; }
+
+.biogas-page .benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 22px;
+}
+
+.biogas-page .benefit-card { animation: fh-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+.biogas-page .benefit-card:nth-child(2) { animation-delay: 0.1s; background: var(--pop); }
+.biogas-page .benefit-card:nth-child(3) { animation-delay: 0.2s; }
+.biogas-page .benefit-card h3 { margin: 0 0 8px; font-size: 1.2rem; font-weight: 800; }
+.biogas-page .benefit-card p { margin: 0; color: #444; line-height: 1.55; }
+
+.biogas-page .donation-form { margin-bottom: 40px; }
+
+.biogas-page .form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px 20px;
+  margin-bottom: 24px;
+}
+
+.biogas-page .form-group .fh-label { display: block; margin-bottom: 8px; }
+.biogas-page .form-group input,
+.biogas-page .form-group select { width: 100%; }
+
+.biogas-page .submit-btn { width: 100%; max-width: 320px; padding: 15px; font-size: 1.05rem; }
+
+.biogas-page .faq-section { margin-bottom: 24px; }
+.biogas-page .faq-content { display: grid; gap: 16px; margin-top: 20px; max-width: 800px; }
+.biogas-page .faq-item h3 { margin: 0 0 8px; font-size: 1.1rem; font-weight: 800; }
+.biogas-page .faq-item p { margin: 0; color: #444; line-height: 1.55; }
+
+.biogas-page :is(button, a):focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+@media (max-width: 520px) {
+  .biogas-page .biogas-container { padding: 24px 16px 48px; }
+  .biogas-page .donation-form { padding: 18px; }
+  .biogas-page .form-grid { grid-template-columns: 1fr; }
+  .biogas-page .submit-btn { max-width: none; }
+  .biogas-page h2 { font-size: 1.3rem; }
+}

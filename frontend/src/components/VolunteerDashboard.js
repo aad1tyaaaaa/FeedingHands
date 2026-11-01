@@ -114,6 +114,7 @@
 import React, { useState, useEffect } from "react";
 import { MapPin, Package } from "lucide-react";
 // import VolunteerDashboard from "./VolunteerDashboard";
+import "./PersonaTheme.css";
 import "./VolunteerDashboard.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useFoodTracking } from "./FoodTrackingContext";
@@ -158,7 +159,8 @@ const VolunteerDashboard = () => {
   const pickedUpDonations = donations.filter((d) => d.status === "picked_up");
   const navigate = useNavigate();
   return (
-    <div className="dashboard no-sidebar">
+    <div className="fh-theme theme-volunteer volunteer-dash">
+      <div className="fh-blob" aria-hidden="true" />
       <div className="main-content">
         <Link to="/Tracking" className="back-button">
           Back to Tracking

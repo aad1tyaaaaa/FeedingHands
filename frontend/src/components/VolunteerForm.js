@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import "./PersonaTheme.css";
 import "./VolunteerForm.css";
 import { apiFetch } from "../api/client";
 
@@ -52,21 +53,25 @@ const VolunteerForm = () => {
   };
 
   return (
-    <div className="volunteer-container">
+    <div className="fh-theme theme-volunteer volunteer-signup">
+      <div className="fh-blob" aria-hidden="true" />
+      <div className="fh-page volunteer-container">
       <div className="volunteer-hero">
-        <h1>Join Our Volunteer Program</h1>
+        <span className="fh-chip">Volunteer</span>
+        <h1 className="fh-title">Join Our <em>Volunteer</em> Program</h1>
         <p>Make a difference by volunteering your time and skills.</p>
       </div>
-      <div className="volunteer-form">
+      <div className="volunteer-form fh-card">
         <div className="form-header">
-          <div className="form-icon">🤝</div>
+          <div className="form-icon" aria-hidden="true">🤝</div>
           <h2>Volunteer Signup</h2>
         </div>
         <form onSubmit={handleSubmit} className="form-grid">
           <div className="input-group">
-            <span className="input-icon"></span>
+            <label className="fh-label" htmlFor="vf-name">Full Name</label>
             <input
               type="text"
+              id="vf-name"
               name="name"
               placeholder="Full Name"
               value={formData.name}
@@ -75,9 +80,10 @@ const VolunteerForm = () => {
             />
           </div>
           <div className="input-group">
-            <span className="input-icon"></span>
+            <label className="fh-label" htmlFor="vf-email">Email</label>
             <input
               type="email"
+              id="vf-email"
               name="email"
               placeholder="Email"
               value={formData.email}
@@ -86,9 +92,10 @@ const VolunteerForm = () => {
             />
           </div>
           <div className="input-group">
-            <span className="input-icon"></span>
+            <label className="fh-label" htmlFor="vf-phone">Phone Number</label>
             <input
               type="tel"
+              id="vf-phone"
               name="phone"
               placeholder="Phone Number"
               value={formData.phone}
@@ -97,9 +104,10 @@ const VolunteerForm = () => {
             />
           </div>
           <div className="input-group">
-            <span className="input-icon"></span>
+            <label className="fh-label" htmlFor="vf-address">Address</label>
             <input
               type="text"
+              id="vf-address"
               name="address"
               placeholder="Address"
               value={formData.address}
@@ -130,12 +138,13 @@ const VolunteerForm = () => {
           </div> */}
           <button
             type="submit"
-            className="submit-btn"
+            className="submit-btn fh-btn"
             onClick={handleVolunteersubmit}
           >
             Submit
           </button>
         </form>
+      </div>
       </div>
     </div>
   );

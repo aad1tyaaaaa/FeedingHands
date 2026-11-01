@@ -651,7 +651,8 @@
 // export default SignUp;
 
 import { useState } from "react";
-import "./SignUp.css";
+import { Link } from "react-router-dom";
+import "./SignIn.css"; // shares the sign-in page layout, frame and form styles
 import { apiFetch } from "../api/client";
 function SignUp() {
   const [formData, setFormData] = useState({
@@ -766,8 +767,20 @@ function SignUp() {
   };
 
   return (
-    <div className="signup-container">
-      <h2>Create Account</h2>
+    <div className="signin-page">
+    <div className="signin-panel">
+    <div className="signin-container">
+      <img
+        className="signin-logo"
+        src="/logo/logo-with-text.png"
+        alt="FeedingHands"
+      />
+      <h2>{showVerification ? "Verify Phone" : "Create Account"}</h2>
+      <p className="signin-subtitle">
+        {showVerification
+          ? `Enter the code we sent to ${formData.phone}.`
+          : "Join FeedingHands and start sharing food today."}
+      </p>
       {!showVerification ? (
         <form onSubmit={handleSignUp}>
           {error && <div className="error-message">{error}</div>}
@@ -778,6 +791,8 @@ function SignUp() {
               type="text"
               id="fullName"
               name="fullName"
+              placeholder="Your full name"
+              autoComplete="name"
               value={formData.fullName}
               onChange={handleChange}
               required
@@ -791,6 +806,7 @@ function SignUp() {
               id="phone"
               name="phone"
               placeholder="+1234567890"
+              autoComplete="tel"
               value={formData.phone}
               onChange={handleChange}
               required
@@ -803,6 +819,8 @@ function SignUp() {
               type="password"
               id="password"
               name="password"
+              placeholder="At least 6 characters"
+              autoComplete="new-password"
               value={formData.password}
               onChange={handleChange}
               required
@@ -815,6 +833,8 @@ function SignUp() {
               type="password"
               id="confirmPassword"
               name="confirmPassword"
+              placeholder="Re-enter your password"
+              autoComplete="new-password"
               value={formData.confirmPassword}
               onChange={handleChange}
               required
@@ -834,6 +854,8 @@ function SignUp() {
             <input
               type="text"
               id="verificationCode"
+              inputMode="numeric"
+              autoComplete="one-time-code"
               value={verificationCode}
               onChange={(e) => setVerificationCode(e.target.value)}
               required
@@ -845,6 +867,20 @@ function SignUp() {
           </button>
         </form>
       )}
+      <p className="signin-switch">
+        Already have an account? <Link to="/sign-in">Sign in</Link>
+      </p>
+    </div>
+    </div>
+    <video
+      className="signin-video"
+      src="/FeedingHands_personas_brand.mp4"
+      autoPlay
+      muted
+      loop
+      playsInline
+      aria-hidden="true"
+    />
     </div>
   );
 }

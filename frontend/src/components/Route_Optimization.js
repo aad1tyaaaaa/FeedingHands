@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "./PersonaTheme.css";
 import "./Route.css"; // Updated CSS file
 import polyline from "@mapbox/polyline"; // For decoding polyline
 import { apiFetch } from "../api/client";
@@ -279,12 +280,14 @@ const RouteOptimization = () => {
   }, [volunteerCoords, donorCoords, ngoCoords]);
 
   return (
-    <div className="route-optimization-container">
+    <div className="fh-theme theme-volunteer route-optimization-container">
+      <div className="fh-blob" aria-hidden="true" />
+      <div className="fh-page route-optimization-page">
       <div className="route-optimization-header">
-        <h2>Route Planner</h2>
-        {error && <div className="route-optimization-error">{error}</div>}
+        <h2 className="fh-title">Route <em>Planner</em></h2>
+        {error && <div className="route-optimization-error" role="alert">{error}</div>}
         {routeInfo && (
-          <div className="route-optimization-info">
+          <div className="route-optimization-info fh-label">
             <span>
               <strong>Distance:</strong> {routeInfo.distance} km
             </span>
@@ -294,29 +297,32 @@ const RouteOptimization = () => {
           </div>
         )}
       </div>
-      <div id="map" className="route-optimization-map"></div>
+      <div className="route-optimization-map-frame">
+        <div id="map" className="route-optimization-map"></div>
+      </div>
       <div className="route-optimization-location-info">
-        <div className="route-optimization-location-card start">
-          <div className="route-optimization-marker-icon start"></div>
+        <div className="route-optimization-location-card fh-card start">
+          <div className="route-optimization-marker-icon start" aria-hidden="true"></div>
           <div>
             <h3>Start Location</h3>
             <p>{startAddress || "Loading..."}</p>
           </div>
         </div>
-        <div className="route-optimization-location-card end">
-          <div className="route-optimization-marker-icon end"></div>
+        <div className="route-optimization-location-card fh-card end">
+          <div className="route-optimization-marker-icon end" aria-hidden="true"></div>
           <div>
             <h3>Destination</h3>
             <p>{endAddress || "Loading..."}</p>
           </div>
         </div>
-        <div className="route-optimization-location-card ngo">
-          <div className="route-optimization-marker-icon ngo"></div>
+        <div className="route-optimization-location-card fh-card ngo">
+          <div className="route-optimization-marker-icon ngo" aria-hidden="true"></div>
           <div>
             <h3>NGO Location</h3>
             <p>{ngoAddress || "Loading..."}</p>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

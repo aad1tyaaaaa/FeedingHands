@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './PersonaTheme.css';
 import './DonationOptions.css';
 
 const DonationOptions = () => {
@@ -45,11 +46,14 @@ const DonationOptions = () => {
   };
   
   return (
-    <div className="donation-options-container">
-      <h1 className="donation-header">Choose Your Donation Type</h1>
+    <div className="fh-theme donation-options-page">
+      <div className="fh-blob" aria-hidden="true" />
+      <div className="donation-options-container fh-page">
+      <span className="fh-chip">Donor</span>
+      <h1 className="donation-header fh-title">Choose Your <em>Donation Type</em></h1>
       <div className="options-grid">
-        <div className="option-card" style={{ '--accent-color': '#2ecc71' }}>
-          <div className="card-icon">💰</div>
+        <div className="option-card fh-card">
+          <div className="card-icon" aria-hidden="true">💰</div>
           <h2 className="card-title">Monetary Donation</h2>
           <p className="card-description">
             Support our mission with financial contributions.
@@ -58,8 +62,8 @@ const DonationOptions = () => {
             Donate
           </button>
         </div>
-        <div className="option-card" style={{ '--accent-color': '#e67e22' }}>
-          <div className="card-icon">♻️</div>
+        <div className="option-card fh-card">
+          <div className="card-icon" aria-hidden="true">♻️</div>
           <h2 className="card-title">Surplus Food</h2>
           <p className="card-description">
             Donate surplus food to feed those in need.
@@ -68,8 +72,8 @@ const DonationOptions = () => {
             Donate
           </button>
         </div>
-        <div className="option-card" style={{ '--accent-color': '#9b59b6' }}>
-          <div className="card-icon">⚡</div>
+        <div className="option-card fh-card">
+          <div className="card-icon" aria-hidden="true">⚡</div>
           <h2 className="card-title">Food to Biogas</h2>
           <p className="card-description">
             Convert food waste into sustainable energy.
@@ -78,6 +82,7 @@ const DonationOptions = () => {
            Donate
           </button>
         </div>
+      </div>
       </div>
     </div>
   );

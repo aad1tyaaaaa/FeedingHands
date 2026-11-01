@@ -213,6 +213,7 @@ import {
   FaChartLine,
   FaQuestionCircle,
 } from "react-icons/fa";
+import "./PersonaTheme.css";
 import "./BiogasDonation.css";
 import { apiFetch } from "../api/client";
 
@@ -266,12 +267,15 @@ const BiogasDonation = () => {
   };
 
   return (
-    <div className="biogas-container">
+    <div className="fh-theme biogas-page">
+      <div className="fh-blob" aria-hidden="true" />
+      <div className="biogas-container fh-page">
       {/* Hero Section */}
       <div className="biogas-hero">
         <div className="hero-content">
-          <h1>
-            Transform Food Waste into Clean Energy <FaRecycle />
+          <span className="fh-chip">Waste → Energy</span>
+          <h1 className="fh-title">
+            Transform Food Waste into <em>Clean Energy</em> <FaRecycle aria-hidden="true" />
           </h1>
           <p>Donate your non-edible food waste to help generate biogas</p>
         </div>
@@ -280,20 +284,20 @@ const BiogasDonation = () => {
       {/* Benefits Section */}
       <div className="benefits-section">
         <h2>
-          Why Donate Food Waste? <FaLeaf />
+          Why Donate Food Waste? <FaLeaf aria-hidden="true" />
         </h2>
         <div className="benefits-grid">
-          <div className="benefit-card">
+          <div className="benefit-card fh-card">
             <h3>Reduce Landfill</h3>
             <p>
               Divert organic waste from landfills and reduce methane emissions
             </p>
           </div>
-          <div className="benefit-card">
+          <div className="benefit-card fh-card">
             <h3>Generate Energy</h3>
             <p>1 ton of food waste can generate 300 kWh of electricity</p>
           </div>
-          <div className="benefit-card">
+          <div className="benefit-card fh-card">
             <h3>Create Fertilizer</h3>
             <p>Byproduct of biogas production enriches agricultural soil</p>
           </div>
@@ -301,14 +305,15 @@ const BiogasDonation = () => {
       </div>
 
       {/* Donation Form */}
-      <form className="donation-form" onSubmit={handleSubmit}>
+      <form className="donation-form fh-card" onSubmit={handleSubmit}>
         <h2>
-          Schedule a Food Waste Pickup <FaTruckMoving />
+          Schedule a Food Waste Pickup <FaTruckMoving aria-hidden="true" />
         </h2>
         <div className="form-grid">
           <div className="form-group">
-            <label>Type of Food Waste</label>
+            <label className="fh-label" htmlFor="bio-type">Type of Food Waste</label>
             <select
+              id="bio-type"
               name="wasteType"
               value={formData.wasteType}
               onChange={handleChange}
@@ -323,8 +328,9 @@ const BiogasDonation = () => {
             </select>
           </div>
           <div className="form-group">
-            <label>Approximate Quantity (kg)</label>
+            <label className="fh-label" htmlFor="bio-qty">Approximate Quantity (kg)</label>
             <input
+              id="bio-qty"
               type="number"
               name="quantity"
               value={formData.quantity}
@@ -333,8 +339,9 @@ const BiogasDonation = () => {
             />
           </div>
           <div className="form-group">
-            <label>Pickup Location</label>
+            <label className="fh-label" htmlFor="bio-location">Pickup Location</label>
             <input
+              id="bio-location"
               type="text"
               name="location"
               value={formData.location}
@@ -343,8 +350,9 @@ const BiogasDonation = () => {
             />
           </div>
           <div className="form-group">
-            <label>Preferred Pickup Date</label>
+            <label className="fh-label" htmlFor="bio-date">Preferred Pickup Date</label>
             <input
+              id="bio-date"
               type="date"
               name="pickupDate"
               value={formData.pickupDate}
@@ -353,8 +361,9 @@ const BiogasDonation = () => {
             />
           </div>
           <div className="form-group">
-            <label>Contact Number</label>
+            <label className="fh-label" htmlFor="bio-contact">Contact Number</label>
             <input
+              id="bio-contact"
               type="tel"
               name="contact"
               value={formData.contact}
@@ -363,26 +372,30 @@ const BiogasDonation = () => {
             />
           </div>
         </div>
-        <button type="submit" className="submit-btn">
+        <button type="submit" className="submit-btn fh-btn">
           Schedule Pickup
         </button>
       </form>
 
       {/* FAQ Section */}
       <div className="faq-section">
-        <button className="faq-toggle" onClick={() => setShowFAQ(!showFAQ)}>
-          <FaQuestionCircle /> {showFAQ ? "Hide" : "Show"} FAQs
+        <button
+          className="faq-toggle fh-btn fh-btn--ghost"
+          aria-expanded={showFAQ}
+          onClick={() => setShowFAQ(!showFAQ)}
+        >
+          <FaQuestionCircle aria-hidden="true" /> {showFAQ ? "Hide" : "Show"} FAQs
         </button>
         {showFAQ && (
           <div className="faq-content">
-            <div className="faq-item">
+            <div className="faq-item fh-card">
               <h3>What types of food waste can be donated?</h3>
               <p>
                 We accept all non-edible organic waste including vegetable
                 peels, fruit cores, coffee grounds, and eggshells.
               </p>
             </div>
-            <div className="faq-item">
+            <div className="faq-item fh-card">
               <h3>Is there a minimum quantity requirement?</h3>
               <p>
                 We accept donations of any size, but recommend at least 5kg for
@@ -391,6 +404,7 @@ const BiogasDonation = () => {
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

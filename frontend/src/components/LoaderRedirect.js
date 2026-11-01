@@ -7,7 +7,7 @@ const LoaderRedirect = () => {
   const navigate = useNavigate();
 
   const handleLoaded = () => {
-    navigate("/sign-in"); // Redirect to sign-in after loading is complete
+    navigate("/sign-in");
   };
 
   return <LoadingScreen onLoaded={handleLoaded} />;

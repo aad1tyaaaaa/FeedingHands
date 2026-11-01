@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import "./PersonaTheme.css";
 import "./KnowYourNgo.css";
 import { apiFetch } from "../api/client";
 
@@ -19,27 +20,30 @@ const KnowYourNgo = () => {
   }
 
   return (
-    <div>
+    <div className="fh-theme theme-organization know-your-ngo">
+      <div className="fh-blob" aria-hidden="true" />
       {/* Volunteers Section */}
-      <div>
-        <h4>NGO Detail</h4>
+      <div className="fh-page">
+        <h4 className="fh-title">NGO Detail</h4>
         {/* <button onClick={fetchVolunteers}>Refresh</button> */}
         {volunteers.length > 0 ? (
-          volunteers.map((volunteer, index) => (
-            <div key={index} className="volunteer-card">
-              <p>
-                <strong>Name:</strong> {volunteer.name}
-              </p>
-              <p>
-                <strong>Location:</strong> {volunteer.address}
-              </p>
-              <p>
-                <strong>Contact:</strong> {volunteer.contact}
-              </p>
-            </div>
-          ))
+          <div className="ngo-list">
+            {volunteers.map((volunteer, index) => (
+              <div key={index} className="volunteer-card fh-card">
+                <p>
+                  <strong className="fh-label">Name:</strong> {volunteer.name}
+                </p>
+                <p>
+                  <strong className="fh-label">Location:</strong> {volunteer.address}
+                </p>
+                <p>
+                  <strong className="fh-label">Contact:</strong> {volunteer.contact}
+                </p>
+              </div>
+            ))}
+          </div>
         ) : (
-          <p>No volunteers found.</p>
+          <p className="empty fh-card">No volunteers found.</p>
         )}
       </div>
     </div>

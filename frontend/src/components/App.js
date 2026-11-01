@@ -10,6 +10,7 @@ import {
 import Header from "./Header";
 import { DonationProvider } from "./DonationContext";
 import SignIn from "./Signin";
+import PersonaLogin from "./PersonaLogin";
 import SignUp from "./SignUp";
 import Donate from "./Donate";
 import Register from "./Register";
@@ -59,6 +60,7 @@ function AppContent() {
               <Route path="/Donate" element={<Donate />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/sign-in" element={<SignIn />} />
+              <Route path="/persona-login" element={<PersonaLogin />} />
               <Route path="/sign-up" element={<SignUp />} />
               <Route path="/Register" element={<Register />} />
               <Route path="/VolunteerMap" element={<VolunteerMap />} />

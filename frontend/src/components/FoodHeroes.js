@@ -1,4 +1,5 @@
 import React from "react";
+import "./PersonaTheme.css";
 import "./FoodHeroes.css";
 
 const FoodHeroes = () => {
@@ -6,13 +7,15 @@ const FoodHeroes = () => {
   const base64Image = "https://images.wsj.net/im-65599456?size=1.5"; // Replace with your actual Base64 image
 
   return (
-    <div className="food-heroes-container">
-      <header className="food-heroes-header">
-        <h1>🌟 Featured Donor: Grand Royale Hotel 🌟</h1>
-        <p>Making a difference, one meal at a time.</p>
+    <div className="fh-theme food-heroes">
+      <div className="fh-blob" aria-hidden="true" />
+      <div className="food-heroes-container">
+      <header className="food-heroes-header fh-card">
+        <h1 className="fh-title">🌟 Featured Donor: Grand Royale Hotel 🌟</h1>
+        <p className="fh-label">Making a difference, one meal at a time.</p>
       </header>
 
-      <section className="food-heroes-section">
+      <section className="food-heroes-section fh-card">
         <img src={base64Image} alt="Grand Royale Hotel" className="food-heroes-image" />
         <div className="food-heroes-text">
           <h2>Helping the Community with Every Meal 🍽️</h2>
@@ -21,13 +24,13 @@ const FoodHeroes = () => {
             every month, ensuring that no food goes to waste. We proudly support
             the local community and stand by our mission to reduce hunger.
           </p>
-          <a href="#" className="food-heroes-btn">
+          <a href="#" className="food-heroes-btn fh-btn">
             Join the Movement
           </a>
         </div>
       </section>
 
-      <section className="food-heroes-contact">
+      <section className="food-heroes-contact fh-card">
         <h2>📍 Visit Us</h2>
         <p><strong>Grand Royale Hotel</strong></p>
         <p>123 Main Street, Cityville, ST 45678</p>
@@ -40,6 +43,7 @@ const FoodHeroes = () => {
           Want to become a featured donor? <a href="#">Contact Us</a>
         </p>
       </footer>
+      </div>
     </div>
   );
 };

@@ -350,12 +350,16 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./SignIn.css";
-import { apiFetch, setToken } from "../api/client";
+
+const GATEWAY_CREDENTIALS = {
+  username: "demo",
+  password: "feedinghands",
+};
 
 function SignIn() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    phone: "",
+    username: "",
     password: "",
   });
 
@@ -375,26 +379,14 @@ function SignIn() {
     setLoading(true);
 
     try {
-      const { phone, password } = formData;
-      const data = await apiFetch("/api/auth/signin", {
-        method: "POST",
-        body: JSON.stringify({
-          phone,
-          password,
-        }),
-      });
-      setToken(data.access_token);
-      localStorage.setItem("fh_user", JSON.stringify(data.user));
-
-      const role = data.user?.role;
-      if (!role || role === "pending") {
-        navigate("/role-selection");
-      } else if (role === "volunteer") {
-        navigate("/VolunteerDashboard");
-      } else if (role === "organization") {
-        navigate("/NgoDashboard");
+      const { username, password } = formData;
+      if (
+        username !== GATEWAY_CREDENTIALS.username ||
+        password !== GATEWAY_CREDENTIALS.password
+      ) {
+        throw new Error("Invalid demo credentials");
       } else {
-        navigate("/dashboard");
+        navigate("/persona-login");
       }
     } catch (error) {
       setError(error.message || "Login failed. Please try again.");
@@ -404,19 +396,28 @@ function SignIn() {
   };
 
   return (
+    <div className="signin-page">
+    <div className="signin-panel">
     <div className="signin-container">
+      <img
+        className="signin-logo"
+        src="/logo/logo-with-text.png"
+        alt="FeedingHands"
+      />
       <h2>Sign In</h2>
+      <p className="signin-subtitle">Welcome back! Sign in to keep feeding hands.</p>
       <form onSubmit={handleSignIn}>
         {error && <div className="error-message">{error}</div>}
 
         <div className="form-group">
-          <label htmlFor="phone">Phone Number</label>
+          <label htmlFor="username">Username</label>
           <input
-            type="tel"
-            id="phone"
-            name="phone"
-            placeholder="+1234567890"
-            value={formData.phone}
+            type="text"
+            id="username"
+            name="username"
+            placeholder="demo"
+            autoComplete="username"
+            value={formData.username}
             onChange={handleChange}
             required
           />
@@ -428,6 +429,8 @@ function SignIn() {
             type="password"
             id="password"
             name="password"
+            placeholder="Enter your password"
+            autoComplete="current-password"
             value={formData.password}
             onChange={handleChange}
             required
@@ -435,13 +438,27 @@ function SignIn() {
         </div>
 
         <p className="signin-footer">
-          Not registered yet? <Link to="/sign-up">Sign up</Link>
+          Demo login: <strong>demo / feedinghands</strong>
         </p>
 
         <button type="submit" disabled={loading}>
           {loading ? "Signing in..." : "Sign In"}
         </button>
       </form>
+      <p className="signin-switch">
+        New to FeedingHands? <Link to="/sign-up">Create an account</Link>
+      </p>
+    </div>
+    </div>
+    <video
+      className="signin-video"
+      src="/FeedingHands_personas_brand.mp4"
+      autoPlay
+      muted
+      loop
+      playsInline
+      aria-hidden="true"
+    />
     </div>
   );
 }

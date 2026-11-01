@@ -15,7 +15,7 @@ function Header() {
   };
 
   return (
-    <div>
+    <div className="fh-site-header">
       <div className="top_nav">
         <p>+91 093-120-525-9162</p>
         <p>info@gmail.com</p>
@@ -26,11 +26,17 @@ function Header() {
           <h2>FeedingHands</h2>
         </div>
 
-        <div className="hamburger" onClick={toggleMenu}>
-          <div className="bar"></div>
-          <div className="bar"></div>
-          <div className="bar"></div>
-        </div>
+        <button
+          type="button"
+          className="hamburger"
+          onClick={toggleMenu}
+          aria-label="Toggle menu"
+          aria-expanded={isMenuOpen}
+        >
+          <span className="bar"></span>
+          <span className="bar"></span>
+          <span className="bar"></span>
+        </button>
 
         <nav className={`nav-links ${isMenuOpen ? "nav-active" : ""}`}>
           <Link to="/" className="nav-link">

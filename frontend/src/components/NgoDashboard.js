@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import "./PersonaTheme.css";
 import "./NgoDashboard.css";
 import { useFoodTracking } from "./FoodTrackingContext";
 import { BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
@@ -69,7 +70,8 @@ export default function NgoDashboard() {
   };
 
   return (
-    <div className="dashboard no-sidebar">
+    <div className="fh-theme theme-organization ngo-dash">
+      <div className="fh-blob" aria-hidden="true" />
       <div className="main-content">
         <header>
           <h1>Dashboard Overview</h1>
@@ -104,10 +106,10 @@ export default function NgoDashboard() {
         <div className="chart-container">
           <h2>Weekly Donations</h2>
           <BarChart width={600} height={300} data={chartData}>
-            <XAxis dataKey="day" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="donations" fill="#4CAF50" />
+            <XAxis dataKey="day" stroke="#141414" />
+            <YAxis stroke="#141414" allowDecimals={false} />
+            <Tooltip cursor={{ fill: "rgba(108, 76, 255, 0.1)" }} />
+            <Bar dataKey="donations" fill="#6c4cff" stroke="#141414" strokeWidth={2} radius={[8, 8, 0, 0]} />
           </BarChart>
         </div>
 

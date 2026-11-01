@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import "./PersonaTheme.css";
 import "./cityInsights.css";
 
 const CityInsights = () => {
@@ -39,20 +40,26 @@ const CityInsights = () => {
   };
 
   return (
-    <div>
-      <h1>Indian Food Donation Insights</h1>
+    <div className="fh-theme theme-organization city-insights">
+      <div className="fh-blob" aria-hidden="true" />
+      <div className="fh-page">
+        <h1 className="fh-title">Indian Food Donation Insights</h1>
 
-      {/* Input field for the pincode */}
-      <input
-        type="text"
-        placeholder="Enter Pincode"
-        value={pincode}
-        onChange={(e) => setPincode(e.target.value)} // Update pincode state
-      />
-      <button onClick={fetchCityInsights}>Fetch City Insights</button>
+        <div className="city-insights-form fh-card">
+          {/* Input field for the pincode */}
+          <input
+            type="text"
+            placeholder="Enter Pincode"
+            aria-label="Pincode"
+            value={pincode}
+            onChange={(e) => setPincode(e.target.value)} // Update pincode state
+          />
+          <button className="fh-btn" onClick={fetchCityInsights}>Fetch City Insights</button>
+        </div>
 
-      {/* Display the insights if available */}
-      {cityInsights && <pre>{JSON.stringify(cityInsights, null, 2)}</pre>}
+        {/* Display the insights if available */}
+        {cityInsights && <pre className="fh-card">{JSON.stringify(cityInsights, null, 2)}</pre>}
+      </div>
     </div>
   );
 };

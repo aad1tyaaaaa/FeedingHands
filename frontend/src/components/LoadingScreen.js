@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import "./PersonaTheme.css";
 import "./LoadingScreen.css";
 
 function LoadingScreen({ onLoaded }) {
@@ -98,7 +99,8 @@ function LoadingScreen({ onLoaded }) {
   }, [onLoaded]);
 
   return (
-    <div className="container">
+    <div className="loading-screen fh-theme">
+      <div className="fh-blob" aria-hidden="true" />
       {/* Background Effects */}
       <div className="donation-effect"></div>
       <div className="donation-effect"></div>
@@ -108,7 +110,7 @@ function LoadingScreen({ onLoaded }) {
 
       {/* Header Text */}
       <div className="hero-text">
-        <h1>Nourishing Together</h1>
+        <h1 className="fh-title">Nourishing <em>Together</em></h1>
         <p>Connecting food with hope, one donation at a time</p>
       </div>
 
@@ -140,7 +142,7 @@ function LoadingScreen({ onLoaded }) {
         <div className="progress-track">
           <div className="progress-bar" id="progressBar"></div>
         </div>
-        <div className="progress-text" id="progressText">
+        <div className="progress-text" id="progressText" role="status" aria-live="polite">
           Loading... 0%
         </div>
       </div>

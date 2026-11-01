@@ -286,6 +286,7 @@
 // export default Dashboard;
 
 import React, { useState, useEffect } from "react";
+import "./PersonaTheme.css";
 import "./Dashboard.css";
 import { Menu, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -315,6 +316,10 @@ ChartJS.register(
   Filler,
   Legend
 );
+
+// Canvas text ignores CSS, so give Chart.js the persona theme font (loaded in PersonaTheme.css).
+ChartJS.defaults.font.family = '"Bricolage Grotesque", sans-serif';
+ChartJS.defaults.color = "#141414";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -348,16 +353,17 @@ function Dashboard() {
       {
         label: "Monthly Donations",
         data: Array(12).fill(0),
-        backgroundColor: "rgba(76, 175, 80, 0.7)",
-        borderColor: "#2e7d32",
-        borderWidth: 1,
+        backgroundColor: "#ff6b2c",
+        borderColor: "#141414",
+        borderWidth: 2,
+        borderRadius: 8,
+        borderSkipped: false,
       },
     ],
   });
 
   useEffect(() => {
     const refresh = async () => {
-      await fetchUserData();
       await fetchDonationStats();
     };
 
@@ -365,22 +371,6 @@ function Dashboard() {
     const interval = setInterval(refresh, 10000);
     return () => clearInterval(interval);
   }, []);
-
-  const fetchUserData = async () => {
-    try {
-      const data = await apiFetch("/api/auth/me");
-      const currentUser = data.user;
-      setUser({
-        id: currentUser?.id || currentUser?._id || null,
-        name: currentUser?.fullName || "User",
-        donations: currentUser?.donations || 0,
-        impactScore: currentUser?.impactScore || 0,
-        points: currentUser?.points || 0,
-      });
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  };
 
   const fetchDonationStats = async () => {
     try {
@@ -440,13 +430,13 @@ function Dashboard() {
   };
 
   return (
-    <div className="dashboard">
+    <div className="fh-theme theme-donor">
+    <div className="fh-blob" aria-hidden="true" />
+    <div className="donor-dash">
       <div className="profile">
-        <img
-          src="https://via.placeholder.com/80"
-          alt="Profile"
-          className="profile-img"
-        />
+        <div className="profile-avatar" aria-hidden="true">
+          {user?.name?.[0] || "U"}
+        </div>
         <h2>Namaste, {user?.name}</h2>
         <p>Food Donation Enthusiast</p>
 
@@ -494,7 +484,7 @@ function Dashboard() {
       </div>
 
       <div className="cta">
-        <button className="donate-button" onClick={() => navigate("/Tracking")}>
+        <button className="donate-button is-ghost" onClick={() => navigate("/Tracking")}>
           Track My Donations
         </button>
       </div>
@@ -530,6 +520,7 @@ function Dashboard() {
         </div>
          {open && <div className="overlay" onClick={() => setopen(false)} />}
       </div>
+    </div>
     </div>
   );
 }

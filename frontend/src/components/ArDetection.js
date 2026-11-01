@@ -3,6 +3,7 @@ import * as tmImage from '@teachablemachine/image';
 import CameraConnectionUI from './CameraConnectionUI';
 import WebcamContainer from './WebcamContainer';
 import ResultContainer from './ResultContainer';
+import './PersonaTheme.css';
 import './ArDetection.css';
 
 const ArDetection = () => {
@@ -95,8 +96,10 @@ const ArDetection = () => {
   };
 
   return (
-    <div className="App">
-      <h1>Food Freshness Detector</h1>
+    <div className="fh-theme ar-detection">
+      <div className="fh-blob" aria-hidden="true" />
+      <div className="fh-page">
+      <h1 className="fh-title">Food <em>Freshness</em> Detector</h1>
       <CameraConnectionUI 
         setImageCapture={setImageCapture} 
         setIsConnected={setIsConnected} 
@@ -114,6 +117,7 @@ const ArDetection = () => {
         confidenceLevel={confidenceLevel} 
         captureAndPredict={captureAndPredict}
       />
+      </div>
     </div>
   );
 };

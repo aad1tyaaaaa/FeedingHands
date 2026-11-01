@@ -1,4 +1,6 @@
 import { useState } from "react";
+import "./PersonaTheme.css";
+import "./Donate.css";
 
 const DonateFood = () => {
   const [foodDetails, setFoodDetails] = useState("");
@@ -27,14 +29,21 @@ const DonateFood = () => {
   };
 
   return (
-    <div>
-      <h2>Donate Food</h2>
-      <textarea
-        placeholder="Enter food details..."
-        value={foodDetails}
-        onChange={(e) => setFoodDetails(e.target.value)}
-      />
-      <button onClick={donateFood}>Donate</button>
+    <div className="fh-theme donatefood-page">
+      <div className="fh-blob" aria-hidden="true" />
+      <div className="fh-page">
+        <h2 className="fh-title">Donate <em>Food</em></h2>
+        <div className="fh-card donatefood-card">
+          <label className="fh-label" htmlFor="donatefood-details">Food details</label>
+          <textarea
+            id="donatefood-details"
+            placeholder="Enter food details..."
+            value={foodDetails}
+            onChange={(e) => setFoodDetails(e.target.value)}
+          />
+          <button className="fh-btn" onClick={donateFood}>Donate</button>
+        </div>
+      </div>
     </div>
   );
 };

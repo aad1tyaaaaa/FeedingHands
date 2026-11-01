@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import ScratchCard from "react-scratchcard";
+import "./PersonaTheme.css";
 import "./GiftCard.css";
 
 const GiftCard = () => {
@@ -15,12 +16,15 @@ const GiftCard = () => {
   };
 
   return (
-    <div className="gift-card-container">
+    <div className="fh-theme gift-page">
+      <div className="fh-blob" aria-hidden="true" />
+      <div className="gift-card-container fh-card">
+      <span className="fh-chip">Reward</span>
       <h2 className="gift-title">🎁 Scratch & Win a Surprise Gift! 🎉</h2>
 
       <div className="scratch-area">
         <ScratchCard {...scratchConfig}>
-          <div className="gift-reward">
+          <div className="gift-reward" aria-live="polite">
             {isRevealed ? (
               <span>₹500 Discount on Bulk Grocery Purchases  🎁</span>
             ) : (
@@ -30,9 +34,10 @@ const GiftCard = () => {
         </ScratchCard>
       </div>
 
-      <button className="redeem-btn" onClick={() => setIsRevealed(true)}>
+      <button className="redeem-btn fh-btn" onClick={() => setIsRevealed(true)}>
         Redeem
       </button>
+      </div>
     </div>
   );
 };

@@ -5,7 +5,8 @@ const WebcamContainer = ({ imageRef, canvasRef, isConnected }) => {
     <div className="webcam-container">
       <img 
         ref={imageRef} 
-        id="esp32-cam" 
+        id="esp32-cam"
+        alt="ESP32 camera feed"
         style={{ display: isConnected ? 'block' : 'none' }} 
         crossOrigin="anonymous"
       />

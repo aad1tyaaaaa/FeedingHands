@@ -3,6 +3,8 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import { apiFetch } from "../api/client";
+import "./PersonaTheme.css";
+import "./VolunteerMap.css";
 
 // GraphHopper API key
 const GRAPHHOPPER_API_KEY = "f206c0f1-17d5-4428-8123-38ba89088efb";
@@ -250,93 +252,38 @@ const VolunteerMap = () => {
   }, [volunteerCoords, donorCoords]);
 
   return (
-    <div className="map-container">
+    <div className="fh-theme theme-volunteer volunteer-map">
+      <div className="fh-blob" aria-hidden="true" />
+      <div className="fh-page map-container">
       <div className="map-header">
-        <h2>Route Planner</h2>
+        <h2 className="fh-title">Route <em>Planner</em></h2>
         {routeInfo && (
-          <div className="route-info">
+          <div className="route-info fh-label">
             <span><strong>Distance:</strong> {routeInfo.distance} km</span>
             <span><strong>Estimated Time:</strong> {routeInfo.time} minutes</span>
           </div>
         )}
       </div>
-      <div id="map" style={{ height: "80vh", width: "100%" }}></div>
+      <div className="map-frame">
+        <div id="map" style={{ height: "80vh", width: "100%" }}></div>
+      </div>
       <div className="location-info">
-        <div className="location-card start">
-          <div className="marker-icon start"></div>
+        <div className="location-card fh-card start">
+          <div className="marker-icon start" aria-hidden="true"></div>
           <div>
             <h3>Start Location</h3>
             <p>{startAddress}</p>
           </div>
         </div>
-        <div className="location-card end">
-          <div className="marker-icon end"></div>
+        <div className="location-card fh-card end">
+          <div className="marker-icon end" aria-hidden="true"></div>
           <div>
             <h3>Destination</h3>
             <p>{endAddress}</p>
           </div>
         </div>
       </div>
-      <style jsx>{`
-        .map-container {
-          font-family: Arial, sans-serif;
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 20px;
-          box-shadow: 0 0 10px rgba(0,0,0,0.1);
-          border-radius: 8px;
-        }
-        .map-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 15px;
-        }
-        .route-info {
-          display: flex;
-          gap: 20px;
-        }
-        .location-info {
-          display: flex;
-          justify-content: space-between;
-          margin-top: 20px;
-          gap: 20px;
-        }
-        .location-card {
-          flex: 1;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 15px;
-          border-radius: 8px;
-          background-color: #f9f9f9;
-        }
-        .location-card.start {
-          border-left: 4px solid #4CAF50;
-        }
-        .location-card.end {
-          border-left: 4px solid #F44336;
-        }
-        .location-card h3 {
-          margin: 0 0 5px 0;
-        }
-        .location-card p {
-          margin: 0;
-          font-size: 14px;
-          color: #666;
-        }
-        .marker-icon {
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-        }
-        .marker-icon.start {
-          background-color: #4CAF50;
-        }
-        .marker-icon.end {
-          background-color: #F44336;
-        }
-      `}</style>
+      </div>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useDonation } from "./DonationContext";
+import "./PersonaTheme.css";
 import "./Donate.css";
 import { useFoodTracking } from "./FoodTrackingContext";
 import { useNavigate } from "react-router-dom";
@@ -67,7 +68,7 @@ function Donate({ onDonationSuccess }) {
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
         {
           headers: {
-            'User-Agent': 'FoodDonationApp/1.0 (your-contact@email.com)'
+            'User-Agent': 'FeedingHands/1.0 (your-contact@email.com)'
           }
         }
       );
@@ -124,7 +125,7 @@ function Donate({ onDonationSuccess }) {
             `https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=1`,
             {
               headers: {
-                'User-Agent': 'FoodDonationApp/1.0 (your-contact@email.com)'
+                'User-Agent': 'FeedingHands/1.0 (your-contact@email.com)'
               }
             }
           );
@@ -200,19 +201,23 @@ function Donate({ onDonationSuccess }) {
   };
 
   return (
-    <div className="donate-food-page">
+    <div className="fh-theme donate-page">
+      <div className="fh-blob" aria-hidden="true" />
+      <div className="fh-page">
       <div className="donheader">
-        <h1>Donate Food</h1>
+        <span className="fh-chip">Donor</span>
+        <h1 className="fh-title">Donate <em>Food</em></h1>
         <p>Share Your Kindness with Those in Need</p>
       </div>
 
       <div className="main-section">
-        <div className="donation-form">
+        <div className="donation-form fh-card">
           <h3>Food Donation Form</h3>
 
           <div className="form-group">
-            <label>Type of Food</label>
-            <select 
+            <label className="fh-label" htmlFor="donate-type">Type of Food</label>
+            <select
+              id="donate-type"
               value={formState.type} 
               onChange={(e) => setFormState(prev => ({
                 ...prev,
@@ -227,7 +232,7 @@ function Donate({ onDonationSuccess }) {
           </div>
 
           <div className="form-group">
-            <label>Food Items</label>
+            <span className="fh-label">Food Items</span>
             {formState.foodDetails.map((food, index) => (
               <div key={index} className="food-input">
                 <input
@@ -247,6 +252,7 @@ function Donate({ onDonationSuccess }) {
                 {formState.foodDetails.length > 1 && (
                   <button 
                     type="button" 
+                    className="remove-food-button"
                     onClick={() => handleRemoveFood(index)}
                     aria-label="Remove food item"
                   >
@@ -258,16 +264,17 @@ function Donate({ onDonationSuccess }) {
             <button 
               type="button" 
               onClick={handleAddFood}
-              className="add-food-button"
+              className="add-food-button fh-btn fh-btn--ghost"
             >
               + Add More Items
             </button>
           </div>
 
           <div className="form-group">
-            <label>Pickup Location</label>
+            <label className="fh-label" htmlFor="donate-location">Pickup Location</label>
             <div className="location-input-group">
               <input
+                id="donate-location"
                 type="text"
                 placeholder="Enter your full address"
                 value={formState.location}
@@ -279,7 +286,7 @@ function Donate({ onDonationSuccess }) {
               <button
                 type="button"
                 onClick={handleLocateMe}
-                className="locate-me-button"
+                className="locate-me-button fh-btn fh-btn--pop"
                 disabled={isLocating}
               >
                 {isLocating ? (
@@ -294,19 +301,20 @@ function Donate({ onDonationSuccess }) {
             </div>
             {formState.latitude && formState.longitude && (
               <div className="coordinates-display">
-                <small style={{color: 'green'}}>✓ Coordinates captured: {formState.latitude.toFixed(6)}, {formState.longitude.toFixed(6)}</small>
+                <small>✓ Coordinates captured: {formState.latitude.toFixed(6)}, {formState.longitude.toFixed(6)}</small>
               </div>
             )}
             <div className="location-help-text">
-              <small style={{color: '#666'}}>
+              <small>
                 💡 For best results, use the "Locate Me" button or enter a complete address with city and area details.
               </small>
             </div>
           </div>
 
           <div className="form-group">
-            <label>Contact Number</label>
+            <label className="fh-label" htmlFor="donate-contact">Contact Number</label>
             <input
+              id="donate-contact"
               type="tel"
               placeholder="Enter your contact number"
               value={formState.contact}
@@ -318,8 +326,9 @@ function Donate({ onDonationSuccess }) {
           </div>
 
           <div className="form-group">
-            <label>Additional Notes</label>
+            <label className="fh-label" htmlFor="donate-notes">Additional Notes</label>
             <textarea
+              id="donate-notes"
               placeholder="Special instructions, dietary restrictions, etc."
               value={formState.notes}
               onChange={(e) => setFormState(prev => ({
@@ -331,7 +340,7 @@ function Donate({ onDonationSuccess }) {
           </div>
 
           <button 
-            className="submit-button" 
+            className="submit-button fh-btn" 
             onClick={handleSubmit} 
             disabled={loading}
           >
@@ -346,7 +355,7 @@ function Donate({ onDonationSuccess }) {
           </button>
 
           {error && (
-            <div className="error-message">
+            <div className="error-message" role="alert">
               ⚠️ {error}
             </div>
           )}
@@ -356,6 +365,7 @@ function Donate({ onDonationSuccess }) {
       <div className="footer">
         <p>Contact Us: 1-800-FOOD-HELP</p>
         <p>© 2024 Food Donation Platform. All rights reserved.</p>
+      </div>
       </div>
     </div>
   );

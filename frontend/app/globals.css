@@ -1,0 +1,15 @@
+/* Fredoka for the complete website. --font-fredoka comes from next/font in app/layout.js. */
+html,
+body {
+  font-family: var(--font-fredoka), sans-serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "wdth" 100;
+}
+
+/* Browsers don't let form controls inherit the page font by default. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}

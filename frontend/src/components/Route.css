@@ -1,116 +1,104 @@
-/* RouteOptimization.css */
+/* Route optimization page — all rules scoped under the page root */
+.route-optimization-container .route-optimization-page { display: grid; gap: 22px; }
 
-/* General Styles */
-.route-optimization-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    width: 100%;
-    font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
-  }
-  
-  .route-optimization-header {
-    padding: 20px;
-    background-color: #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-  
-  .route-optimization-header h2 {
-    margin: 0;
-    font-size: 24px;
-    color: #333;
-  }
-  
-  .route-optimization-error {
-    color: #dc3545;
-    font-weight: bold;
-    margin-top: 10px;
-  }
-  
-  .route-optimization-info {
-    margin-top: 10px;
-    font-size: 16px;
-    color: #555;
-  }
-  
-  .route-optimization-info span {
-    margin-right: 20px;
-  }
-  
-  /* Map Styles */
-  .route-optimization-map {
-    flex: 1;
-    height: 100%;
-    width: 100%;
-    background-color: #e9ecef;
-  }
-  
-  /* Location Info Styles */
-  .route-optimization-location-info {
-    display: flex;
-    justify-content: space-around;
-    padding: 20px;
-    background-color: #ffffff;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .route-optimization-location-card {
-    display: flex;
-    align-items: center;
-    background-color: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    width: 30%;
-    transition: transform 0.3s ease;
-  }
-  
-  .route-optimization-location-card:hover {
-    transform: translateY(-5px);
-  }
-  
-  .route-optimization-marker-icon {
-    width: 20px;
-    height: 20px;
-    margin-right: 10px;
-    border-radius: 50%;
-  }
-  
-  .route-optimization-marker-icon.start {
-    background-color: #28a745; /* Green */
-  }
-  
-  .route-optimization-marker-icon.end {
-    background-color: #dc3545; /* Red */
-  }
-  
-  .route-optimization-marker-icon.ngo {
-    background-color: #007bff; /* Blue */
-  }
-  
-  .route-optimization-location-card h3 {
-    margin: 0;
-    font-size: 18px;
-    color: #333;
-  }
-  
-  .route-optimization-location-card p {
-    margin: 5px 0 0;
-    font-size: 14px;
-    color: #555;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .route-optimization-location-info {
-      flex-direction: column;
-      align-items: center;
-    }
-  
-    .route-optimization-location-card {
-      width: 80%;
-      margin-bottom: 15px;
-    }
-  }
+.route-optimization-container .route-optimization-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+}
+
+.route-optimization-container .route-optimization-header .fh-title { flex: 1 1 auto; margin: 0; }
+
+.route-optimization-container .route-optimization-error {
+  flex: 1 1 100%;
+  padding: 10px 14px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: #ffe1e1;
+  color: #b42318;
+  font-weight: 700;
+}
+
+.route-optimization-container .route-optimization-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.route-optimization-container .route-optimization-info span {
+  padding: 8px 14px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--pop);
+}
+
+.route-optimization-container .route-optimization-map-frame {
+  overflow: hidden;
+  isolation: isolate; /* keep Leaflet's z-indexed panes inside the frame */
+  border: 2.5px solid var(--ink);
+  border-radius: 22px;
+  box-shadow: 6px 6px 0 var(--ink);
+  background: #fff;
+}
+
+.route-optimization-container .route-optimization-map {
+  width: 100%;
+  height: min(65vh, 620px);
+  min-height: 340px;
+}
+
+.route-optimization-container .route-optimization-location-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.route-optimization-container .route-optimization-location-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.route-optimization-container .route-optimization-location-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 var(--ink);
+}
+
+.route-optimization-container .route-optimization-marker-icon {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+}
+
+/* match the map's marker colours */
+.route-optimization-container .route-optimization-marker-icon.start { background: #2aad27; }
+.route-optimization-container .route-optimization-marker-icon.end { background: #cb2b3e; }
+.route-optimization-container .route-optimization-marker-icon.ngo { background: #2a81cb; }
+
+.route-optimization-container .route-optimization-location-card h3 {
+  margin: 0 0 6px;
+  color: #555;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.route-optimization-container .route-optimization-location-card p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .route-optimization-container .route-optimization-page { padding: 24px 16px 48px; }
+  .route-optimization-container .route-optimization-map { height: 55vh; min-height: 300px; }
+}

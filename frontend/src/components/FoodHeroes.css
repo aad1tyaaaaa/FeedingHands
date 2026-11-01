@@ -1,152 +1,117 @@
-/* General Styles */
-body {
-  font-family: 'Poppins', sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f7f7f7;
-  color: #333;
-}
-
-/* Container */
-.food-heroes-container {
+/* Food Heroes (featured donor). Base look comes from PersonaTheme.css. */
+.food-heroes .food-heroes-container {
+  box-sizing: border-box;
   max-width: 1000px;
-  margin: auto;
-  padding: 20px;
-  text-align: center;
+  margin: 0 auto;
+  padding: 40px 24px 64px;
 }
 
-/* Header */
-.food-heroes-header {
-  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-  color: white;
-  padding: 30px 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.food-heroes-header h1 {
+/* Hero banner */
+.food-heroes .food-heroes-header {
+  display: block;
   margin: 0;
-  font-size: 28px;
+  padding: 36px 28px;
+  background: var(--accent);
+  color: #fff;
+  text-align: center;
+  transform: rotate(-1deg);
 }
 
-.food-heroes-header p {
-  font-size: 18px;
-  margin-top: 10px;
+.food-heroes .food-heroes-header h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.8rem, 4.5vw, 3rem);
+  text-shadow: 3px 3px 0 var(--ink);
 }
 
-/* Hero Section */
-.food-heroes-section {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  margin-top: 30px;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  gap: 20px;
-}
-
-.food-heroes-image {
-  width: 100%;
-  max-width: 400px;
-  border-radius: 10px;
-  transition: transform 0.3s ease-in-out;
-}
-
-.food-heroes-image:hover {
-  transform: scale(1.05);
-}
-
-.food-heroes-text {
-  max-width: 500px;
-  padding: 20px;
-  text-align: left;
-}
-
-.food-heroes-text h2 {
-  font-size: 24px;
-  color: #e63946;
-}
-
-.food-heroes-text p {
-  font-size: 16px;
-  margin-top: 10px;
-  color: #222;
-}
-
-/* Donate Button */
-.food-heroes-btn {
+.food-heroes .food-heroes-header p {
   display: inline-block;
-  padding: 12px 20px;
-  margin-top: 20px;
-  font-size: 16px;
-  color: white;
-  background: #e63946;
-  text-decoration: none;
-  border-radius: 5px;
-  transition: background 0.3s ease-in-out;
-  position: relative;
-  z-index: 2;
+  margin: 16px 0 0;
+  padding: 5px 12px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--pop);
+  color: var(--ink);
 }
 
-.food-heroes-btn:hover {
-  background: #d62839;
+/* Donor story */
+.food-heroes .food-heroes-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: 28px;
+  margin-top: 36px;
 }
 
-/* Contact Section */
-.food-heroes-contact {
-  margin-top: 40px;
-  background: #f1f1f1;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+.food-heroes .food-heroes-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 2.5px solid var(--ink);
+  border-radius: 16px;
+  transition: transform 0.2s;
 }
 
-.food-heroes-contact h2 {
-  font-size: 22px;
-  color: #2d6a4f;
+.food-heroes .food-heroes-image:hover { transform: rotate(-1.5deg) scale(1.02); }
+
+.food-heroes .food-heroes-text h2 {
+  margin: 0 0 12px;
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1.15;
 }
 
-.food-heroes-contact p {
-  font-size: 16px;
-  margin: 5px 0;
+.food-heroes .food-heroes-text p { margin: 0; color: #444; line-height: 1.6; }
+
+.food-heroes .food-heroes-text strong {
+  padding: 0 4px;
+  background: var(--pop);
+  color: var(--ink);
 }
 
-/* Footer */
-.food-heroes-footer {
-  margin-top: 20px;
-  padding: 15px;
-  background: #222;
-  color: white;
-  border-radius: 10px;
-  font-size: 14px;
+.food-heroes .food-heroes-btn { margin-top: 22px; }
+
+/* Contact */
+.food-heroes .food-heroes-contact { margin-top: 36px; }
+
+.food-heroes .food-heroes-contact h2 {
+  margin: 0 0 14px;
+  font-size: 1.4rem;
+  font-weight: 800;
 }
 
-.food-heroes-footer a {
-  color: #ff9a9e;
-  text-decoration: none;
+.food-heroes .food-heroes-contact p { margin: 6px 0; color: #333; }
+.food-heroes .food-heroes-contact p:first-of-type { font-size: 1.15rem; }
+
+/* Footer strip */
+.food-heroes .food-heroes-footer {
+  display: block;
+  margin-top: 28px;
+  padding: 18px 22px;
+  border: 2.5px solid var(--ink);
+  border-radius: 22px;
+  background: var(--ink);
+  color: #fff;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.85rem;
 }
 
-.food-heroes-footer a:hover {
-  text-decoration: underline;
+.food-heroes .food-heroes-footer p { margin: 0; }
+
+.food-heroes .food-heroes-footer a { color: var(--pop); font-weight: 700; }
+
+.food-heroes a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
 }
 
-/* Responsive Styles */
-@media (max-width: 768px) {
-  .food-heroes-section {
-    flex-direction: column;
-    text-align: center;
-  }
+.food-heroes .food-heroes-footer a:focus-visible { outline-color: var(--pop); }
 
-  .food-heroes-text {
-    text-align: center;
-    padding: 0;
-  }
-
-  .food-heroes-btn {
-    width: 80%;
-    max-width: 250px;
-  }
+@media (max-width: 760px) {
+  .food-heroes .food-heroes-container { padding: 24px 16px 48px; }
+  .food-heroes .food-heroes-header { padding: 28px 18px; transform: none; }
+  .food-heroes .food-heroes-section { grid-template-columns: 1fr; }
+  .food-heroes .food-heroes-btn { width: 100%; }
 }

@@ -6,6 +6,7 @@ import {
   FaLock,
   FaUsers,
 } from "react-icons/fa";
+import "./PersonaTheme.css";
 import "./FundraisingPage.css";
 
 const FundraisingPage = () => {
@@ -54,13 +55,15 @@ const FundraisingPage = () => {
   };
 
   return (
-    <>
-      <div className="fundraising-container">
+    <div className="fh-theme fundraising-page">
+      <div className="fh-blob" aria-hidden="true" />
+      <div className="fundraising-container fh-page">
         {/* Hero Section */}
         <div className="fundraising-hero">
           <div className="hero-content">
-            <h1>
-              Nourish Lives Through Your Generosity <FaHeart />
+            <span className="fh-chip">Fundraiser</span>
+            <h1 className="fh-title">
+              Nourish Lives Through Your <em>Generosity</em> <FaHeart aria-hidden="true" />
             </h1>
             <p>Every dollar provides 5 meals to those in need</p>
           </div>
@@ -71,23 +74,23 @@ const FundraisingPage = () => {
           {/* Impact Stats */}
           <div className="impact-stats">
             <div className="stat-card">
-              <FaUsers className="stat-icon" />
+              <FaUsers className="stat-icon" aria-hidden="true" />
               <h3>25,000+</h3>
               <p>People Fed Monthly</p>
             </div>
             <div className="stat-card">
-              <FaHeart className="stat-icon" />
+              <FaHeart className="stat-icon" aria-hidden="true" />
               <h3>1M+</h3>
               <p>Meals Provided</p>
             </div>
           </div>
           {/* Donation Form */}
           {submitted ? (
-            <div className="success-message">
+            <div className="success-message fh-card" role="status">
               <h2>Thank you for signing up!</h2>
             </div>
           ) : (
-            <form className="donation-form" onSubmit={handleSubmit}>
+            <form className="donation-form fh-card" onSubmit={handleSubmit}>
               <div className="amount-selection">
                 <h2>Select Donation Amount</h2>
                 <div className="preset-amounts">
@@ -107,11 +110,12 @@ const FundraisingPage = () => {
                 <div className="custom-amount">
                   <input
                     type="number"
+                    aria-label="Other amount in rupees"
                     placeholder="Other amount"
                     value={donationAmount}
                     onChange={(e) => setDonationAmount(e.target.value)}
                   />
-                  <span>Rupees</span>
+                  <span className="fh-label">Rupees</span>
                 </div>
               </div>
 
@@ -121,8 +125,9 @@ const FundraisingPage = () => {
                   <FaCreditCard /> Payment Information
                 </h2>
                 <div className="form-group">
-                  <label>Full Name</label>
+                  <label className="fh-label" htmlFor="fr-name">Full Name</label>
                   <input
+                    id="fr-name"
                     type="text"
                     name="name"
                     value={formData.name}
@@ -131,8 +136,9 @@ const FundraisingPage = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Email</label>
+                  <label className="fh-label" htmlFor="fr-email">Email</label>
                   <input
+                    id="fr-email"
                     type="email"
                     name="email"
                     value={formData.email}
@@ -141,10 +147,11 @@ const FundraisingPage = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Card Number</label>
+                  <label className="fh-label" htmlFor="fr-card">Card Number</label>
                   <div className="card-input">
-                    <FaCreditCard className="input-icon" />
+                    <FaCreditCard className="input-icon" aria-hidden="true" />
                     <input
+                      id="fr-card"
                       type="text"
                       name="cardNumber"
                       placeholder="1234 5678 9012 3456"
@@ -156,8 +163,9 @@ const FundraisingPage = () => {
                 </div>
                 <div className="card-info">
                   <div className="form-group">
-                    <label>Expiry Date</label>
+                    <label className="fh-label" htmlFor="fr-expiry">Expiry Date</label>
                     <input
+                      id="fr-expiry"
                       type="text"
                       name="expiry"
                       placeholder="MM/YY"
@@ -167,10 +175,11 @@ const FundraisingPage = () => {
                     />
                   </div>
                   <div className="form-group">
-                    <label>CVC</label>
+                    <label className="fh-label" htmlFor="fr-cvc">CVC</label>
                     <div className="cvc-input">
-                      <FaLock className="input-icon" />
+                      <FaLock className="input-icon" aria-hidden="true" />
                       <input
+                        id="fr-cvc"
                         type="text"
                         name="cvc"
                         placeholder="123"
@@ -183,7 +192,7 @@ const FundraisingPage = () => {
                 </div>
               </div>
 
-              <button type="submit" className="donate-btn">
+              <button type="submit" className="donate-btn fh-btn">
                 <FaDollarSign /> Donate Now
               </button>
 
@@ -193,10 +202,9 @@ const FundraisingPage = () => {
               </div>
             </form>
           )}
-          ;
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

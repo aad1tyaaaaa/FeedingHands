@@ -1,44 +1,46 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import "./PersonaTheme.css";
 import "./Note.css";
 import "./VolunteerForm";
 
 function Note() {
   console.log("Note component is being rendered");
   return (
-    <div className="note">
+    <div className="fh-theme note note-page">
+      <div className="fh-blob" aria-hidden="true" />
       <div className="content">
         <div className="bg-img">
           <div className="hero-content">
-            <h1>
-              Share Food, Share Love, <br /> Share Hope
+            <span className="fh-chip">Feeding Hands</span>
+            <h1 className="fh-title">
+              Share Food, Share Love, <br /> <em>Share Hope</em>
             </h1>
             <p>
               Join our mission to fight hunger and reduce food waste. Every{" "}
               <br /> donation makes a difference in someone's life.
             </p>
 
-            <Link to="/sign-in">
-              <button className="heroDonate-btn" aria-label="Donate Now">
+            <div className="hero-actions">
+              <Link to="/sign-in" className="heroDonate-btn fh-btn" aria-label="Donate Now">
                 Donate Now
-              </button>
-            </Link>
+              </Link>
 
-            <Link to="/Register">
-              <button
-                className="heroRegister-btn"
+              <Link
+                to="/Register"
+                className="heroRegister-btn fh-btn fh-btn--ghost"
                 aria-label="Register your organisation"
               >
                 Register Your Organization
-              </button>
-            </Link>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
       <div className="info-section">
         <h2>How Can You Help</h2>
         <div className="help-options">
-          <div className="help-option">
+          <div className="help-option fh-card">
             <h3>Donate Non-Perishable Food</h3>
             <p>
               Provide canned goods, rice, pasta, and other non-perishable items
@@ -46,7 +48,7 @@ function Note() {
             </p>
           </div>
 
-          <div className="help-option">
+          <div className="help-option fh-card">
             <h3>Donate Fresh Produce</h3>
             <p>
               Fruits and vegetables are essential for a balanced diet. Help
@@ -54,7 +56,7 @@ function Note() {
             </p>
           </div>
 
-          <div className="help-option">
+          <div className="help-option fh-card">
             <h3>Donate Prepared Meals</h3>
             <p>
               If you have prepared meals that are still safe to consume, share

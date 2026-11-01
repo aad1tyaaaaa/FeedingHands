@@ -6,7 +6,7 @@
  
 }
 body {
-  font-family: "Poppins", serif;
+  font-family: var(--font-fredoka), sans-serif;
 }
 /* footer {
   position: absolute;

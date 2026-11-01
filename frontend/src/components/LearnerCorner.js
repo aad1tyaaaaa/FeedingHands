@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./PersonaTheme.css";
 import "./LearnerCorner.css";
 
 const LearnerCorner = () => {
@@ -169,11 +170,12 @@ const LearnerCorner = () => {
   const totalPages = Math.ceil(filteredResources.length / itemsPerPage);
 
   return (
-    <div className="learners-corner">
-      <div className="learners-corner-content">
+    <div className="learners-corner fh-theme">
+      <div className="fh-blob" aria-hidden="true" />
+      <div className="learners-corner-content fh-page">
         {/* Left Column: Title, Subtitle, Search, and Categories */}
         <div className="learners-corner-left">
-          <h2 className="learners-title">Learners Corner</h2>
+          <h2 className="learners-title fh-title">Learners <em>Corner</em></h2>
           {/* <p className="learners-subtitle">
           Explore articles, videos, and resources on food waste management and sustainability.
           </p> */}
@@ -190,26 +192,30 @@ const LearnerCorner = () => {
           </div> */}
 
           {/* Category Filters */}
-          <div className="category-filters">
+          <div className="category-filters" role="group" aria-label="Filter by category">
             <button
+              aria-pressed={activeCategory === "all"}
               className={`category-btn ${activeCategory === "all" ? "active" : ""}`}
               onClick={() => setActiveCategory("all")}
             >
               All Resources
             </button>
             <button
+              aria-pressed={activeCategory === "composting"}
               className={`category-btn ${activeCategory === "composting" ? "active" : ""}`}
               onClick={() => setActiveCategory("composting")}
             >
               Composting
             </button>
             <button
+              aria-pressed={activeCategory === "recipes"}
               className={`category-btn ${activeCategory === "recipes" ? "active" : ""}`}
               onClick={() => setActiveCategory("recipes")}
             >
               Recipes
             </button>
             <button
+              aria-pressed={activeCategory === "storage"}
               className={`category-btn ${activeCategory === "storage" ? "active" : ""}`}
               onClick={() => setActiveCategory("storage")}
             >
@@ -221,7 +227,7 @@ const LearnerCorner = () => {
         {/* Right Column: Featured Resource and Resource Grid */}
         <div className="learners-corner-right">
           {featuredResource && (
-            <div className="featured-resource">
+            <div className="featured-resource fh-card">
               <div className="featured-content">
                 <div className="featured-image">
                   <img
@@ -230,10 +236,10 @@ const LearnerCorner = () => {
                   />
                 </div>
                 <div className="featured-text">
-                  <span className="featured-badge">Featured Resource</span>
+                  <span className="featured-badge fh-chip">Featured Resource</span>
                   <h3>{featuredResource.title}</h3>
                   <p>{featuredResource.description}</p>
-                  <a href="#" className="btn-primary">
+                  <a href="#" className="btn-primary fh-btn">
                     {featuredResource.type === "video"
                       ? "Watch Video"
                       : "Read Full Article"}
@@ -246,7 +252,7 @@ const LearnerCorner = () => {
           <div className="resources-grid">
             {currentItems.length > 0 ? (
               currentItems.map((resource) => (
-                <div className="resource-card" key={resource.id}>
+                <div className="resource-card fh-card" key={resource.id}>
                   <div className="card-image">
                     <img src={resource.imageSrc} alt={resource.title} />
                     <span className={`resource-type ${resource.type}`}>
@@ -277,7 +283,7 @@ const LearnerCorner = () => {
                 </div>
               ))
             ) : (
-              <div className="no-results">
+              <div className="no-results fh-card">
                 <p>No resources found. Try different keywords or categories.</p>
               </div>
             )}

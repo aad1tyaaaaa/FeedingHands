@@ -1,25 +1,68 @@
-.map-section {
-    margin: 2rem 0;
-    background: white;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .map-container {
-    margin-top: 1rem;
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-    z-index: 0;
-  }
-  
-  .leaflet-container {
-    height: 400px !important;
-    z-index: 1;
-  }
-  
-  .leaflet-marker-icon {
-    border: 2px solid #16a34a;
-    border-radius: 50%;
-  }
+.volunteer-map .map-container { display: grid; gap: 22px; }
+
+.volunteer-map .map-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+}
+
+.volunteer-map .map-header .fh-title { margin: 0; }
+
+.volunteer-map .route-info { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.volunteer-map .route-info span {
+  padding: 8px 14px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--pop);
+}
+
+.volunteer-map .map-frame {
+  overflow: hidden;
+  isolation: isolate; /* keep Leaflet's z-indexed panes inside the frame */
+  border: 2.5px solid var(--ink);
+  border-radius: 22px;
+  box-shadow: 6px 6px 0 var(--ink);
+  background: #fff;
+}
+
+.volunteer-map .map-frame #map { max-height: 640px; min-height: 320px; }
+
+.volunteer-map .location-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.volunteer-map .location-card { display: flex; align-items: flex-start; gap: 12px; padding: 18px; }
+
+.volunteer-map .location-card h3 {
+  margin: 0 0 6px;
+  color: #555;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.volunteer-map .location-card p { margin: 0; font-size: 0.95rem; line-height: 1.45; overflow-wrap: anywhere; }
+
+.volunteer-map .marker-icon {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+}
+
+.volunteer-map .marker-icon.start { background: var(--accent); }
+.volunteer-map .marker-icon.end { background: #f04438; }
+
+@media (max-width: 760px) {
+  .volunteer-map .map-container { padding: 24px 16px 48px; }
+  .volunteer-map .map-frame #map { height: 60vh !important; }
+}

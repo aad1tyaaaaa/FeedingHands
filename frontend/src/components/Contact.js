@@ -1,4 +1,5 @@
 import React from "react";
+import "./PersonaTheme.css";
 import "./Contact.css";
 import { Link, useNavigate } from "react-router-dom";
 import { FaChartBar, FaLeaf, FaHandsHelping } from "react-icons/fa"; // Import icons
@@ -8,14 +9,16 @@ import "./BiogasDonation";
 
 function Contact() {
   return (
-    <div className="activity">
-      <h1 className="activity-title">OUR ACTIVITY</h1>
-      <p className="activity-subtitle">
+    <div className="activity fh-theme fh-contact">
+      <div className="fh-blob" aria-hidden="true" />
+      <div className="fh-page">
+      <h1 className="activity-title fh-title">OUR <em>ACTIVITY</em></h1>
+      <p className="activity-subtitle fh-label">
         INCREASE IN THE AWARENESS AMONG PEOPLE ABOUT VARIOUS ISSUES
       </p>
 
       <div className="activity-container">
-        <div className="activity-card">
+        <div className="activity-card fh-card">
           <FaChartBar className="activity-icon" />
           <h2>Fundraising</h2>
           <p>
@@ -24,11 +27,11 @@ function Contact() {
             create a sustainable system to fight hunger in our communities.
           </p>
           <Link to="/FundraisingPage ">
-            <button className="activity-button">➜</button>
+            <button className="activity-button fh-btn" aria-label="Open Fundraising">➜</button>
           </Link>
         </div>
 
-        <div className="activity-card">
+        <div className="activity-card fh-card">
           <FaLeaf className="activity-icon" />
           <h2>Volunteering</h2>
           <p>
@@ -37,11 +40,11 @@ function Contact() {
             create a healthier, kinder world.
           </p>
           <Link to="/VolunteerForm">
-            <button className="activity-button">➜</button>
+            <button className="activity-button fh-btn" aria-label="Open Volunteering">➜</button>
           </Link>
         </div>
 
-        <div className="activity-card">
+        <div className="activity-card fh-card">
           <FaHandsHelping className="activity-icon" />
           <h2>Food to Biogas</h2>
           <p>
@@ -50,9 +53,10 @@ function Contact() {
             future.
           </p>
           <Link to="/BiogasDonation">
-            <button className="activity-button">➜</button>
+            <button className="activity-button fh-btn" aria-label="Open Food to Biogas">➜</button>
           </Link>
         </div>
+      </div>
       </div>
     </div>
   );

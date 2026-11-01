@@ -15,7 +15,7 @@ const ResultContainer = ({ freshnessStatus, expiryEstimate, confidenceLevel, cap
         <h3>Confidence Level</h3>
         <div id="confidence-indicator">{confidenceLevel}%</div>
       </div>
-      <button onClick={captureAndPredict}>Capture & Analyze</button>
+      <button className="fh-btn" onClick={captureAndPredict}>Capture & Analyze</button>
     </div>
   );
 };

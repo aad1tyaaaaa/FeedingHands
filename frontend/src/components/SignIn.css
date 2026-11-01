@@ -1,70 +1,202 @@
 /* SignIn.css */
+/* Locked to exactly one screen: sizes below scale with viewport height (vh) so nothing scrolls. */
+.signin-page {
+  display: flex;
+  flex-direction: row-reverse;
+  height: 100vh;
+  height: 100dvh; /* mobile browsers: excludes the address bar */
+  overflow: hidden;
+  background-color: #f5f5f7;
+}
+
+/* Width follows the video's own aspect ratio, so no letterbox bars. */
+.signin-video {
+  flex: none;
+  height: 100%;
+  width: auto;
+  max-width: 55vw;
+  object-fit: contain;
+}
+
+/* Right half: the framed card fills it edge to edge. */
+.signin-panel {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  /* even soft brand-green tint (no white centre, so no visible "card" behind the form) */
+  background-color: #eef7ee;
+}
+
+/* The content area: fills the right half; the frame is drawn behind it by ::before. */
 .signin-container {
+  flex: 1;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  background-color: #f5f5f7;
-  padding: 20px;
+  position: relative;
+  /* --u = on-screen size of 100 image px of the frame (shared with ::before below).
+     Padding = how deep the vegetables reach (~1.65 units top/bottom, ~1.5 sides) + a gap,
+     so text and fields always stay inside the frame, at every screen size. */
+  --u: clamp(24px, 5vh, 45px);
+  padding: calc(var(--u) * 1.7 + 4px) calc(var(--u) * 1.6 + 8px);
+  overflow-y: auto; /* safety net only: e.g. a long error on a tiny screen */
+}
+
+/* The vegetable frame is a background layer behind the content, not a box around it.
+   9-slice "round" keeps each vegetable at its natural shape (no squashing). */
+/* Slice = how far the vegetables reach into the 1448x1086 image (measured): 280px top/bottom,
+   250px sides, so no vegetable is cut off. --u is the on-screen size of 100 image px; widths keep
+   the same ratio as the slice so corners are never distorted. */
+.signin-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-style: solid;
+  border-color: transparent;
+  border-width: calc(var(--u) * 2.8) calc(var(--u) * 2.5);
+  border-image: url("/sign-in-border.png") 280 250 round;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* All content sits above the frame. */
+.signin-container > * {
+  position: relative;
+  z-index: 1;
+}
+
+.signin-logo {
+  width: auto;
+  max-width: 100%;
+  height: clamp(44px, 10vh, 100px);
+  object-fit: contain;
+  margin-bottom: clamp(2px, 0.8vh, 8px);
+  mix-blend-mode: multiply; /* hides the PNG's white background on the grey page */
 }
 
 .signin-container h2 {
-  font-size: 2rem;
-  color: #333;
-  margin-bottom: 20px;
+  font-family: var(--font-fredoka), sans-serif;
+  font-size: clamp(1.35rem, 3.6vh, 2rem);
+  font-weight: 600;
+  color: #1b4d1f;
+  margin: 0;
+}
+
+.signin-subtitle {
+  margin: clamp(2px, 0.6vh, 6px) 0 clamp(8px, 2.4vh, 24px);
+  color: #6b7a6c;
+  font-size: clamp(0.85rem, 1.8vh, 0.98rem);
+  text-align: center;
 }
 
 .signin-container form {
   display: flex;
   flex-direction: column;
+  gap: clamp(8px, 1.9vh, 18px);
   width: 100%;
-  max-width: 400px;
-  padding: 20px;
-  background-color: rgb(243, 250, 249);
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20%;
+  max-width: 420px; /* keep inputs readable inside the full-height frame */
 }
 
-.signin-container input {
-  padding: 12px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+/* margin: 0 overrides .form-group/label rules from other pages' global CSS */
+.signin-container .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3px, 0.6vh, 6px);
+  margin: 0;
+}
+
+.signin-container .form-group label {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2e3b2f;
+}
+
+.signin-container .form-group input {
+  width: 100%;
+  box-sizing: border-box;
+  height: clamp(36px, 5.2vh, 48px);
+  margin: 0;
+  padding: 0 14px;
+  border: 1.5px solid #d6e2d7;
+  border-radius: 10px;
+  background-color: #ffffff;
   font-size: 1rem;
+  color: #1f2a20;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
 }
 
-.signin-container input:focus {
-  border-color: #007bff;
+.signin-container .form-group input::placeholder {
+  color: #9aa79b;
+}
+
+.signin-container .form-group input:hover {
+  border-color: #b5ccb7;
+}
+
+.signin-container .form-group input:focus {
   outline: none;
+  border-color: #4caf50;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.18);
 }
 
 .signin-container button {
-  padding: 12px;
-  margin-top: 10px;
-  background-color: #007bff;
-  color: white;
+  height: clamp(38px, 5.4vh, 50px);
+  margin-top: clamp(0px, 0.4vh, 4px);
   border: none;
-  border-radius: 4px;
-  font-size: 1rem;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  box-shadow: 0 6px 16px rgba(46, 125, 50, 0.28);
+  transition: transform 0.15s, box-shadow 0.2s, filter 0.2s;
 }
 
 .signin-container button:hover {
-  background-color: #0056b3;
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(46, 125, 50, 0.35);
+}
+
+.signin-container button:active {
+  transform: translateY(0);
+}
+
+.signin-container button:focus-visible {
+  outline: 3px solid rgba(76, 175, 80, 0.45);
+  outline-offset: 2px;
+}
+
+.signin-container button:disabled {
+  filter: grayscale(0.4);
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .signin-footer {
-  color: #035770;
-  display: block;
-  margin: 8px 0;
-  font-size: 0.95rem;
+  margin: 0;
+  padding: clamp(5px, 1.1vh, 10px) 14px;
+  border-radius: 10px;
+  background-color: #eef7ee;
+  border: 1px dashed #a5d6a7;
+  color: #2e7d32;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.signin-footer strong {
+  color: #1b5e20;
 }
 
 .signin-footer a {
-  color: #007bff;
+  color: #2e7d32;
   text-decoration: none;
   font-weight: 600;
 }
@@ -74,10 +206,68 @@
 }
 
 .error-message {
-  margin-bottom: 1rem;
-  padding: 0.9rem 1rem;
-  border-radius: 8px;
-  background: rgba(255, 237, 237, 0.9);
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #fdecec;
   color: #b32d2e;
   border: 1px solid #f5c6cb;
+  font-size: 0.92rem;
+}
+
+.signin-switch {
+  margin: clamp(8px, 2vh, 20px) 0 0;
+  color: #5b6b5c;
+  font-size: 0.95rem;
+}
+
+.signin-switch a {
+  color: #2e7d32;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.signin-switch a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Responsive ---------- */
+
+/* Tablets / small laptops: give the form more room, thinner frame. */
+@media (max-width: 1024px) {
+  .signin-video {
+    max-width: 45vw;
+  }
+
+  .signin-container {
+    --u: clamp(24px, 4.5vh, 40px);
+  }
+}
+
+/* Portrait tablets: the video would be a thin column with empty bars above/below, so hide it. */
+@media (max-width: 1024px) and (orientation: portrait) {
+  .signin-video {
+    display: none;
+  }
+}
+
+/* Phones: no room for video + form on one screen, so the framed form takes it all. */
+@media (max-width: 768px) {
+  .signin-video {
+    display: none;
+  }
+
+  .signin-container {
+    --u: clamp(16px, 3.4vh, 28px);
+  }
+
+  .signin-logo {
+    height: clamp(40px, 8vh, 80px);
+  }
+}
+
+/* Small phones: thinnest frame so the inputs keep their width. */
+@media (max-width: 420px) {
+  .signin-container {
+    --u: clamp(14px, 3vh, 18px);
+  }
 }

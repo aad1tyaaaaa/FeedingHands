@@ -157,19 +157,30 @@ function ImageRecognition() {
   };
 
   return (
-    <div className="app-container">
+    <div className="fh-theme image-recognition">
+      <div className="fh-blob" aria-hidden="true" />
+      <div className="app-container fh-page">
       <div className="header">
-        <h1>Food Freshness Detector</h1>
+        <h1 className="fh-title">Food <em>Freshness</em> Detector</h1>
         <p className="subtitle">Upload an image or use your webcam for live freshness detection</p>
       </div>
 
-      <div className="main-content">
+      <div className="main-content fh-card">
         <div className="upload-section">
           {!webcamMode && (
             <>
               <div
                 className="upload-area"
+                role="button"
+                tabIndex={0}
+                aria-label="Select an image"
                 onClick={() => fileInputRef.current.click()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    fileInputRef.current.click();
+                  }
+                }}
                 style={{ cursor: loading ? "wait" : "pointer" }}
               >
                 {imagePreview ? (
@@ -201,7 +212,7 @@ function ImageRecognition() {
               />
 
               <button
-                className={`analyze-button ${loading ? "disabled" : ""}`}
+                className={`analyze-button fh-btn ${loading ? "disabled" : ""}`}
                 onClick={handleAnalyze}
                 disabled={loading || !image}
               >
@@ -215,20 +226,21 @@ function ImageRecognition() {
           {error && <div className="error-message">⚠️ {error}</div>}
         </div>
 
-        {webcamMode && <div ref={webcamRef}></div>}
+        {webcamMode && <div className="webcam-view" ref={webcamRef}></div>}
 
         {result && (
-          <div className="result-section">
+          <div className="result-section" aria-live="polite">
             <h2>Analysis Results</h2>
             <div
               className="result-card"
-              style={{ borderLeft: `8px solid ${getFreshnessColor(result.confidence)}` }}
+              style={{ borderLeft: `10px solid ${getFreshnessColor(result.confidence)}` }}
             >
-              <p><b>Status:</b> {result.class}</p>
-              <p><b>Confidence:</b> {result.confidence}%</p>
+              <p><b className="fh-label">Status:</b> {result.class}</p>
+              <p><b className="fh-label">Confidence:</b> {result.confidence}%</p>
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

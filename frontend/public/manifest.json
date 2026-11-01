@@ -1,6 +1,6 @@
 {
-    "name": "Feeding Hands",
-    "short_name": "FoodDonate",
+    "name": "FeedingHands",
+    "short_name": "FeedingHands",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",

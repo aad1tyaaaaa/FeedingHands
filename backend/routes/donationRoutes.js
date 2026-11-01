@@ -6,7 +6,7 @@ import {
   listDonations,
   updateDonationStatus,
 } from "../controllers/donationController.js";
-import { requireAuth } from "../middleware/auth.js";
+// import { requireAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -14,6 +14,6 @@ router.post("/", createDonation);
 router.get("/", listDonations);
 router.get("/tracking/:trackingId", getTrackingByTrackingId);
 router.get("/:id", getDonationById);
-router.patch("/:id/status", requireAuth, updateDonationStatus);
+router.patch("/:id/status", updateDonationStatus);
 
 export default router;

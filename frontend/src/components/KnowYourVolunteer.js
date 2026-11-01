@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import "./PersonaTheme.css";
 import "./KnowYourVolunteer.css";
 import { apiFetch } from "../api/client";
 
@@ -19,25 +20,26 @@ const KnowYourVolunteer= () => {
   }
 
   return (
-    <div>
+    <div className="fh-theme theme-volunteer know-volunteer">
+      <div className="fh-blob" aria-hidden="true" />
       {/* Volunteers Section */}
-      <div>
-        <h4>Volunteer Detail</h4>
+      <div className="fh-page">
+        <h4 className="fh-title">Volunteer <em>Detail</em></h4>
         {/* <button onClick={fetchVolunteers}>Refresh</button> */}
         {volunteers.length > 0 ? (
           volunteers.map((volunteer, index) => (
-            <div key={index} className="volunteer-card">
+            <div key={index} className="volunteer-card fh-card">
               <p>
-                <strong>Name:</strong> {volunteer.name}
+                <strong className="fh-label">Name:</strong> {volunteer.name}
               </p>
               
               <p>
-                <strong>Contact:</strong> {volunteer.phone}
+                <strong className="fh-label">Contact:</strong> {volunteer.phone}
               </p>
             </div>
           ))
         ) : (
-          <p>No volunteers found.</p>
+          <p className="fh-card volunteer-empty">No volunteers found.</p>
         )}
       </div>
     </div>

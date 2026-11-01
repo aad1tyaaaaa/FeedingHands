@@ -1,38 +1,21 @@
-.city-insights-container {
-  padding: 20px;
-  font-family: Arial, sans-serif;
+.city-insights .city-insights-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  max-width: 560px;
 }
 
-button {
-  padding: 10px 20px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  cursor: pointer;
+.city-insights .city-insights-form input { flex: 1 1 200px; min-width: 0; }
+
+.city-insights pre {
+  margin: 28px 0 0;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  line-height: 1.5;
 }
 
-button:hover {
-  background-color: #45a049;
-}
-
-.insights-display {
-  margin-top: 20px;
-}
-
-h3 {
-  color: #333;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-ul li {
-  margin-bottom: 8px;
-  color: #555;
-}
-
-p {
-  color: #777;
+@media (max-width: 760px) {
+  .city-insights .fh-page { padding: 24px 16px 48px; }
+  .city-insights .city-insights-form .fh-btn { width: 100%; }
 }

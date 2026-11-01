@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./PersonaTheme.css";
 import "./Register.css";
 import { apiFetch } from "../api/client";
 
@@ -106,8 +107,10 @@ function Register() {
   };
 
   return (
-    <div className="register-organization-container">
-      <h2>Register Your Organization</h2>
+    <div className="register-page fh-theme">
+      <div className="fh-blob" aria-hidden="true" />
+      <div className="register-organization-container fh-card">
+      <h2 className="fh-title">Register Your <em>Organization</em></h2>
       <form onSubmit={handleSubmit} className="register-form">
         <div className="form-group">
           <label htmlFor="organizationName">Organization Name</label>
@@ -121,16 +124,15 @@ function Register() {
         </div>
         <div className="form-group">
           <label htmlFor="organizationLocation">Organization Location</label>
-          <div style={{ display: "flex", gap: "8px" }}>
+          <div className="register-locate">
             <input
               type="text"
               id="organizationLocation"
               value={organizationLocation}
               onChange={(e) => setOrganizationLocation(e.target.value)}
               required
-              style={{ flex: 1 }}
             />
-            <button type="button" onClick={handleLocateMe}>
+            <button type="button" className="fh-btn fh-btn--pop" onClick={handleLocateMe}>
               Locate Me
             </button>
           </div>
@@ -174,11 +176,12 @@ function Register() {
             required
           />
         </div>
-        <button type="submit" className="register-btn" disabled={loading}>
+        <button type="submit" className="register-btn fh-btn" disabled={loading}>
           {loading ? "Registering..." : "Register Organization"}
         </button>
         {error && <p className="error-message">{error}</p>}
       </form>
+      </div>
     </div>
   );
 }

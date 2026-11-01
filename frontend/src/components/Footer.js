@@ -4,7 +4,7 @@ import "./Footer.css";
 
 function Footer() {
   return (
-    <footer className="footer">
+    <footer className="footer fh-site-footer">
       <div className="footer-container">
         <div className="footer-section about">
           <h2>About Us</h2>

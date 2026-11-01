@@ -207,18 +207,22 @@ const ForecastChart = ({ eventType }) => {
         {loading ? (
           <div className="loading">Loading forecast data...</div>
         ) : (
-            <ResponsiveContainer width="150%" height={400}>
+          <div className="forecast-scroll">
+            <ResponsiveContainer width="100%" height={400}>
             <LineChart
               data={data}
               onMouseLeave={() => setHoveredMonth(null)}
-              margin={{ left: 60, right: 20 }} // Add margin to prevent clipping
+              margin={{ top: 10, left: 10, right: 24, bottom: 10 }} // Add margin to prevent clipping
             >
               <XAxis
                 dataKey="month"
                 tickFormatter={(month) => months[month - 1]}
-                tick={{ angle: -25, textAnchor: "end", fontSize: 12 }}
+                tick={{ angle: -25, textAnchor: "end", fontSize: 12, fill: "#141414" }}
+                stroke="#141414"
+                strokeWidth={2}
+                height={60}
               />
-              <YAxis />
+              <YAxis stroke="#141414" strokeWidth={2} tick={{ fill: "#141414", fontSize: 12 }} />
               <Tooltip
                 formatter={(value) => {
                   const foodEstimates = calculateFoodEstimate(value);
@@ -228,17 +232,27 @@ const ForecastChart = ({ eventType }) => {
                   ];
                 }}
                 labelFormatter={(label) => months[label - 1]}
-                cursor={{ stroke: "red", strokeWidth: 2 }}
+                cursor={{ stroke: "#141414", strokeWidth: 2, strokeDasharray: "4 4" }}
+                contentStyle={{
+                  border: "2.5px solid #141414",
+                  borderRadius: 14,
+                  boxShadow: "4px 4px 0 #141414",
+                  whiteSpace: "pre-line",
+                }}
               />
               <Legend />
-              <CartesianGrid stroke="#ddd" strokeDasharray="5 5" />
+              <CartesianGrid stroke="rgba(20,20,20,0.15)" strokeDasharray="5 5" />
               <Line
                 type="monotone"
                 dataKey="count"
-                stroke="#6366f1"
-                strokeWidth={3}
+                stroke="#6c4cff"
+                strokeWidth={4}
+                dot={{ r: 5, fill: "#6c4cff", stroke: "#141414", strokeWidth: 2 }}
                 activeDot={{
-                  r: 8,
+                  r: 9,
+                  fill: "#ff8ad8",
+                  stroke: "#141414",
+                  strokeWidth: 2.5,
                   onMouseEnter: (e) => {
                     setHoveredMonth(months[e.month - 1]);
                     setHoveredData(calculateFoodEstimate(e.count));
@@ -247,6 +261,7 @@ const ForecastChart = ({ eventType }) => {
               />
             </LineChart>
           </ResponsiveContainer>
+          </div>
         )}
       </div>
 

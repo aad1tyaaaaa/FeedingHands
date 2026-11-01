@@ -1,46 +1,29 @@
-/* Container Styling */
-.volunteer-container {
-    max-width: 800px;
-    margin: auto;
-    padding: 20px;
-    text-align: center;
-  }
-  
-  /* Title Styling */
-  h4 {
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 20px;
-    text-transform: uppercase;
-  }
-  
-  /* Volunteer Card Styling */
-  .volunteer-card {
-    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-    padding: 15px;
-    margin: 10px 0;
-    border-radius: 12px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease-in-out;
-  }
-  
-  .volunteer-card:hover {
-    transform: scale(1.05);
-  }
-  
-  /* Text Styling */
-  .volunteer-card p {
-    font-size: 18px;
-    margin: 5px 0;
-    color: #333;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 600px) {
-    .volunteer-card {
-      padding: 12px;
-      font-size: 16px;
-    }
-  }
-  
+.know-volunteer .fh-page {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 22px;
+  align-content: start;
+}
+
+.know-volunteer .fh-title { grid-column: 1 / -1; margin-bottom: 6px; }
+
+.know-volunteer .volunteer-card {
+  display: grid;
+  gap: 12px;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.know-volunteer .volunteer-card:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--ink); }
+.know-volunteer .volunteer-card:nth-child(3n + 2) { background: var(--pop); }
+
+.know-volunteer .volunteer-card p {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.know-volunteer .volunteer-card strong { color: #555; }
+.know-volunteer .volunteer-empty { grid-column: 1 / -1; margin: 0; font-weight: 700; }
