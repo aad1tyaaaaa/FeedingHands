@@ -11,7 +11,8 @@
   --line: #f1e1d6;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --spring: cubic-bezier(0.34, 1.4, 0.64, 1);
-  --orbit: clamp(260px, 38vmin, 380px);
+  --orbit: clamp(180px, min(100vw - 100px, 100dvh - 500px), 380px);
+  --tile: clamp(40px, calc(var(--orbit) * 0.17), 58px);
 
   position: fixed;
   inset: 0;
@@ -89,9 +90,9 @@
   left: 50%;
   display: grid;
   place-items: center;
-  width: 58px;
-  height: 58px;
-  margin: -29px 0 0 -29px;
+  width: var(--tile);
+  height: var(--tile);
+  margin: calc(var(--tile) / -2) 0 0 calc(var(--tile) / -2);
   border: 2px solid #fff;
   border-radius: 20px;
   background: #fff;
@@ -219,7 +220,7 @@
 
 .landing-scenery { display: none; }
 
-@media (min-width: 1280px) {
+@media (min-width: 1440px) and (min-height: 760px) {
   .landing-scenery { position: fixed; inset: 0; z-index: 0; display: block; pointer-events: none; }
   .landing-top,
   .landing-main { position: relative; z-index: 1; }
@@ -331,10 +332,26 @@
   .landing-top { padding-top: 20px; }
   .landing-wordmark { height: 38px; }
   .landing-main { gap: 22px; }
-  .landing-planet-tile { width: 48px; height: 48px; margin: -24px 0 0 -24px; border-radius: 16px; }
+  .landing-planet-tile { border-radius: 16px; }
   .landing-planet-tile svg { width: 22px; height: 22px; }
+  .landing-step::after { display: none; }
   .landing-sub { font-size: 1rem; }
   .landing-step { padding-right: 13px; font-size: 0.92rem; }
+}
+
+/* phone landscape: orbit beside the copy instead of above it */
+@media (max-height: 520px) and (orientation: landscape) {
+  .fh-theme.landing { --orbit: clamp(150px, 100dvh - 140px, 260px); }
+  .landing-top { padding-top: 12px; }
+  .landing-wordmark { height: 32px; }
+  .landing-main { display: grid; grid-template-columns: auto minmax(0, 440px); justify-content: center; align-content: center; gap: 14px 40px; padding: 12px 20px 20px; }
+  .landing-orbit { grid-row: 1 / span 3; margin: 0; }
+  .landing-title { font-size: 2.2rem; }
+  .landing-sub { font-size: 0.98rem; }
+  .landing-step { padding-right: 13px; font-size: 0.9rem; }
+  .landing-journey { display: grid; grid-template-columns: repeat(2, auto); justify-content: center; }
+  .landing-step::after { display: none; }
+  .landing-cta { grid-column: 2; justify-self: center; min-height: 48px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -342,3 +359,6 @@
   .landing *::before,
   .landing::before { animation: none !important; transition: none !important; }
 }
+
+/* Chatbase widget floats over the splash; only show it once past the landing. */
+body:has(.landing) [id^="chatbase-"] { display: none !important; }
