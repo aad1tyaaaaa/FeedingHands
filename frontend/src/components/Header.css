@@ -3,7 +3,7 @@
 .fh-site-header {
   position: relative;
   z-index: 10;
-  font-family: "Bricolage Grotesque", "Poppins", sans-serif;
+  font-family: var(--font-fredoka), "Fredoka", sans-serif;
   color: var(--ink, #141414);
 }
 
@@ -15,7 +15,7 @@
   padding: 8px 24px;
   background: var(--ink, #141414);
   color: #fff;
-  font-family: var(--mono, "Space Mono", monospace);
+  font-family: var(--mono, var(--font-fredoka), "Fredoka", sans-serif);
   font-size: 0.75rem;
   letter-spacing: 0.04em;
 }

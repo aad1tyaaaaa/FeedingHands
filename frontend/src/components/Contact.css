@@ -29,18 +29,18 @@
 .fh-contact .activity-card:nth-child(2) { animation-delay: 0.08s; }
 .fh-contact .activity-card:nth-child(3) { animation-delay: 0.16s; }
 
-.fh-contact .activity-card:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--ink); }
+.fh-contact .activity-card:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--fh-hard, var(--ink)); }
 
 .fh-contact .activity-icon {
   box-sizing: content-box;
   width: 30px;
   height: 30px;
   padding: 12px;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 16px;
   background: var(--pop);
   color: var(--ink);
-  box-shadow: 3px 3px 0 var(--ink);
+  box-shadow: 3px 3px 0 var(--fh-hard, var(--ink));
   transform: rotate(-6deg);
 }
 

@@ -11,7 +11,7 @@ const FoodHeroes = () => {
       <div className="fh-blob" aria-hidden="true" />
       <div className="food-heroes-container">
       <header className="food-heroes-header fh-card">
-        <h1 className="fh-title">🌟 Featured Donor: Grand Royale Hotel 🌟</h1>
+        <h1 className="fh-title">Featured donor: Grand Royale Hotel</h1>
         <p className="fh-label">Making a difference, one meal at a time.</p>
       </header>
 

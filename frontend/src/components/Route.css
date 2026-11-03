@@ -13,7 +13,7 @@
 .route-optimization-container .route-optimization-error {
   flex: 1 1 100%;
   padding: 10px 14px;
-  border: 2px solid var(--ink);
+  border: var(--fh-border, 2px solid var(--ink));
   border-radius: 12px;
   background: #ffe1e1;
   color: #b42318;
@@ -28,7 +28,7 @@
 
 .route-optimization-container .route-optimization-info span {
   padding: 8px 14px;
-  border: 2px solid var(--ink);
+  border: var(--fh-border, 2px solid var(--ink));
   border-radius: 999px;
   background: var(--pop);
 }
@@ -36,9 +36,9 @@
 .route-optimization-container .route-optimization-map-frame {
   overflow: hidden;
   isolation: isolate; /* keep Leaflet's z-indexed panes inside the frame */
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 22px;
-  box-shadow: 6px 6px 0 var(--ink);
+  box-shadow: 6px 6px 0 var(--fh-hard, var(--ink));
   background: #fff;
 }
 
@@ -64,7 +64,7 @@
 
 .route-optimization-container .route-optimization-location-card:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 8px 8px 0 var(--ink);
+  box-shadow: 8px 8px 0 var(--fh-hard, var(--ink));
 }
 
 .route-optimization-container .route-optimization-marker-icon {
@@ -72,7 +72,7 @@
   width: 22px;
   height: 22px;
   margin-top: 2px;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 50%;
 }
 

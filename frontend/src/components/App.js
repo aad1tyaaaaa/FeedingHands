@@ -42,6 +42,7 @@ import FoodSpoiledPage from "./FoodSpoiledPage";
 import ArDetection from "./ArDetection";
 import Event_prediction from "./Event_prediction";
 import Route_Optimization from "./Route_Optimization";
+import PersonaDashboardShell from "./PersonaDashboardShell";
 function AppContent() {
   // Initialize location so we can conditionally render elements if needed
   const location = useLocation();
@@ -57,35 +58,38 @@ function AppContent() {
             <Routes>
               {/* Replace the home page with the loading screen */}
               <Route path="/" element={<LoaderRedirect />} />
-              <Route path="/Donate" element={<Donate />} />
-              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/sign-in" element={<SignIn />} />
               <Route path="/persona-login" element={<PersonaLogin />} />
               <Route path="/sign-up" element={<SignUp />} />
               <Route path="/Register" element={<Register />} />
-              <Route path="/VolunteerMap" element={<VolunteerMap />} />
-              <Route path="/DonationOptions" element={<DonationOptions />} />
-              <Route path="/donateFood" element={<DonateFood />} />
-              <Route path="/VolunteerForm" element={<VolunteerForm />} />
-              <Route path="/FundraisingPage" element={<FundraisingPage />} />
-              <Route path="/BiogasDonation" element={<BiogasDonation />} />
               <Route path="/RoleSelection" element={<RoleSelection />} />
               <Route path="/role-selection" element={<RoleSelection />} />
-              <Route path="/LearnerCorner" element={<LearnerCorner />} />
-              <Route path="/NgoDashboard" element={<NgoDashboard />} />
-              <Route path="/VolunteerDashboard" element={<VolunteerDashboard />} />
-              <Route path="/NgoTracking" element={<NgoTracking />} />
-              <Route path="/Tracking" element={<Tracking />} />
-              <Route path="/DeliveryTrackingPage" element={<DeliveryTrackingPage />} />
-              <Route path="/FoodHeroes" element={<FoodHeroes />} />
-              <Route path="/KnowYourVolunteer" element={<KnowYourVolunteer />} />
-              <Route path="/KnowYourNgo" element={<KnowYourNgo />} />
-              <Route path="/GiftCard" element={<GiftCard />} />
-              <Route path="/ImageRecognition" element={<ImageRecognition />} />
-              <Route path="/FoodSpoiledPage" element={<FoodSpoiledPage />} />
-              <Route path="/ArDetection" element={<ArDetection />} />
-              <Route path="/Event_prediction" element={<Event_prediction />} />
-              <Route path="/Route_Optimization" element={<Route_Optimization />} />
+              {/* Every in-app page shares the persona sidebar. */}
+              <Route element={<PersonaDashboardShell />}>
+                <Route path="/Donate" element={<Donate />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/VolunteerMap" element={<VolunteerMap />} />
+                <Route path="/DonationOptions" element={<DonationOptions />} />
+                <Route path="/donateFood" element={<DonateFood />} />
+                <Route path="/VolunteerForm" element={<VolunteerForm />} />
+                <Route path="/FundraisingPage" element={<FundraisingPage />} />
+                <Route path="/BiogasDonation" element={<BiogasDonation />} />
+                <Route path="/LearnerCorner" element={<LearnerCorner />} />
+                <Route path="/NgoDashboard" element={<NgoDashboard />} />
+                <Route path="/VolunteerDashboard" element={<VolunteerDashboard />} />
+                <Route path="/NgoTracking" element={<NgoTracking />} />
+                <Route path="/Tracking" element={<Tracking />} />
+                <Route path="/DeliveryTrackingPage" element={<DeliveryTrackingPage />} />
+                <Route path="/FoodHeroes" element={<FoodHeroes />} />
+                <Route path="/KnowYourVolunteer" element={<KnowYourVolunteer />} />
+                <Route path="/KnowYourNgo" element={<KnowYourNgo />} />
+                <Route path="/GiftCard" element={<GiftCard />} />
+                <Route path="/ImageRecognition" element={<ImageRecognition />} />
+                <Route path="/FoodSpoiledPage" element={<FoodSpoiledPage />} />
+                <Route path="/ArDetection" element={<ArDetection />} />
+                <Route path="/Event_prediction" element={<Event_prediction />} />
+                <Route path="/Route_Optimization" element={<Route_Optimization />} />
+              </Route>
             </Routes>
           </DonationProvider>
         </FoodTrackingProvider>

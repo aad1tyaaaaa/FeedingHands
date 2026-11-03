@@ -24,7 +24,7 @@
   font-size: 2.4rem;
   letter-spacing: 0;
   text-transform: none;
-  text-shadow: 3px 3px 0 var(--ink);
+  text-shadow: 3px 3px 0 var(--fh-hard, var(--ink));
 }
 .fh-theme.fundraising-page .stat-card p {
   margin: 0;
@@ -56,18 +56,18 @@
 
 .fundraising-page .amount-btn {
   padding: 12px 8px;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 14px;
   background: #fff;
   color: var(--ink);
   font-family: var(--mono);
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 3px 3px 0 var(--ink);
+  box-shadow: 3px 3px 0 var(--fh-hard, var(--ink));
   transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
 }
 
-.fundraising-page .amount-btn:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
+.fundraising-page .amount-btn:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--fh-hard, var(--ink)); }
 .fundraising-page .amount-btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--ink); }
 .fundraising-page .amount-btn.selected { background: var(--pop); }
 

@@ -7,7 +7,7 @@
 
 //   return (
 //     <div className="app-container">
-//       <h1>📊 Ghatkopar Event Forecast</h1>
+//       <h1>Ghatkopar event forecast</h1>
 
 //       <select
 //         className="event-dropdown"
@@ -49,7 +49,7 @@ function Event_prediction() {
     <div className="fh-theme theme-organization event-prediction">
       <div className="fh-blob" aria-hidden="true" />
       <div className="app-container fh-page">
-        <h1 className="fh-title">📊 Ghatkopar Event Forecast</h1>
+        <h1 className="fh-title">Ghatkopar event forecast</h1>
 
         <select
           className="event-dropdown"

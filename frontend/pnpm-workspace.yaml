@@ -1,0 +1,6 @@
+allowBuilds:
+  '@firebase/util': false
+  aws-sdk: false
+  bcrypt: false
+  core-js: false
+  supabase: false

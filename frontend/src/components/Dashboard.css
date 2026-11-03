@@ -34,41 +34,6 @@
   /* Keep your shadow and border radius definitions */
 }
 
-/* Base styles and resets */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: var(--font-fredoka), sans-serif;
-  background: #f0f2f5;
-  color: var(--text-dark);
-  line-height: 1.6;
-  overflow-x: hidden;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 12px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--primary-light);
-  border-radius: 10px;
-  border: 3px solid #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--primary);
-}
-
 /* Donor dashboard — base look comes from PersonaTheme.css. */
 .donor-dash {
   max-width: 1200px;
@@ -89,9 +54,9 @@ body {
   padding: 28px;
   background: var(--accent);
   color: #fff;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 22px;
-  box-shadow: 6px 6px 0 var(--ink);
+  box-shadow: 6px 6px 0 var(--fh-hard, var(--ink));
   animation: fh-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
 }
 
@@ -101,13 +66,13 @@ body {
   width: 72px;
   height: 72px;
   margin-bottom: 16px;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 20px;
   background: var(--pop);
   color: var(--ink);
   font-size: 2rem;
   font-weight: 800;
-  box-shadow: 3px 3px 0 var(--ink);
+  box-shadow: 3px 3px 0 var(--fh-hard, var(--ink));
   transform: rotate(-6deg);
 }
 
@@ -126,7 +91,7 @@ body {
 .donor-dash .progress-bar {
   height: 18px;
   overflow: hidden;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 999px;
   background: #fff;
 }
@@ -160,12 +125,12 @@ body {
   display: grid;
   place-items: center;
   padding: 8px;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 14px;
   background: var(--pop);
   color: var(--ink);
   cursor: pointer;
-  box-shadow: 3px 3px 0 var(--ink);
+  box-shadow: 3px 3px 0 var(--fh-hard, var(--ink));
 }
 
 .donor-dash .menu {
@@ -178,7 +143,7 @@ body {
   padding-top: 72px;
   background: var(--ink);
   color: var(--pop);
-  border-right: 2.5px solid var(--ink);
+  border-right: var(--fh-border, 2.5px solid var(--ink));
   transition: left 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -227,4 +192,20 @@ body {
 @media (max-width: 640px) {
   .donor-dash { grid-template-columns: 1fr; grid-template-areas: "profile" "stats" "chart"; padding: 80px 16px 48px; }
   .donor-dash .stats { grid-template-columns: 1fr; }
+}
+
+.donor-dashboard-grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(250px, 0.85fr); gap: 18px; margin-bottom: 18px; }
+.donor-chart-panel { min-height: 338px; }
+.donor-chart { position: relative; height: 248px; }
+.donor-chart-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 12px; }
+.donor-recent-panel { margin-bottom: 18px; }
+
+@media (max-width: 960px) {
+  .donor-dashboard-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .donor-chart-panel { min-height: 0; }
+  .donor-chart { height: 220px; }
+  .donor-dashboard .workspace-heading { margin-bottom: 18px; }
 }

@@ -1,18 +1,16 @@
-@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Space+Mono:wght@400;700&display=swap");
-
 /* Shared persona theme: login + donor / volunteer / organization dashboards. */
 .fh-theme {
   --ink: #141414;
   --bg: #fff4e6;
   --accent: #ff6b2c;
   --pop: #c6ff3d;
-  --mono: "Space Mono", monospace;
+  --mono: var(--font-fredoka), "Fredoka", sans-serif;
   position: relative;
   isolation: isolate;
   min-height: 100vh;
   color: var(--ink);
   background: var(--bg);
-  font-family: "Bricolage Grotesque", "Poppins", sans-serif;
+  font-family: var(--font-fredoka), "Fredoka", sans-serif;
   transition: background 0.7s ease;
 }
 
@@ -95,13 +93,13 @@
   width: 54px;
   height: 54px;
   padding: 0;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 50%;
   background: var(--pop);
   color: var(--ink);
   font-family: var(--mono);
   font-weight: 700;
-  box-shadow: 3px 3px 0 var(--ink);
+  box-shadow: 3px 3px 0 var(--fh-hard, var(--ink));
   transform: rotate(-6deg);
 }
 
@@ -120,15 +118,15 @@
   box-sizing: border-box;
   padding: 24px;
   background: #fff;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 22px;
-  box-shadow: 6px 6px 0 var(--ink);
+  box-shadow: 6px 6px 0 var(--fh-hard, var(--ink));
   text-align: left;
   animation: fh-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
 }
 
 .fh-theme .stat-card { transition: transform 0.15s, box-shadow 0.15s; }
-.fh-theme .stat-card:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--ink); }
+.fh-theme .stat-card:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--fh-hard, var(--ink)); }
 
 .fh-theme .chart-container,
 .fh-theme .recent-donations,
@@ -154,7 +152,7 @@
   font-size: 2.8rem;
   font-weight: 700;
   line-height: 1;
-  text-shadow: 3px 3px 0 var(--ink);
+  text-shadow: 3px 3px 0 var(--fh-hard, var(--ink));
 }
 
 .fh-theme .stat-card span { display: block; margin-top: 10px; color: #666; font-size: 0.9rem; }
@@ -206,7 +204,7 @@
 .fh-theme .stat-card button,
 .fh-theme .donate-button {
   padding: 10px 18px;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 14px;
   background: var(--accent);
   color: #fff;
@@ -214,14 +212,14 @@
   font-weight: 800;
   white-space: nowrap;
   cursor: pointer;
-  box-shadow: 4px 4px 0 var(--ink);
+  box-shadow: 4px 4px 0 var(--fh-hard, var(--ink));
   transition: transform 0.12s, box-shadow 0.12s;
 }
 
 .fh-theme .action-btn:hover,
 .fh-theme .pickup-button:hover,
 .fh-theme .stat-card button:hover,
-.fh-theme .donate-button:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+.fh-theme .donate-button:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--fh-hard, var(--ink)); }
 
 .fh-theme .action-btn:active,
 .fh-theme .pickup-button:active,
@@ -269,9 +267,9 @@
   box-sizing: border-box;
   padding: 24px;
   background: #fff;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 22px;
-  box-shadow: 6px 6px 0 var(--ink);
+  box-shadow: 6px 6px 0 var(--fh-hard, var(--ink));
 }
 
 .fh-label {
@@ -285,7 +283,7 @@
 .fh-chip {
   display: inline-block;
   padding: 3px 10px;
-  border: 2px solid var(--ink);
+  border: var(--fh-border, 2px solid var(--ink));
   border-radius: 999px;
   background: var(--pop);
   color: var(--ink);
@@ -300,7 +298,7 @@
 .fh-theme textarea {
   box-sizing: border-box;
   padding: 11px 14px;
-  border: 2px solid var(--ink);
+  border: var(--fh-border, 2px solid var(--ink));
   border-radius: 12px;
   background: #fff;
   color: var(--ink);
@@ -312,7 +310,7 @@
 .fh-theme select:focus,
 .fh-theme textarea:focus {
   outline: none;
-  box-shadow: 4px 4px 0 var(--accent);
+  box-shadow: 4px 4px 0 var(--fh-hard, var(--accent));
   transform: translate(-2px, -2px);
 }
 
@@ -322,7 +320,7 @@
   justify-content: center;
   gap: 8px;
   padding: 12px 20px;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 14px;
   background: var(--accent);
   color: #fff;
@@ -330,13 +328,13 @@
   font-weight: 800;
   text-decoration: none;
   cursor: pointer;
-  box-shadow: 4px 4px 0 var(--ink);
+  box-shadow: 4px 4px 0 var(--fh-hard, var(--ink));
   transition: transform 0.12s, box-shadow 0.12s;
 }
 
-.fh-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+.fh-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--fh-hard, var(--ink)); }
 .fh-btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--ink); }
-.fh-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: 4px 4px 0 var(--ink); }
+.fh-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: 4px 4px 0 var(--fh-hard, var(--ink)); }
 .fh-btn--ghost { background: #fff; color: var(--ink); }
 .fh-btn--pop { background: var(--pop); color: var(--ink); }
 

@@ -19,13 +19,13 @@
   place-items: center;
   width: 40px;
   height: 40px;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 50%;
   background: #fff;
   color: var(--ink);
   font-family: var(--mono);
   font-weight: 700;
-  box-shadow: 3px 3px 0 var(--ink);
+  box-shadow: 3px 3px 0 var(--fh-hard, var(--ink));
   transition: background 0.3s, transform 0.3s;
 }
 

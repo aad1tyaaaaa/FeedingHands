@@ -446,7 +446,7 @@ function SignIn() {
         </button>
       </form>
       <p className="signin-switch">
-        New to FeedingHands? <Link to="/sign-up">Create an account</Link>
+        New to FeedingHands? <Link to="/sign-up" viewTransition>Create an account</Link>
       </p>
     </div>
     </div>

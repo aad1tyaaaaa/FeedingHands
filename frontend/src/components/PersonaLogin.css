@@ -43,14 +43,6 @@
   letter-spacing: -0.03em;
 }
 
-.persona-title em {
-  font-style: italic;
-  color: var(--accent);
-  transition: color 0.7s ease;
-}
-
-
-
 .persona-stage {
   position: relative;
   height: 100%;
@@ -111,7 +103,7 @@
 .persona-num {
   color: transparent;
   -webkit-text-stroke: 1.5px var(--ink);
-  font-family: "Space Mono", monospace;
+  font-family: var(--font-fredoka), "Fredoka", sans-serif;
   font-size: 3.5rem;
   font-weight: 700;
   line-height: 1;
@@ -131,14 +123,34 @@
 
 .persona-card {
   box-sizing: border-box;
-  width: min(430px, calc(100vw - 48px));
-  padding: 26px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px;
+  align-items: center;
+  gap: 20px;
+  width: min(520px, calc(100vw - 48px));
+  padding: 20px;
   background: #fff;
   border: 2.5px solid var(--ink);
   border-radius: 22px;
   box-shadow: 8px 8px 0 var(--ink);
   animation: persona-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
+.persona-card-copy { min-width: 0; }
+
+.persona-card-image {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 220px;
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  object-fit: contain;
+}
+
+.persona-card.donor .persona-card-image { background: #ffca28; }
+.persona-card.volunteer .persona-card-image { background: #00d2b2; }
+.persona-card.organization .persona-card-image { background: #88b4ff; }
 
 @keyframes persona-pop {
   from { opacity: 0; transform: translateY(24px) rotate(2deg) scale(0.96); }
@@ -165,7 +177,7 @@
 .persona-card:hover .persona-icon { transform: rotate(6deg) scale(1.05); }
 
 .persona-vibe {
-  font-family: "Space Mono", monospace;
+  font-family: var(--font-fredoka), "Fredoka", sans-serif;
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -174,46 +186,9 @@
 
 .persona-card h2 { margin: 2px 0 4px; color: var(--ink); font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
 .persona-card p { margin: 0; color: #555; font-size: 0.95rem; }
-.persona-card form { display: flex; flex-direction: column; }
-.persona-card label { margin-top: 12px; font-family: "Space Mono", monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
-
-.persona-card input {
+.persona-submit {
   box-sizing: border-box;
   width: 100%;
-  padding: 12px 14px;
-  margin-top: 6px;
-  border: 2px solid var(--ink);
-  border-radius: 12px;
-  background: var(--bg);
-  font: inherit;
-  transition: box-shadow 0.15s, transform 0.15s;
-}
-
-.persona-card input:focus {
-  outline: none;
-  box-shadow: 4px 4px 0 var(--accent);
-  transform: translate(-2px, -2px);
-}
-
-
-
-.persona-autofill {
-  align-self: flex-start;
-  margin-top: 16px;
-  padding: 6px 14px;
-  border: 2px dashed var(--ink);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--ink);
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.persona-autofill:hover { background: var(--pop); border-style: solid; }
-
-.persona-submit {
   margin-top: 16px;
   padding: 14px;
   border: 2.5px solid var(--ink);
@@ -231,22 +206,6 @@
 .persona-submit:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--ink); }
 .persona-submit:active { transform: translate(5px, 5px); box-shadow: 0 0 0 var(--ink); }
 
-.persona-error {
-  margin-bottom: 12px;
-  padding: 10px 14px;
-  border: 2px solid var(--ink);
-  border-radius: 12px;
-  background: #ffd6d6;
-  font-weight: 600;
-  font-size: 0.9rem;
-  animation: persona-shake 0.4s;
-}
-
-@keyframes persona-shake {
-  25% { transform: translateX(-6px); }
-  75% { transform: translateX(6px); }
-}
-
 .persona-ticker {
   position: absolute;
   left: 0;
@@ -258,7 +217,7 @@
   border-top: 2.5px solid var(--ink);
   background: var(--ink);
   color: var(--pop);
-  font-family: "Space Mono", monospace;
+  font-family: var(--font-fredoka), "Fredoka", sans-serif;
   font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -279,7 +238,15 @@
   .persona-wheel-item { gap: 18px; }
   .persona-wheel-item.is-active .persona-num { font-size: 4rem; text-shadow: 3px 3px 0 var(--ink); }
   .persona-panel { margin: 0 16px; align-self: stretch; }
-  .persona-card { width: auto; }
+  .persona-card {
+    grid-template-columns: minmax(0, 1fr) minmax(110px, 42%);
+    width: auto;
+    gap: 14px;
+    padding: 16px;
+  }
+  .persona-card-head { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .persona-card-image { height: 190px; }
+  .persona-submit { padding: 12px 8px; font-size: 0.95rem; }
   .persona-bigword { bottom: 50px; }
 }
 

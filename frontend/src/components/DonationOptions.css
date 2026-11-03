@@ -20,7 +20,7 @@
 .donation-options-page .option-card:nth-child(2) { animation-delay: 0.1s; }
 .donation-options-page .option-card:nth-child(3) { animation-delay: 0.2s; }
 
-.donation-options-page .option-card:hover { transform: translate(-3px, -3px); box-shadow: 9px 9px 0 var(--ink); }
+.donation-options-page .option-card:hover { transform: translate(-3px, -3px); box-shadow: 9px 9px 0 var(--fh-hard, var(--ink)); }
 
 .donation-options-page .card-icon {
   display: grid;
@@ -28,11 +28,11 @@
   width: 64px;
   height: 64px;
   margin-bottom: 20px;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 18px;
   background: var(--pop);
   font-size: 2rem;
-  box-shadow: 3px 3px 0 var(--ink);
+  box-shadow: 3px 3px 0 var(--fh-hard, var(--ink));
   transform: rotate(-6deg);
 }
 

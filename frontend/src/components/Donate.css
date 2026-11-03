@@ -29,7 +29,7 @@
 
 .donate-page .remove-food-button {
   width: 44px;
-  border: 2px solid var(--ink);
+  border: var(--fh-border, 2px solid var(--ink));
   border-radius: 12px;
   background: #fff;
   cursor: pointer;
@@ -61,7 +61,7 @@
 .donate-page .error-message {
   margin-top: 16px;
   padding: 12px 14px;
-  border: 2px solid var(--ink);
+  border: var(--fh-border, 2px solid var(--ink));
   border-radius: 12px;
   background: #ffe1e1;
   font-weight: 700;

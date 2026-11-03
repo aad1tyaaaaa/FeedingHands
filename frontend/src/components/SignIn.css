@@ -56,7 +56,7 @@
   border-style: solid;
   border-color: transparent;
   border-width: calc(var(--u) * 2.8) calc(var(--u) * 2.5);
-  border-image: url("/sign-in-border.png") 280 250 round;
+  border-image: url("/sign-in-border.png") 280 250 stretch round;
   pointer-events: none;
   z-index: 0;
 }
@@ -228,6 +228,30 @@
 
 .signin-switch a:hover {
   text-decoration: underline;
+}
+
+@keyframes auth-route-enter {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes auth-route-exit {
+  to { opacity: 0; transform: translateX(-12px); }
+}
+
+::view-transition-old(root) {
+  animation: auth-route-exit 180ms ease-in both;
+}
+
+::view-transition-new(root) {
+  animation: auth-route-enter 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 1ms;
+  }
 }
 
 /* ---------- Responsive ---------- */

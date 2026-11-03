@@ -22,10 +22,10 @@
   height: 150px;
   margin: 0 auto 24px;
   overflow: hidden;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 14px;
   background: var(--pop);
-  box-shadow: 4px 4px 0 var(--ink);
+  box-shadow: 4px 4px 0 var(--fh-hard, var(--ink));
 }
 
 .gift-page .gift-reward {

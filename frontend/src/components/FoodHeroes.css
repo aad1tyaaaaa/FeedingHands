@@ -21,14 +21,14 @@
   margin: 0;
   color: #fff;
   font-size: clamp(1.8rem, 4.5vw, 3rem);
-  text-shadow: 3px 3px 0 var(--ink);
+  text-shadow: 3px 3px 0 var(--fh-hard, var(--ink));
 }
 
 .food-heroes .food-heroes-header p {
   display: inline-block;
   margin: 16px 0 0;
   padding: 5px 12px;
-  border: 2px solid var(--ink);
+  border: var(--fh-border, 2px solid var(--ink));
   border-radius: 999px;
   background: var(--pop);
   color: var(--ink);
@@ -48,7 +48,7 @@
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 16px;
   transition: transform 0.2s;
 }
@@ -89,7 +89,7 @@
   display: block;
   margin-top: 28px;
   padding: 18px 22px;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 22px;
   background: var(--ink);
   color: #fff;

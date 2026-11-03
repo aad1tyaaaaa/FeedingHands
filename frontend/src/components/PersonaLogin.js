@@ -7,9 +7,9 @@ const PERSONAS = [
   {
     role: "donor",
     label: "Food Donor",
-    username: "donor",
-    password: "donor123",
     destination: "/dashboard",
+    image: "/personas/donor.png",
+    imageAlt: "Food donor preparing meals for the community",
     description: "Donate food and track your community impact.",
     icon: (
       <svg
@@ -30,9 +30,9 @@ const PERSONAS = [
   {
     role: "volunteer",
     label: "Volunteer",
-    username: "volunteer",
-    password: "volunteer123",
     destination: "/VolunteerDashboard",
+    image: "/personas/volunteer.png",
+    imageAlt: "Volunteer delivering a box of donated food",
     description: "Coordinate collections, deliveries, and outreach.",
     icon: (
       <svg
@@ -53,9 +53,9 @@ const PERSONAS = [
   {
     role: "organization",
     label: "Organization",
-    username: "organization",
-    password: "organization123",
     destination: "/NgoDashboard",
+    image: "/personas/ngo.png",
+    imageAlt: "Organization coordinator managing food supplies",
     description: "Manage food distribution for your organization.",
     icon: (
       <svg
@@ -81,15 +81,12 @@ const TICKER =
 
 function PersonaLogin() {
   const navigate = useNavigate();
-  const [credentials, setCredentials] = useState({});
-  const [error, setError] = useState("");
   const [active, setActive] = useState(0);
   const lastStep = useRef(0);
   const touchY = useRef(null);
 
   const go = (index) => {
     setActive(Math.max(0, Math.min(PERSONAS.length - 1, index)));
-    setError("");
   };
 
   // One step per gesture: trackpads fire dozens of wheel events per swipe.
@@ -114,23 +111,7 @@ function PersonaLogin() {
     if (event.key === "ArrowUp") step(-1);
   };
 
-  const handleChange = (role, field, value) => {
-    setCredentials((current) => ({
-      ...current,
-      [role]: { ...current[role], [field]: value },
-    }));
-  };
-
-  const handleLogin = (persona) => {
-    const entered = credentials[persona.role] || {};
-    if (
-      entered.username !== persona.username ||
-      entered.password !== persona.password
-    ) {
-      setError(`Invalid credentials for ${persona.label}.`);
-      return;
-    }
-
+  const handleSelectPersona = (persona) => {
     localStorage.setItem(
       "fh_user",
       JSON.stringify({
@@ -140,12 +121,10 @@ function PersonaLogin() {
         demo: true,
       }),
     );
-    setError("");
     navigate(persona.destination);
   };
 
   const persona = PERSONAS[active];
-  const entered = credentials[persona.role] || {};
 
   return (
     <main
@@ -187,67 +166,31 @@ function PersonaLogin() {
         </nav>
 
         <div className="persona-panel">
-          <h1 className="persona-title">
-            pick your <em>era.</em>
-          </h1>
+          <h1 className="persona-title">Choose your role</h1>
           <article
             className={`persona-card ${persona.role}`}
             key={persona.role}
           >
-            <div className="persona-card-head">
-              <span className="persona-icon" aria-hidden="true">
-                {persona.icon}
-              </span>
-              <div>
-                <span className="persona-vibe">{persona.vibe}</span>
-                <h2>{persona.label}</h2>
-                <p>{persona.description}</p>
+            <div className="persona-card-copy">
+              <div className="persona-card-head">
+                <span className="persona-icon" aria-hidden="true">
+                  {persona.icon}
+                </span>
+                <div>
+                  <span className="persona-vibe">{persona.vibe}</span>
+                  <h2>{persona.label}</h2>
+                  <p>{persona.description}</p>
+                </div>
               </div>
-            </div>
-
-            {error && <div className="persona-error">{error}</div>}
-
-            <form
-              onSubmit={(event) => {
-                event.preventDefault();
-                handleLogin(persona);
-              }}
-            >
-              <label htmlFor={`${persona.role}-username`}>Username</label>
-              <input
-                id={`${persona.role}-username`}
-                value={entered.username || ""}
-                onChange={(event) =>
-                  handleChange(persona.role, "username", event.target.value)
-                }
-                placeholder={persona.username}
-              />
-              <label htmlFor={`${persona.role}-password`}>Password</label>
-              <input
-                id={`${persona.role}-password`}
-                type="password"
-                value={entered.password || ""}
-                onChange={(event) =>
-                  handleChange(persona.role, "password", event.target.value)
-                }
-                placeholder={persona.password}
-              />
               <button
                 type="button"
-                className="persona-autofill"
-                onClick={() =>
-                  setCredentials((current) => ({
-                    ...current,
-                    [persona.role]: { username: persona.username, password: persona.password },
-                  }))
-                }
+                className="persona-submit"
+                onClick={() => handleSelectPersona(persona)}
               >
-                ⚡ Autofill demo login
-              </button>
-              <button type="submit" className="persona-submit">
                 Let's go as {persona.label} →
               </button>
-            </form>
+            </div>
+            <img className="persona-card-image" src={persona.image} alt={persona.imageAlt} />
           </article>
         </div>
       </div>

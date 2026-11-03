@@ -8,7 +8,7 @@
   background: var(--ink, #141414);
   border-top: 2.5px solid var(--ink, #141414);
   color: #eee;
-  font-family: "Bricolage Grotesque", "Poppins", sans-serif;
+  font-family: var(--font-fredoka), "Fredoka", sans-serif;
 }
 
 .fh-site-footer .footer-container {
@@ -22,7 +22,7 @@
 .fh-site-footer .footer-section h2 {
   margin: 0 0 14px;
   color: var(--pop, #c6ff3d);
-  font-family: var(--mono, "Space Mono", monospace);
+  font-family: var(--mono, var(--font-fredoka), "Fredoka", sans-serif);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -56,7 +56,7 @@
   border: 2px solid #fff;
   border-radius: 50%;
   color: #fff;
-  font-family: var(--mono, "Space Mono", monospace);
+  font-family: var(--mono, var(--font-fredoka), "Fredoka", sans-serif);
   font-size: 0.8rem;
   font-weight: 700;
   text-decoration: none;
@@ -81,7 +81,7 @@
   padding-top: 18px;
   border-top: 2px dashed rgba(255, 255, 255, 0.25);
   color: #999;
-  font-family: var(--mono, "Space Mono", monospace);
+  font-family: var(--mono, var(--font-fredoka), "Fredoka", sans-serif);
   font-size: 0.72rem;
   text-align: center;
 }

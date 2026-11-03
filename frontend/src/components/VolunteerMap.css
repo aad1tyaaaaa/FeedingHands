@@ -14,7 +14,7 @@
 
 .volunteer-map .route-info span {
   padding: 8px 14px;
-  border: 2px solid var(--ink);
+  border: var(--fh-border, 2px solid var(--ink));
   border-radius: 999px;
   background: var(--pop);
 }
@@ -22,9 +22,9 @@
 .volunteer-map .map-frame {
   overflow: hidden;
   isolation: isolate; /* keep Leaflet's z-indexed panes inside the frame */
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 22px;
-  box-shadow: 6px 6px 0 var(--ink);
+  box-shadow: 6px 6px 0 var(--fh-hard, var(--ink));
   background: #fff;
 }
 
@@ -55,7 +55,7 @@
   width: 22px;
   height: 22px;
   margin-top: 2px;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 50%;
 }
 

@@ -17,11 +17,11 @@
   place-items: center;
   width: 54px;
   height: 54px;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 50%;
   background: var(--pop);
   font-size: 1.6rem;
-  box-shadow: 3px 3px 0 var(--ink);
+  box-shadow: 3px 3px 0 var(--fh-hard, var(--ink));
   transform: rotate(-6deg);
 }
 

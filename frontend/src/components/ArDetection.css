@@ -21,9 +21,9 @@
 .ar-detection #esp32-cam {
   width: 100%;
   height: auto;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 22px;
-  box-shadow: 6px 6px 0 var(--ink);
+  box-shadow: 6px 6px 0 var(--fh-hard, var(--ink));
   background: #fff;
 }
 
@@ -35,10 +35,10 @@
 
 .ar-detection .status-box {
   padding: 18px;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 18px;
   background: #fff;
-  box-shadow: 4px 4px 0 var(--ink);
+  box-shadow: 4px 4px 0 var(--fh-hard, var(--ink));
 }
 
 .ar-detection .status-box h3 {

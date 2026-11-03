@@ -22,7 +22,7 @@
 
 .learners-corner .category-btn {
   padding: 11px 16px;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 14px;
   background: #fff;
   color: var(--ink);
@@ -33,11 +33,11 @@
   text-align: left;
   text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 3px 3px 0 var(--ink);
+  box-shadow: 3px 3px 0 var(--fh-hard, var(--ink));
   transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
 }
 
-.learners-corner .category-btn:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
+.learners-corner .category-btn:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--fh-hard, var(--ink)); }
 .learners-corner .category-btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--ink); }
 .learners-corner .category-btn.active { background: var(--pop); }
 
@@ -63,7 +63,7 @@
 
 .learners-corner .featured-image {
   min-height: 320px;
-  border-right: 2.5px solid var(--ink);
+  border-right: var(--fh-border, 2.5px solid var(--ink));
 }
 
 .learners-corner .featured-image img,
@@ -108,12 +108,12 @@
   transition: transform 0.15s, box-shadow 0.15s;
 }
 
-.learners-corner .resource-card:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--ink); }
+.learners-corner .resource-card:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--fh-hard, var(--ink)); }
 
 .learners-corner .card-image {
   position: relative;
   height: 180px;
-  border-bottom: 2.5px solid var(--ink);
+  border-bottom: var(--fh-border, 2.5px solid var(--ink));
 }
 
 .learners-corner .resource-type {
@@ -121,7 +121,7 @@
   top: 12px;
   left: 12px;
   padding: 3px 10px;
-  border: 2px solid var(--ink);
+  border: var(--fh-border, 2px solid var(--ink));
   border-radius: 999px;
   background: var(--pop);
   color: var(--ink);
@@ -191,7 +191,7 @@
 @media (max-width: 760px) {
   .learners-corner .learners-corner-content { padding: 24px 16px 48px; }
   .learners-corner .featured-content { grid-template-columns: 1fr; }
-  .learners-corner .featured-image { min-height: 0; height: 220px; border-right: 0; border-bottom: 2.5px solid var(--ink); }
+  .learners-corner .featured-image { min-height: 0; height: 220px; border-right: 0; border-bottom: var(--fh-border, 2.5px solid var(--ink)); }
   .learners-corner .featured-text { padding: 22px; }
   .learners-corner .resources-grid { grid-template-columns: 1fr; }
 }

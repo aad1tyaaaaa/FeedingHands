@@ -4,13 +4,13 @@
 .volunteer-dash .donation-card {
   margin-bottom: 14px;
   padding: 16px 18px;
-  border: 2px solid var(--ink);
+  border: var(--fh-border, 2px solid var(--ink));
   border-radius: 16px;
   background: var(--bg);
   transition: transform 0.15s, box-shadow 0.15s;
 }
 
-.volunteer-dash .donation-card:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--ink); }
+.volunteer-dash .donation-card:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--fh-hard, var(--ink)); }
 
 .volunteer-dash .donation-content { display: flex; flex-direction: column; gap: 14px; }
 .volunteer-dash .donor-info { display: flex; align-items: center; gap: 10px; }
@@ -18,7 +18,7 @@
 
 .volunteer-dash .status-badge {
   padding: 3px 10px;
-  border: 2px solid var(--ink);
+  border: var(--fh-border, 2px solid var(--ink));
   border-radius: 999px;
   background: var(--pop);
   font-family: var(--mono);
@@ -29,6 +29,27 @@
 
 .volunteer-dash .location-info { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-family: var(--mono); font-size: 0.8rem; color: #555; }
 .volunteer-dash .donation-details { margin-top: 6px; color: #444; }
+
+.volunteer-route-tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0 0 22px; }
+.volunteer-route-tools a { display: flex; align-items: center; gap: 14px; min-width: 0; padding: 16px 18px; border: 1.5px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--ink); text-decoration: none; box-shadow: var(--shadow); transition: transform 320ms var(--spring), box-shadow 320ms var(--ease), border-color 200ms var(--ease); }
+.volunteer-route-tools a:hover { transform: translateY(-4px) rotate(-0.6deg); border-color: var(--accent); box-shadow: var(--shadow-lift); }
+.volunteer-route-tools a > svg:first-child { flex: none; box-sizing: content-box; padding: 10px; border-radius: 14px; background: var(--tint); color: var(--accent-ink); transition: transform 360ms var(--spring), background 200ms var(--ease); }
+.volunteer-route-tools a:hover > svg:first-child { transform: rotate(-12deg) scale(1.08); background: var(--pop); color: var(--ink); }
+.volunteer-route-tools a > svg:last-child { flex: none; margin-left: auto; color: var(--ink-faint); transition: transform 300ms var(--spring); }
+.volunteer-route-tools a:hover > svg:last-child { transform: translate(2px, -2px); color: var(--accent-ink); }
+.volunteer-route-tools span { display: grid; gap: 2px; }
+.volunteer-route-tools strong { font-size: 1rem; font-weight: 600; }
+.volunteer-route-tools small { color: var(--ink-faint); font-size: 0.86rem; }
+.volunteer-route-tools a:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 3px; }
+.volunteer-queue-count { padding: 5px 12px; border-radius: 999px; background: var(--pop); color: var(--ink); font-size: 0.86rem; font-weight: 600; }
+.volunteer-location { display: inline-flex; align-items: center; gap: 6px; }
+.volunteer-location svg { flex: none; color: var(--accent-ink); }
+.volunteer-queue-panel { margin-bottom: 20px; }
+.workspace-table-action { display: inline-flex; align-items: center; gap: 6px; }
+
+@media (max-width: 900px) {
+  .volunteer-route-tools { grid-template-columns: 1fr; }
+}
 
 @media (min-width: 640px) {
   .volunteer-dash .donation-content { flex-direction: row; justify-content: space-between; align-items: center; }

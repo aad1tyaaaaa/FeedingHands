@@ -65,7 +65,7 @@
 
 .delivery-tracking .button { width: 100%; padding: 16px 20px; font-size: 1rem; }
 .delivery-tracking .button:disabled,
-.delivery-tracking .button:disabled:hover { background: #e5e5e5; color: #777; cursor: not-allowed; transform: none; box-shadow: 4px 4px 0 var(--ink); }
+.delivery-tracking .button:disabled:hover { background: #e5e5e5; color: #777; cursor: not-allowed; transform: none; box-shadow: 4px 4px 0 var(--fh-hard, var(--ink)); }
 .delivery-tracking .fh-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 
 .delivery-tracking .success-message {

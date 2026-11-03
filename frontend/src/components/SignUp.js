@@ -868,7 +868,7 @@ function SignUp() {
         </form>
       )}
       <p className="signin-switch">
-        Already have an account? <Link to="/sign-in">Sign in</Link>
+        Already have an account? <Link to="/sign-in" viewTransition>Sign in</Link>
       </p>
     </div>
     </div>

@@ -34,7 +34,7 @@
 
 .note-page .help-option:nth-child(2) { animation-delay: 0.1s; background: var(--pop); }
 .note-page .help-option:nth-child(3) { animation-delay: 0.2s; }
-.note-page .help-option:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--ink); }
+.note-page .help-option:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--fh-hard, var(--ink)); }
 .note-page .help-option h3 { margin: 0 0 10px; font-size: 1.25rem; font-weight: 800; }
 .note-page .help-option p { margin: 0; color: #333; line-height: 1.55; }
 

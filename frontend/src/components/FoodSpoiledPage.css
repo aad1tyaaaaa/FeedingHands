@@ -19,13 +19,13 @@
   width: 64px;
   height: 64px;
   margin-bottom: 18px;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 50%;
   background: var(--pop);
   font-family: var(--mono);
   font-size: 2rem;
   font-weight: 700;
-  box-shadow: 3px 3px 0 var(--ink);
+  box-shadow: 3px 3px 0 var(--fh-hard, var(--ink));
   transform: rotate(-8deg);
 }
 
@@ -38,7 +38,7 @@
 .food-spoiled .food-spoiled-timer {
   height: 12px;
   margin-top: 14px;
-  border: 2px solid var(--ink);
+  border: var(--fh-border, 2px solid var(--ink));
   border-radius: 999px;
   background: var(--accent) linear-gradient(var(--bg), var(--bg)) no-repeat right / 100% 100%;
   animation: food-spoiled-countdown 5s linear forwards;

@@ -30,7 +30,7 @@
   place-items: center;
   width: 42px;
   height: 42px;
-  border: 2.5px solid var(--ink);
+  border: var(--fh-border, 2.5px solid var(--ink));
   border-radius: 50%;
   background: #fff;
   color: var(--ink);
@@ -42,7 +42,7 @@
 .donor-tracking .step-circle.completed { background: var(--accent); color: #fff; }
 .donor-tracking .step-circle.current {
   background: var(--pop);
-  box-shadow: 3px 3px 0 var(--ink);
+  box-shadow: 3px 3px 0 var(--fh-hard, var(--ink));
   transform: rotate(-6deg) scale(1.08);
 }
 
@@ -68,7 +68,7 @@
   background: none;
 }
 
-.donor-tracking .step-line.completed { border-top: 3px solid var(--ink); }
+.donor-tracking .step-line.completed { border-top: var(--fh-border, 3px solid var(--ink)); }
 
 .donor-tracking .navigation-links {
   display: flex;
@@ -91,6 +91,6 @@
     border-top: 0;
     border-left: 3px dashed rgba(20, 20, 20, 0.3);
   }
-  .donor-tracking .step-line.completed { border-top: 0; border-left: 3px solid var(--ink); }
+  .donor-tracking .step-line.completed { border-top: 0; border-left: var(--fh-border, 3px solid var(--ink)); }
   .donor-tracking .navigation-links .fh-btn { flex: 1 1 100%; }
 }
