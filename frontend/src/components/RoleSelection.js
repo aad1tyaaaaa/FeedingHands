@@ -105,6 +105,9 @@ function RoleSelection() {
   const navigate = useNavigate();
   const { user, loading: authLoading, startSession } = useAuth();
   const [saving, setSaving] = useState(false);
+  // Set once this screen saves the role, so its "already has a role" redirect below doesn't override
+  // the navigation it just made (organizations go to /Register, not straight to the dashboard).
+  const justChose = useRef(false);
   const [error, setError] = useState("");
   const [active, setActive] = useState(0);
   const lastStep = useRef(0);
@@ -145,6 +148,7 @@ function RoleSelection() {
         method: "PATCH",
         body: JSON.stringify({ role: persona.role }),
       });
+      justChose.current = true;
       const updated = startSession(data);
       // Organizations need a profile (name, address) before they can claim food.
       navigate(updated.role === "organization" ? "/Register" : homeFor(updated), { replace: true });
@@ -159,7 +163,7 @@ function RoleSelection() {
 
   if (authLoading) return null;
   if (!user) return <Navigate to="/sign-in" replace />;
-  if (user.role !== "pending") return <Navigate to={homeFor(user)} replace />;
+  if (user.role !== "pending") return justChose.current ? null : <Navigate to={homeFor(user)} replace />;
 
   return (
     <main

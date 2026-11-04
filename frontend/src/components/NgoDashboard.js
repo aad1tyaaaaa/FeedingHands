@@ -82,9 +82,9 @@ export default function NgoDashboard() {
       {error && <p className="workspace-panel" role="alert">{error}</p>}
 
       <section className="workspace-metrics" aria-label="Distribution summary">
-        <WorkspaceMetric hero index={0} icon={Inbox} pose="ngo" label="Available to claim" value={available.length} hint="Posted by donors and waiting for an NGO" />
+        <WorkspaceMetric hero index={0} icon={Inbox} pose="ngo-crate" label="Available to claim" value={available.length} hint="Posted by donors and waiting for an NGO" />
         <WorkspaceMetric index={1} icon={Hourglass} label="In progress" value={active.length} share={claimed.length ? active.length / claimed.length : null} shareOf="your claims" />
-        <WorkspaceMetric index={2} icon={CircleCheck} pose="chin-wave" label="Delivered to you" value={delivered.length} share={claimed.length ? delivered.length / claimed.length : null} shareOf="your claims" />
+        <WorkspaceMetric index={2} icon={CircleCheck} pose="ngo-wave" label="Delivered to you" value={delivered.length} share={claimed.length ? delivered.length / claimed.length : null} shareOf="your claims" />
       </section>
 
       <section className="workspace-panel organization-donations-panel">

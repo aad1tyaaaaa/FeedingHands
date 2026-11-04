@@ -1,106 +1,95 @@
-/* Register.css — /Register. Colours, fonts, inputs and .fh-btn come from PersonaTheme.css. */
-.register-page {
+/* /Register: organization profile inside the workspace shell. Tokens and panels come from the shell. */
+
+.org-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 18px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--tint);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.org-layout { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(280px, 1fr); align-items: start; gap: 22px; }
+.org-form { display: grid; gap: 18px; }
+
+.org-step header { display: flex; align-items: center; justify-content: flex-start; gap: 12px; margin-bottom: 16px; }
+.org-step h2 { margin: 0; color: var(--ink); font-size: 1.2rem; font-weight: 600; }
+.org-step-no { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: 10px; background: var(--accent); color: var(--on-accent); font-weight: 700; }
+
+.org-label { display: block; margin: 14px 0 8px; color: var(--ink); font-size: 0.92rem; font-weight: 600; }
+.org-step header + .org-label { margin-top: 0; }
+.org-optional { color: var(--ink-faint); font-weight: 500; }
+
+/* fields: an icon sits inside the input; selectors match the theme's .fh-theme input:not(...) rule so they win */
+.org-field { position: relative; }
+.org-field-icon { position: absolute; top: 50%; left: 14px; transform: translateY(-50%); color: var(--ink-faint); pointer-events: none; }
+.fh-theme .org-dashboard input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+.fh-theme .org-dashboard textarea {
   box-sizing: border-box;
-  padding: 48px 24px 64px;
-}
-
-.register-page .register-organization-container {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 32px;
-  animation: fh-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
-}
-
-.register-page .register-organization-container h2 {
-  margin: 0 0 28px;
-  font-size: clamp(1.9rem, 5vw, 2.8rem);
-}
-
-.register-page .register-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.register-page .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin: 0;
-}
-
-.register-page .form-group label {
-  margin: 0;
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
   color: var(--ink);
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font: inherit;
+}
+.fh-theme .org-dashboard .org-field input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]) { padding-left: 42px; }
+.fh-theme .org-dashboard textarea { resize: vertical; }
+
+.org-location { display: flex; gap: 10px; }
+.org-location .org-field { flex: 1; min-width: 0; }
+.org-location .workspace-secondary { flex: none; }
+.org-hint { display: flex; align-items: center; gap: 6px; margin: 10px 0 0; color: var(--ink-faint); font-size: 0.86rem; }
+.org-hint.is-ok { color: #087443; }
+
+.org-three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.org-three .org-label { margin-top: 0; }
+
+.org-error { margin: 0; padding: 12px 16px; border-radius: var(--radius-sm); background: #fff1f1; color: #b42318; font-weight: 600; }
+.org-notice { display: flex; align-items: center; gap: 8px; margin: 0; padding: 12px 16px; border-radius: var(--radius-sm); background: #e3f8ec; color: #087443; font-weight: 600; }
+.org-submit { justify-content: center; width: 100%; padding: 16px; font-size: 1.05rem; }
+.org-submit:disabled { opacity: 0.7; cursor: wait; }
+
+/* side column */
+.org-side { position: sticky; top: 18px; display: grid; gap: 16px; }
+.org-side h2 { margin: 0 0 14px; color: var(--ink); font-size: 1.1rem; font-weight: 600; }
+
+.org-logo-box {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  margin-bottom: 14px;
+  border: 1.5px dashed color-mix(in srgb, var(--accent) 35%, var(--line));
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--tint) 50%, #fff);
+}
+.org-logo-box img { max-width: 70%; max-height: 80%; object-fit: contain; }
+.org-logo-placeholder { width: 60%; height: auto; opacity: 0.55; filter: grayscale(0.3); }
+.org-logo-button { width: 100%; justify-content: center; }
+
+.org-preview-card { display: grid; gap: 8px; padding: 16px; border: 1.5px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); }
+.org-preview-head { display: flex; align-items: center; gap: 10px; }
+.org-preview-head img,
+.org-preview-initial { width: 40px; height: 40px; flex: none; border-radius: 12px; object-fit: contain; }
+.org-preview-card .org-preview-initial { display: grid; place-items: center; background: var(--tint); color: var(--accent-ink); font-weight: 700; }
+.org-preview-head strong { color: var(--ink); font-weight: 600; overflow-wrap: anywhere; }
+.org-preview-card p { margin: 0; color: var(--ink-soft); font-size: 0.9rem; line-height: 1.45; }
+.org-preview-card span { display: flex; gap: 6px; color: var(--ink-faint); font-size: 0.86rem; overflow-wrap: anywhere; }
+.org-preview-card span svg { flex: none; margin-top: 2px; }
+.org-preview .workspace-inline-link { margin-top: 12px; }
+
+@media (max-width: 1100px) {
+  .org-layout { grid-template-columns: 1fr; }
+  .org-side { position: static; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 }
 
-.register-page .form-group input,
-.register-page .form-group textarea {
-  width: 100%;
-  min-height: 48px;
-  margin: 0;
-  font-size: 1rem;
-}
-
-.register-page .form-group textarea {
-  min-height: 120px;
-  resize: vertical;
-}
-
-.register-page .register-locate {
-  display: flex;
-  gap: 10px;
-}
-
-.register-page .register-locate input {
-  flex: 1;
-  min-width: 0;
-}
-
-.register-page .register-locate .fh-btn {
-  flex: none;
-  padding: 10px 16px;
-  white-space: nowrap;
-}
-
-.register-page .register-btn {
-  width: 100%;
-  min-height: 52px;
-  margin-top: 8px;
-  font-size: 1.05rem;
-}
-
-.register-page button:focus-visible {
-  outline: 3px solid var(--ink);
-  outline-offset: 3px;
-}
-
-.register-page .error-message {
-  margin: 0;
-  padding: 10px 14px;
-  border: 2px solid var(--ink);
-  border-radius: 12px;
-  background: #ffe3e3;
-  color: #b42318;
-  font-weight: 700;
-  box-shadow: 3px 3px 0 var(--ink);
-}
-
-@media (max-width: 480px) {
-  .register-page {
-    padding: 24px 16px 48px;
-  }
-
-  .register-page .register-organization-container {
-    padding: 24px 18px;
-  }
-
-  .register-page .register-locate {
-    flex-direction: column;
-  }
+@media (max-width: 760px) {
+  .org-three { grid-template-columns: 1fr; }
+  .org-location { flex-wrap: wrap; }
+  .org-location .workspace-secondary { width: 100%; justify-content: center; }
 }

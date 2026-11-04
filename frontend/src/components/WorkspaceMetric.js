@@ -50,6 +50,15 @@ export const POSES = {
   volunteer: { edge: 0.12 },
   ngo: { edge: 0.113 },
   chef: { edge: 0.109 },
+  // one pair per persona
+  "donor-box": { edge: 0.101 },
+  "donor-wave": { edge: 0.095 },
+  "volunteer-peek": { edge: 0.092 },
+  "volunteer-scooter": { edge: 0.041 },
+  "ngo-wave": { edge: 0.094 },
+  "ngo-crate": { edge: 0.1 },
+  "biogas-peek": { edge: 0.096 },
+  "biogas-bin": { edge: 0.1 },
 };
 
 /**

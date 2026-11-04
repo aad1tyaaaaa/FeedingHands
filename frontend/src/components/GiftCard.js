@@ -110,7 +110,7 @@ const GiftCard = () => {
       </section>
 
       <section className="workspace-metrics" aria-label="Your rewards">
-        <WorkspaceMetric hero index={0} icon={Award} pose="chin-wave" label="Puniya points" value={points} hint="10 per delivered donation" />
+        <WorkspaceMetric hero index={0} icon={Award} pose="donor-wave" label="Puniya points" value={points} hint="10 per delivered donation" />
         <WorkspaceMetric index={1} icon={Gift} pose="pull-up" label="Rewards unlocked" value={unlocked} share={unlocked / TIERS.length} shareOf={`${TIERS.length} rewards`} />
         <WorkspaceMetric
           index={2}

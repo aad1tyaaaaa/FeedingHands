@@ -90,6 +90,7 @@ const ROLE_PAGES = {
   "/ngotracking": ["organization"],
   "/route_optimization": ["organization", "volunteer"],
   "/event_prediction": ["organization"],
+  "/register": ["organization"],
 };
 
 // Layout route: every in-app page renders inside this shell via <Outlet />, behind the sign-in guard.
@@ -155,7 +156,7 @@ function Workspace({ pathname }) {
     <div className={`fh-theme fh-workspace theme-${role}`}>
       <aside className={`workspace-sidebar${mobileOpen ? " is-open" : ""}`} aria-label="Workspace navigation">
         <Link className="workspace-brand" to={workspace.home} onClick={() => setMobileOpen(false)}>
-          <img src="/logo/logo-with-text.png" alt="FeedingHands" />
+          <img src="/logo/logo-wordmark.png" alt="FeedingHands" />
         </Link>
 
         <p className="workspace-nav-label">Workspace</p>

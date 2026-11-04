@@ -443,3 +443,6 @@
 .option-card:hover .option-art { transform: translateY(-4px) rotate(-3deg) scale(1.04); }
 .signin-art { display: block; height: 96px; width: auto; margin: 0 auto 6px; }
 .food-spoiled-art { display: block; height: 120px; width: auto; margin: 0 auto 12px; }
+.signin-art--wide { height: 110px; margin-bottom: 2px; }
+@media (max-height: 760px) { .signin-art--wide { display: none; } } /* short screens: keep the form above the fold */
+.heroes-avatar-art { object-fit: cover; object-position: 50% 20%; background: var(--tint); }

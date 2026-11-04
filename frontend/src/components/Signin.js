@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import "./SignIn.css";
 import { apiFetch } from "../api/client";
 import { homeFor, useAuth } from "./AuthContext";
+import Illustration from "./Illustration";
 
 function SignIn() {
   const navigate = useNavigate();
@@ -43,6 +44,7 @@ function SignIn() {
       <div className="signin-panel">
         <div className="signin-container">
           <img className="signin-logo" src="/logo/logo-with-text.png" alt="FeedingHands" />
+          <Illustration name="hero-welcome" className="signin-art signin-art--wide" />
           <h2>Sign In</h2>
           <p className="signin-subtitle">Welcome back! Sign in to keep feeding hands.</p>
           {location.state?.message && <div className="signin-footer" role="status">{location.state.message}</div>}

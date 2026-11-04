@@ -48,7 +48,7 @@ const FoodHeroes = () => {
       {error && <p className="workspace-panel" role="alert">{error}</p>}
 
       <section className="workspace-metrics" aria-label="Your standing">
-        <WorkspaceMetric hero index={0} icon={Award} pose="peeking" label="Your points" value={points} hint="10 per delivered donation" />
+        <WorkspaceMetric hero index={0} icon={Award} pose="donor-box" label="Your points" value={points} hint="10 per delivered donation" />
         <WorkspaceMetric index={1} icon={Trophy} label="Your rank" value={rank ?? 0} hint={rank ? `of the top ${heroes.length} heroes` : "Get a donation delivered to join the board"} />
         <WorkspaceMetric index={2} icon={Flame} pose="chin-wave" label="Delivered on FeedingHands" value={totals?.delivered ?? 0} hint="donations that reached a kitchen" />
       </section>
@@ -71,7 +71,7 @@ const FoodHeroes = () => {
                 return (
                   <li key={`${h.name}-${i}`} className={`heroes-place ${tone}`}>
                     <span className="heroes-place-badge"><Icon size={16} /> {label}</span>
-                    <span className="heroes-avatar" aria-hidden="true">{h.name.charAt(0).toUpperCase()}</span>
+                    <Illustration name={`avatar-${i + 1}`} className="heroes-avatar heroes-avatar-art" />
                     <strong className="heroes-name">{h.name}</strong>
                     <span className="heroes-points">{h.points} points</span>
                     <span className="heroes-step" aria-hidden="true" />

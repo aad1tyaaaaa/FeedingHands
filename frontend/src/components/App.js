@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 
-import { AuthProvider, RequireAuth } from "./AuthContext";
+import { AuthProvider } from "./AuthContext";
 import LoaderRedirect from "./LoaderRedirect";
 import SignIn from "./Signin";
 import SignUp from "./SignUp";
@@ -40,7 +40,6 @@ function App() {
           <Route path="/role-selection" element={<RoleSelection />} />
           <Route path="/RoleSelection" element={<Navigate to="/role-selection" replace />} />
           <Route path="/persona-login" element={<Navigate to="/sign-in" replace />} />
-          <Route path="/Register" element={<RequireAuth roles={["organization"]}><Register /></RequireAuth>} />
           {/* Every in-app page shares the workspace sidebar, which also enforces sign-in and role. */}
           <Route element={<PersonaDashboardShell />}>
             <Route path="/dashboard" element={<Dashboard />} />
@@ -62,6 +61,7 @@ function App() {
             <Route path="/FoodHeroes" element={<FoodHeroes />} />
             <Route path="/KnowYourVolunteer" element={<KnowYourVolunteer />} />
             <Route path="/KnowYourNgo" element={<KnowYourNgo />} />
+            <Route path="/Register" element={<Register />} />
             <Route path="/ImageRecognition" element={<ImageRecognition />} />
             <Route path="/FoodSpoiledPage" element={<FoodSpoiledPage />} />
             <Route path="/ArDetection" element={<ArDetection />} />

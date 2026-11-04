@@ -92,17 +92,16 @@
 .workspace-brand {
   display: flex;
   align-items: center;
-  height: 50px;
-  margin: 0 8px 28px;
+  margin: 4px 6px 30px;
   border-radius: 12px;
 }
 
+/* logo-wordmark.png is the logo cropped to its ink, so it can fill the sidebar width */
 .workspace-brand img {
   display: block;
-  width: min(100%, 172px);
-  max-height: 48px;
-  object-fit: contain;
-  object-position: left center;
+  width: 100%;
+  max-width: 230px;
+  height: auto;
 }
 
 .workspace-nav-label {

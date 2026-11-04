@@ -117,9 +117,9 @@ function Dashboard() {
         </section>
 
         <section className="workspace-metrics" aria-label="Donation summary">
-          <WorkspaceMetric hero index={0} icon={HandHeart} pose="chef" label="Donation records" value={donations.length} hint="Every plate you've shared so far" />
+          <WorkspaceMetric hero index={0} icon={HandHeart} pose="donor-box" label="Donation records" value={donations.length} hint="Every plate you've shared so far" />
           <WorkspaceMetric index={1} icon={CalendarDays} label="This month" value={thisMonthCount} share={donations.length ? thisMonthCount / donations.length : null} shareOf="all donations" />
-          <WorkspaceMetric index={2} icon={Award} pose="pull-up" label="Puniya points" value={user.points} hint={`${delivered} delivered · 10 points each`} />
+          <WorkspaceMetric index={2} icon={Award} pose="donor-wave" label="Puniya points" value={user.points} hint={`${delivered} delivered · 10 points each`} />
         </section>
 
         <div className="donor-dashboard-grid">

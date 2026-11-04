@@ -103,7 +103,7 @@ function SignUp() {
       <div className="signin-panel">
         <div className="signin-container">
           <img className="signin-logo" src="/logo/logo-with-text.png" alt="FeedingHands" />
-          {step === "verify" && <Illustration name="otp-phone" className="signin-art" />}
+          <Illustration name={step === "verify" ? "hero-email" : "hero-welcome"} className="signin-art signin-art--wide" />
           <h2>{step === "verify" ? "Verify Email" : "Create Account"}</h2>
           <p className="signin-subtitle">
             {step === "verify"

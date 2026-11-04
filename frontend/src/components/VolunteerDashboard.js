@@ -64,9 +64,9 @@ const VolunteerDashboard = () => {
       {error && <p className="workspace-panel" role="alert">{error}</p>}
 
       <section className="workspace-metrics" aria-label="Pickup summary">
-        <WorkspaceMetric hero index={0} icon={Hourglass} pose="volunteer" label="Awaiting pickup" value={queue.length} hint="Food waiting for a hero like you" />
+        <WorkspaceMetric hero index={0} icon={Hourglass} pose="volunteer-peek" label="Awaiting pickup" value={queue.length} hint="Food waiting for a hero like you" />
         <WorkspaceMetric index={1} icon={Truck} label="Your active deliveries" value={active.length} hint="Picked up, not yet delivered" />
-        <WorkspaceMetric index={2} icon={CircleCheck} pose="peeking" label="Delivered" value={delivered.length} share={mine.length ? delivered.length / mine.length : null} shareOf="your pickups" />
+        <WorkspaceMetric index={2} icon={CircleCheck} pose="volunteer-scooter" label="Delivered" value={delivered.length} share={mine.length ? delivered.length / mine.length : null} shareOf="your pickups" />
       </section>
 
       {active.length > 0 && (

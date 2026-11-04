@@ -11,6 +11,8 @@ import "./BiogasDonation.css";
 import { apiFetch } from "../api/client";
 import { useAuth } from "./AuthContext";
 import Illustration from "./Illustration";
+import WorkspaceMetric from "./WorkspaceMetric";
+import { CalendarClock, CircleCheck, XCircle } from "lucide-react";
 import DatePicker, { toISODate } from "./DatePicker";
 
 const PICKUP_STATUS = { scheduled: "Scheduled", collected: "Collected", cancelled: "Cancelled" };
@@ -128,7 +130,7 @@ const BiogasDonation = () => {
       <div className="biogas-container fh-page">
       {/* Hero Section */}
       <div className="biogas-hero">
-        <Illustration name="hero-biogas" className="fh-hero-art" />
+        <Illustration name={partner ? "hero-biogas-partner" : "hero-biogas"} className="fh-hero-art" />
         <div className="hero-content">
           <span className="fh-chip">Waste → Energy</span>
           <h1 className="fh-title">
@@ -138,7 +140,8 @@ const BiogasDonation = () => {
         </div>
       </div>
 
-      {/* Benefits Section */}
+      {/* Benefits pitch the idea to donors; partners go straight to their numbers. */}
+      {!partner && (
       <div className="benefits-section">
         <h2>
           Why Donate Food Waste? <FaLeaf aria-hidden="true" />
@@ -163,7 +166,15 @@ const BiogasDonation = () => {
           </div>
         </div>
       </div>
+      )}
 
+      {partner && (
+        <section className="workspace-metrics" aria-label="Pickup summary">
+          <WorkspaceMetric hero index={0} icon={CalendarClock} pose="biogas-peek" label="Scheduled" value={pickups.filter((p) => p.status === "scheduled").length} hint="Waiting for collection" />
+          <WorkspaceMetric index={1} icon={CircleCheck} label="Collected" value={pickups.filter((p) => p.status === "collected").length} share={pickups.length ? pickups.filter((p) => p.status === "collected").length / pickups.length : null} shareOf="all pickups" />
+          <WorkspaceMetric index={2} icon={XCircle} pose="biogas-bin" label="Cancelled" value={pickups.filter((p) => p.status === "cancelled").length} hint="Called off before pickup" />
+        </section>
+      )}
       {partner && pickupList}
       {!partner && (
       <form className="donation-form fh-card" onSubmit={handleSubmit}>

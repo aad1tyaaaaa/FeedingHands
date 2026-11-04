@@ -80,20 +80,20 @@ Without SMTP settings, signup codes are printed in the API terminal and shown on
 
 With `SEED_DEMO_DATA=true` (the default in `.env.example` and docker compose), the API creates three verified accounts per role, plus sample donations at every stage. **Every demo account uses the password `Demo@1234`.**
 
-| Role | Name | Email | Lands on |
-|---|---|---|---|
-| Donor | Aarav Sharma | `donor1@feedinghands.dev` | `/dashboard` |
-| Donor | Diya Patel | `donor2@feedinghands.dev` | `/dashboard` |
-| Donor | Kabir Mehta | `donor3@feedinghands.dev` | `/dashboard` |
-| Volunteer | Rohan Iyer | `volunteer1@feedinghands.dev` | `/VolunteerDashboard` |
-| Volunteer | Sneha Kulkarni | `volunteer2@feedinghands.dev` | `/VolunteerDashboard` |
-| Volunteer | Arjun Nair | `volunteer3@feedinghands.dev` | `/VolunteerDashboard` |
-| Organization | Meera Joshi (Annapurna Food Bank) | `ngo1@feedinghands.dev` | `/NgoDashboard` |
-| Organization | Vikram Desai (Roti Ghar Trust) | `ngo2@feedinghands.dev` | `/NgoDashboard` |
-| Organization | Ananya Rao (Seva Sahyog Foundation) | `ngo3@feedinghands.dev` | `/NgoDashboard` |
-| Biogas partner | Farhan Shaikh | `biogas1@feedinghands.dev` | `/BiogasDonation` |
-| Biogas partner | Priya Menon | `biogas2@feedinghands.dev` | `/BiogasDonation` |
-| Biogas partner | Siddharth Rane | `biogas3@feedinghands.dev` | `/BiogasDonation` |
+| Role | Name | Email | Password | Lands on |
+|---|---|---|---|---|
+| Donor | Aarav Sharma | `donor1@feedinghands.dev` | `Demo@1234` | `/dashboard` |
+| Donor | Diya Patel | `donor2@feedinghands.dev` | `Demo@1234` | `/dashboard` |
+| Donor | Kabir Mehta | `donor3@feedinghands.dev` | `Demo@1234` | `/dashboard` |
+| Volunteer | Rohan Iyer | `volunteer1@feedinghands.dev` | `Demo@1234` | `/VolunteerDashboard` |
+| Volunteer | Sneha Kulkarni | `volunteer2@feedinghands.dev` | `Demo@1234` | `/VolunteerDashboard` |
+| Volunteer | Arjun Nair | `volunteer3@feedinghands.dev` | `Demo@1234` | `/VolunteerDashboard` |
+| Organization | Meera Joshi (Annapurna Food Bank) | `ngo1@feedinghands.dev` | `Demo@1234` | `/NgoDashboard` |
+| Organization | Vikram Desai (Roti Ghar Trust) | `ngo2@feedinghands.dev` | `Demo@1234` | `/NgoDashboard` |
+| Organization | Ananya Rao (Seva Sahyog Foundation) | `ngo3@feedinghands.dev` | `Demo@1234` | `/NgoDashboard` |
+| Biogas partner | Farhan Shaikh | `biogas1@feedinghands.dev` | `Demo@1234` | `/BiogasDonation` |
+| Biogas partner | Priya Menon | `biogas2@feedinghands.dev` | `Demo@1234` | `/BiogasDonation` |
+| Biogas partner | Siddharth Rane | `biogas3@feedinghands.dev` | `Demo@1234` | `/BiogasDonation` |
 
 New users go through the real flow: **Sign up → enter the email code → choose a role → workspace**.
 
