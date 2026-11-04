@@ -7,7 +7,12 @@ import {
   Building2,
   CalendarDays,
   ClipboardList,
+  Flame,
+  Gift,
   HandHeart,
+  HeartHandshake,
+  Recycle,
+  UserRound,
   LayoutDashboard,
   LogOut,
   Map,
@@ -18,6 +23,7 @@ import {
   X,
 } from "lucide-react";
 import "./PersonaDashboardShell.css";
+import { RequireAuth, useAuth } from "./AuthContext";
 
 const WORKSPACES = {
   donor: {
@@ -27,7 +33,10 @@ const WORKSPACES = {
       { label: "Overview", to: "/dashboard", icon: LayoutDashboard },
       { label: "Donate food", to: "/Donate", icon: HandHeart },
       { label: "Donation tracking", to: "/Tracking", icon: ClipboardList },
+      { label: "Biogas pickup", to: "/BiogasDonation", icon: Recycle },
       { label: "Freshness check", to: "/ImageRecognition", icon: ScanSearch },
+      { label: "Fundraising", to: "/FundraisingPage", icon: HeartHandshake },
+      { label: "Gift cards", to: "/GiftCard", icon: Gift },
       { label: "Food learning", to: "/LearnerCorner", icon: BookOpen },
       { label: "Food heroes", to: "/FoodHeroes", icon: Award },
     ],
@@ -40,6 +49,7 @@ const WORKSPACES = {
       { label: "Volunteer map", to: "/VolunteerMap", icon: Map },
       { label: "Delivery progress", to: "/DeliveryTrackingPage", icon: Truck },
       { label: "Donation tracking", to: "/Tracking", icon: ClipboardList },
+      { label: "My profile", to: "/VolunteerForm", icon: UserRound },
       { label: "Food learning", to: "/LearnerCorner", icon: BookOpen },
     ],
   },
@@ -51,32 +61,52 @@ const WORKSPACES = {
       { label: "Donation tracking", to: "/NgoTracking", icon: ClipboardList },
       { label: "Route planning", to: "/Route_Optimization", icon: Route },
       { label: "Event forecast", to: "/Event_prediction", icon: CalendarDays },
-      { label: "Organization profile", to: "/KnowYourNgo", icon: Building2 },
-      { label: "Community activity", to: "/Tracking", icon: Activity },
+      { label: "Organization profile", to: "/Register", icon: Building2 },
+      { label: "NGO directory", to: "/KnowYourNgo", icon: Activity },
+    ],
+  },
+  biogas: {
+    label: "Biogas partner",
+    home: "/BiogasDonation",
+    links: [
+      { label: "Pickups", to: "/BiogasDonation", icon: Flame },
+      { label: "Freshness check", to: "/ImageRecognition", icon: ScanSearch },
+      { label: "Food learning", to: "/LearnerCorner", icon: BookOpen },
     ],
   },
 };
 
-function readUser() {
-  try {
-    return JSON.parse(localStorage.getItem("fh_user") || "null");
-  } catch {
-    return null;
-  }
-}
+const CHATBOT_ID = process.env.NEXT_PUBLIC_CHATBASE_ID ?? "yjdpcsT5vE7OpzrkI5BYv";
 
-const hasPath = (role, path) => WORKSPACES[role].links.some((link) => link.to.toLowerCase() === path.toLowerCase());
+// Pages that act on one role's data; anything else in the shell is open to every signed-in user.
+const ROLE_PAGES = {
+  "/dashboard": ["donor"],
+  "/donate": ["donor"],
+  "/volunteerdashboard": ["volunteer"],
+  "/volunteermap": ["volunteer"],
+  "/deliverytrackingpage": ["volunteer"],
+  "/volunteerform": ["volunteer"],
+  "/ngodashboard": ["organization"],
+  "/ngotracking": ["organization"],
+  "/route_optimization": ["organization", "volunteer"],
+  "/event_prediction": ["organization"],
+};
 
-// Layout route: every in-app page renders inside this shell via <Outlet />.
-// Role = signed-in persona when it owns this page, else the workspace that owns it, else donor.
+// Layout route: every in-app page renders inside this shell via <Outlet />, behind the sign-in guard.
 function PersonaDashboardShell() {
   const { pathname } = useLocation();
-  const user = readUser();
-  const role = WORKSPACES[user?.role] && (hasPath(user.role, pathname) || !Object.keys(WORKSPACES).some((r) => hasPath(r, pathname)))
-    ? user.role
-    : Object.keys(WORKSPACES).find((r) => hasPath(r, pathname)) || "donor";
+  return (
+    <RequireAuth roles={ROLE_PAGES[pathname.toLowerCase()]}>
+      <Workspace pathname={pathname} />
+    </RequireAuth>
+  );
+}
+
+function Workspace({ pathname }) {
+  const { user, logout: endSession } = useAuth();
+  const role = WORKSPACES[user.role] ? user.role : "donor"; // admin browses with the donor menu
   const workspace = WORKSPACES[role];
-  const displayName = user?.fullName || user?.name || workspace.label;
+  const displayName = user.fullName || workspace.label;
   const title = workspace.links.find((link) => link.to.toLowerCase() === pathname.toLowerCase())?.label
     || pathname.replace(/^\//, "").replace(/[_-]+/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -84,13 +114,23 @@ function PersonaDashboardShell() {
   const navigate = useNavigate();
 
   const logout = () => {
-    localStorage.removeItem("fh_user");
-    navigate("/persona-login", { replace: true });
+    endSession();
+    navigate("/sign-in", { replace: true });
   };
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
+
+  // The help chatbot loads only inside the workspace: on the auth pages its greeting covered the submit buttons.
+  useEffect(() => {
+    if (!CHATBOT_ID || document.getElementById(CHATBOT_ID)) return;
+    const script = document.createElement("script");
+    script.src = "https://www.chatbase.co/embed.min.js";
+    script.id = CHATBOT_ID;
+    script.setAttribute("domain", "www.chatbase.co");
+    document.body.appendChild(script);
+  }, []);
 
   // One shared pill that glides to whichever link is active.
   useLayoutEffect(() => {

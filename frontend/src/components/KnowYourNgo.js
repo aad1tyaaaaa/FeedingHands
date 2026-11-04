@@ -1,49 +1,42 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "./PersonaTheme.css";
 import "./KnowYourNgo.css";
-import { apiFetch } from "../api/client";
+import { apiFetch, apiUrl } from "../api/client";
+import Illustration from "./Illustration";
 
+// Directory of partner NGOs: where to deliver food and whom to call.
 const KnowYourNgo = () => {
-  const [volunteers, setVolunteers] = useState([]);
+  const [organizations, setOrganizations] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchVolunteers();
+    apiFetch("/api/organizations")
+      .then((data) => setOrganizations(data.organizations || []))
+      .catch((err) => setError(err.message));
   }, []);
-
-  async function fetchVolunteers() {
-    try {
-      const data = await apiFetch("/api/organizations");
-      setVolunteers(data.organizations || []);
-    } catch (err) {
-      console.error("Unexpected error:", err);
-    }
-  }
 
   return (
     <div className="fh-theme theme-organization know-your-ngo">
       <div className="fh-blob" aria-hidden="true" />
-      {/* Volunteers Section */}
       <div className="fh-page">
-        <h4 className="fh-title">NGO Detail</h4>
-        {/* <button onClick={fetchVolunteers}>Refresh</button> */}
-        {volunteers.length > 0 ? (
+        <Illustration name="handshake" className="fh-hero-art" />
+        <h4 className="fh-title">Partner NGOs</h4>
+        {error && <p role="alert">{error}</p>}
+        {organizations.length > 0 ? (
           <div className="ngo-list">
-            {volunteers.map((volunteer, index) => (
-              <div key={index} className="volunteer-card fh-card">
-                <p>
-                  <strong className="fh-label">Name:</strong> {volunteer.name}
-                </p>
-                <p>
-                  <strong className="fh-label">Location:</strong> {volunteer.address}
-                </p>
-                <p>
-                  <strong className="fh-label">Contact:</strong> {volunteer.contact}
-                </p>
+            {organizations.map((o) => (
+              <div key={o.id} className="volunteer-card fh-card">
+                {o.logo_url && <img src={apiUrl(o.logo_url)} alt="" width={56} height={56} style={{ objectFit: "contain" }} />}
+                <p><strong className="fh-label">Name:</strong> {o.name}</p>
+                {o.description && <p>{o.description}</p>}
+                <p><strong className="fh-label">Location:</strong> {o.address}</p>
+                {o.phone && <p><strong className="fh-label">Phone:</strong> <a href={`tel:${o.phone}`}>{o.phone}</a></p>}
+                {o.website && <p><a href={o.website} target="_blank" rel="noopener noreferrer">Website</a></p>}
               </div>
             ))}
           </div>
         ) : (
-          <p className="empty fh-card">No volunteers found.</p>
+          !error && <p className="empty fh-card">No partner NGOs yet.</p>
         )}
       </div>
     </div>

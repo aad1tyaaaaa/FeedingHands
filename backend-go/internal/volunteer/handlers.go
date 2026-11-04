@@ -1,34 +1,37 @@
-// Package volunteer handles volunteer sign-ups.
+// Package volunteer handles volunteer profiles.
 package volunteer
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 	"time"
 
 	"feedinghands/backend-go/internal/auth"
-	"feedinghands/backend-go/internal/db"
 	"feedinghands/backend-go/internal/httpx"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// Volunteer is the volunteer's own view of their profile.
 type Volunteer struct {
-	ID        int64     `json:"id"`
-	UserID    *int64    `json:"user_id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	Phone     string    `json:"phone"`
-	Address   string    `json:"address"`
-	CreatedAt time.Time `json:"created_at"`
+	ID         int64     `json:"id"`
+	UserID     *int64    `json:"user_id"`
+	Name       string    `json:"name"`
+	Email      string    `json:"email"`
+	Phone      string    `json:"phone"`
+	Address    string    `json:"address"`
+	Deliveries int       `json:"deliveries"`
+	CreatedAt  time.Time `json:"created_at"`
 }
 
-const cols = `id, user_id, name, email, phone, address, created_at`
+const cols = `v.id, v.user_id, v.name, v.email, v.phone, v.address,
+	(SELECT count(*) FROM donations d WHERE d.volunteer_id = v.id AND d.status = 'delivered'), v.created_at`
 
 func scan(row pgx.Row) (Volunteer, error) {
 	var v Volunteer
-	err := row.Scan(&v.ID, &v.UserID, &v.Name, &v.Email, &v.Phone, &v.Address, &v.CreatedAt)
+	err := row.Scan(&v.ID, &v.UserID, &v.Name, &v.Email, &v.Phone, &v.Address, &v.Deliveries, &v.CreatedAt)
 	return v, err
 }
 
@@ -38,25 +41,52 @@ type Handler struct {
 }
 
 func (h *Handler) Register(mux *http.ServeMux) {
+	vol := func(next http.HandlerFunc) http.HandlerFunc { return h.Tokens.RequireRole("volunteer", next) }
 	mux.HandleFunc("GET /api/volunteers", h.list)
-	mux.HandleFunc("POST /api/volunteers", h.Tokens.Optional(h.create))
+	mux.HandleFunc("GET /api/volunteers/me", vol(h.getMine))
+	mux.HandleFunc("PUT /api/volunteers/me", vol(h.saveMine))
+	mux.HandleFunc("POST /api/volunteers", vol(h.saveMine)) // the VolunteerForm; same as PUT /me
 }
 
+// list is the public "know your volunteers" wall: names and impact only, never contact details.
 func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
-	rows, err := h.DB.Query(r.Context(), `SELECT `+cols+` FROM volunteers ORDER BY created_at DESC`)
+	rows, err := h.DB.Query(r.Context(), `SELECT `+cols+` FROM volunteers v ORDER BY v.created_at DESC`)
 	if err != nil {
 		httpx.Internal(w, r, err)
 		return
 	}
-	volunteers, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (Volunteer, error) { return scan(row) })
+	type public struct {
+		ID         int64     `json:"id"`
+		Name       string    `json:"name"`
+		Deliveries int       `json:"deliveries"`
+		CreatedAt  time.Time `json:"created_at"`
+	}
+	out, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (public, error) {
+		v, err := scan(row)
+		return public{v.ID, v.Name, v.Deliveries, v.CreatedAt}, err
+	})
 	if err != nil {
 		httpx.Internal(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, map[string]any{"volunteers": volunteers})
+	httpx.JSON(w, http.StatusOK, map[string]any{"volunteers": out})
 }
 
-func (h *Handler) create(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) getMine(w http.ResponseWriter, r *http.Request) {
+	u, _ := auth.FromContext(r.Context())
+	v, err := scan(h.DB.QueryRow(r.Context(), `SELECT `+cols+` FROM volunteers v WHERE v.user_id = $1`, u.ID))
+	if errors.Is(err, pgx.ErrNoRows) {
+		httpx.Error(w, http.StatusNotFound, "No volunteer profile yet")
+		return
+	}
+	if err != nil {
+		httpx.Internal(w, r, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, map[string]any{"volunteer": v})
+}
+
+func (h *Handler) saveMine(w http.ResponseWriter, r *http.Request) {
 	var in struct {
 		Name    string `json:"name"`
 		Email   string `json:"email"`
@@ -80,21 +110,21 @@ func (h *Handler) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// A signed-in volunteer account is linked, so pickups they make show their name on the timeline.
-	var userID *int64
-	if u, ok := auth.FromContext(r.Context()); ok && u.Role == "volunteer" {
-		userID = &u.ID
-	}
-	v, err := scan(h.DB.QueryRow(r.Context(), `
+	u, _ := auth.FromContext(r.Context())
+	var id int64
+	err := h.DB.QueryRow(r.Context(), `
 		INSERT INTO volunteers (user_id, name, email, phone, address) VALUES ($1, $2, $3, $4, $5)
-		RETURNING `+cols, userID, in.Name, in.Email, in.Phone, in.Address))
-	if db.IsUniqueViolation(err) {
-		httpx.Error(w, http.StatusConflict, "Your account is already registered as a volunteer")
-		return
-	}
+		ON CONFLICT (user_id) DO UPDATE SET
+			name = EXCLUDED.name, email = EXCLUDED.email, phone = EXCLUDED.phone, address = EXCLUDED.address, updated_at = now()
+		RETURNING id`, u.ID, in.Name, in.Email, in.Phone, in.Address).Scan(&id)
 	if err != nil {
 		httpx.Internal(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusCreated, map[string]any{"message": "Volunteer registered", "volunteer": v})
+	v, err := scan(h.DB.QueryRow(r.Context(), `SELECT `+cols+` FROM volunteers v WHERE v.id = $1`, id))
+	if err != nil {
+		httpx.Internal(w, r, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, map[string]any{"message": "Volunteer profile saved", "volunteer": v})
 }

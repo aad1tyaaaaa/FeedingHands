@@ -1,148 +1,133 @@
 # FeedingHands 🍽️
 
-A comprehensive food donation and redistribution platform that connects donors, NGOs, and volunteers to combat food insecurity while promoting sustainability through biogas integration and community engagement.
+A food donation and redistribution platform. Donors post surplus food, NGOs claim it, volunteers carry it, and food that can't be eaten goes to biogas partners.
 
 ## Features
 
-- **Role-Based Access** — Donor, Volunteer, NGO, Biogas Partner, and Admin roles with tailored dashboards
-- **Food Donation System** — Create, list, and track donations with real-time status updates and unique tracking IDs
-- **AR Food Freshness Detection** — TensorFlow.js-powered camera-based food quality analysis
-- **Route Optimization** — OSRM-based delivery routing for efficient volunteer coordination
-- **Interactive Maps** — Leaflet/Google Maps integration showing donor, NGO, and volunteer locations
-- **Volunteer Management** — Registration, profile tracking, and task assignment
-- **NGO Dashboard** — Centralized operations hub for managing incoming donations
-- **Biogas Integration** — Track food waste diverted to renewable energy production
-- **Gamification (Puniya Points)** — Reward system incentivizing consistent donations
-- **Analytics & Forecasting** — Donation trend charts, event prediction, and city-level insights
-- **Gift Cards & Fundraising** — Digital fundraising tools for campaigns
-- **Learner Corner** — Educational content for community awareness
+- **Real accounts**: email + password signup, 6-digit email OTP, JWT sessions. The role is chosen once, after registering.
+- **Roles**: Donor, Volunteer, Organization (NGO) and Biogas Partner, each with its own workspace. Pages check the role in the browser and every API call checks it on the server.
+- **Donation lifecycle**: Donor posts → NGO claims → volunteer picks up → on the way → delivered, with a timestamped timeline and a short tracking ID (e.g. `FH-7KQ2M9XA`) anyone can look up.
+- **Puniya points**: donors earn 10 points when their donation is delivered; the Food Heroes leaderboard ranks them.
+- **Maps & routing**: open pickups on a map sorted by distance, and driving routes from you → donor → NGO (Leaflet + OpenStreetMap + OSRM, no API keys).
+- **Biogas pickups**: anyone schedules a food-waste pickup; biogas partners mark it collected.
+- **Analytics & forecast**: weekly donation history and a 4-week trend forecast for NGOs.
+- **Freshness check**: TensorFlow.js / Teachable Machine camera model, runs in the browser.
+- **Fundraising & gift cards**: demo UI only: no payment is taken and no card details are collected (Razorpay is a later phase).
 
 ## Tech Stack
 
-### Frontend
-- React 18 with React Router DOM
-- TailwindCSS + Bootstrap
-- Chart.js / Recharts for analytics
-- Leaflet + React-Leaflet for maps
-- TensorFlow.js + Teachable Machine for ML inference
-- Google OAuth for authentication
-
-### Backend
-- Node.js + Express.js
-- MongoDB with Mongoose ODM
-- JWT-based authentication with bcrypt
-- RESTful API architecture
-
-### External Services
-- Google Maps API (geocoding, location services)
-- Google OAuth (sign-in)
-- Supabase (supplementary backend services)
-- OSRM (route optimization)
-- AWS SDK (storage/email)
+| Layer | Stack |
+|---|---|
+| Frontend | Next.js 16 (React 18 SPA via catch-all route), React Router 7, Recharts / Chart.js, Leaflet, TensorFlow.js |
+| API | Go `net/http`, pgx, goose migrations (run on startup), bcrypt, HS256 JWT, SMTP email |
+| Database | PostgreSQL |
+| External | OpenStreetMap tiles, Nominatim geocoding, OSRM routing, Chatbase help bot (workspace only) |
 
 ## Project Structure
 
 ```
 FeedingHands/
-├── frontend/              # Next.js app (App Router, existing React SPA inside)
-│   ├── app/               # Next.js layout + catch-all page that loads the SPA
-│   ├── src/
-│   │   ├── components/    # 40+ components (dashboards, pages, features)
-│   │   ├── api/client.js  # Centralized API client with JWT management
-│   │   └── index.js       # Entry point (renders components/App.js)
-│   ├── public/            # Static assets, ML model files
-│   └── package.json       # Frontend dependencies & scripts
-├── backend/
-│   ├── server.js          # Express server (port 5000)
-│   ├── config/db.js       # MongoDB connection
-│   ├── models/            # Mongoose schemas (User, Donation, Volunteer, Organization, BiogasDonation)
-│   ├── controllers/       # Business logic
-│   ├── routes/            # API endpoints
-│   ├── middleware/auth.js  # JWT verification
-│   └── utils/             # Token generation helpers
+├── frontend/                 # Next.js app
+│   ├── app/                  # layout + catch-all page that loads the SPA
+│   ├── src/api/              # API client (JWT), geo/routing helpers, forecast (+ test)
+│   ├── src/components/       # pages, AuthContext (session + route guards), dashboards
+│   └── public/               # static assets, ML model files
+├── backend-go/               # Go API, see backend-go/README.md for every endpoint and rule
+│   ├── cmd/server/main.go
+│   ├── internal/             # auth, donation, organization, volunteer, biogas, stats, mail, seed, httpx, db
+│   └── migrations/           # PostgreSQL schema (goose)
+├── scripts/smoke.mjs         # end-to-end lifecycle test against a running API
+├── docker-compose.yml        # Postgres + API + web for local development
+└── .github/workflows/ci.yml  # gofmt, vet, Go tests, live smoke test, frontend test + build
 ```
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js (v18+)
-- MongoDB (local or Atlas)
-- Google Maps API key
-- Google OAuth Client ID
-
-### Environment Variables
-
-Create a `.env` file in the `backend/` directory:
-
-```env
-MONGO_URI=mongodb://127.0.0.1:27017/feeding_hands
-JWT_SECRET=your_jwt_secret
-PORT=5000
-CORS_ORIGIN=http://localhost:3000
-NODE_ENV=development
-```
-
-### Installation
+### Option A: Docker (one command)
 
 ```bash
-cd frontend && npm install --legacy-peer-deps
-cd ../backend && npm install
+docker compose up --build
 ```
 
-### Running the App
+Open http://localhost:3000. Postgres, the API (with demo personas) and the frontend all start together.
+
+### Option B: Run locally
+
+Prerequisites: Node.js 22+, Go (version in `backend-go/go.mod`), PostgreSQL.
+
+```sql
+-- once, in psql
+CREATE USER feedinghands WITH PASSWORD 'choose-a-password';
+CREATE DATABASE feedinghands OWNER feedinghands;
+```
 
 ```bash
-# Start backend server
-cd backend
-npm run dev
+# API: migrates the database, seeds demo personas, listens on :5001
+cd backend-go
+cp .env.example .env          # set DATABASE_URL and JWT_SECRET (openssl rand -base64 32)
+go run ./cmd/server
 
-# Start frontend (Next.js)
+# Frontend, in a second terminal: http://localhost:3000
 cd frontend
+cp .env.example .env
+npm install
 npm run dev
 ```
 
-Set `NEXT_PUBLIC_API_BASE_URL` in `frontend/.env.local` to point the frontend at a different API (default `http://localhost:5000`).
+Without SMTP settings, signup codes are printed in the API terminal and shown on the signup page (development only).
 
-The frontend runs on `http://localhost:3000` and the backend API on `http://localhost:5000`.
+### Demo personas
 
-### Demo Login Credentials
+With `SEED_DEMO_DATA=true` (the default in `.env.example` and docker compose), the API creates three verified accounts per role, plus sample donations at every stage. **Every demo account uses the password `Demo@1234`.**
 
-The current demo flow is: landing page → gateway login → persona login → persona dashboard.
-These hardcoded credentials are for local development and demonstrations only.
+| Role | Name | Email | Lands on |
+|---|---|---|---|
+| Donor | Aarav Sharma | `donor1@feedinghands.dev` | `/dashboard` |
+| Donor | Diya Patel | `donor2@feedinghands.dev` | `/dashboard` |
+| Donor | Kabir Mehta | `donor3@feedinghands.dev` | `/dashboard` |
+| Volunteer | Rohan Iyer | `volunteer1@feedinghands.dev` | `/VolunteerDashboard` |
+| Volunteer | Sneha Kulkarni | `volunteer2@feedinghands.dev` | `/VolunteerDashboard` |
+| Volunteer | Arjun Nair | `volunteer3@feedinghands.dev` | `/VolunteerDashboard` |
+| Organization | Meera Joshi (Annapurna Food Bank) | `ngo1@feedinghands.dev` | `/NgoDashboard` |
+| Organization | Vikram Desai (Roti Ghar Trust) | `ngo2@feedinghands.dev` | `/NgoDashboard` |
+| Organization | Ananya Rao (Seva Sahyog Foundation) | `ngo3@feedinghands.dev` | `/NgoDashboard` |
+| Biogas partner | Farhan Shaikh | `biogas1@feedinghands.dev` | `/BiogasDonation` |
+| Biogas partner | Priya Menon | `biogas2@feedinghands.dev` | `/BiogasDonation` |
+| Biogas partner | Siddharth Rane | `biogas3@feedinghands.dev` | `/BiogasDonation` |
 
-**Gateway login**
+New users go through the real flow: **Sign up → enter the email code → choose a role → workspace**.
 
-| Username | Password |
-|----------|----------|
-| `demo` | `feedinghands` |
+### Tests
 
-**Persona logins**
+```bash
+cd backend-go && go test ./...      # donation status + permission rules
+cd frontend && npm test             # forecast maths
+node scripts/smoke.mjs              # full lifecycle against a running API (dev mode, demo data seeded)
+```
 
-| Persona | Username | Password | Dashboard |
-|---------|----------|----------|-----------|
-| Donor | `donor` | `donor123` | `/dashboard` |
-| Volunteer | `volunteer` | `volunteer123` | `/VolunteerDashboard` |
-| Organization | `organization` | `organization123` | `/NgoDashboard` |
+CI runs all three on every push and pull request.
 
-## API Endpoints
+## Deployment
 
-| Route | Description |
-|-------|-------------|
-| `/api/auth` | Authentication (signup, signin, OTP verification) |
-| `/api/donations` | Donation CRUD and status tracking |
-| `/api/volunteers` | Volunteer registration and management |
-| `/api/organizations` | NGO/organization profiles |
-| `/api/biogas` | Biogas donation tracking |
-| `GET /health` | Server health check |
+The recommended setup is **Vercel** (frontend), **Railway or Render** (Go API) and **managed PostgreSQL**.
 
-## Database Models
+**Database**: create a managed Postgres (Railway, Render, Neon, Supabase…). Use its connection string with `sslmode=require`.
 
-- **User** — Roles, auth credentials, points, impact score
-- **Donation** — Food details, geolocation, status pipeline (available → requested → picked_up → in_transit → delivered)
-- **Volunteer** — Profile and contact info
-- **Organization** — NGO details with geolocation
-- **BiogasDonation** — Waste-to-energy tracking
+**API (Railway / Render)**: deploy `backend-go/` using its `Dockerfile`, with these settings:
+
+| Variable | Value |
+|---|---|
+| `DATABASE_URL` | managed Postgres URL |
+| `JWT_SECRET` | 32+ random characters, never reused from development |
+| `APP_ENV` | `production` |
+| `CORS_ORIGIN` | your Vercel URL, e.g. `https://feedinghands.vercel.app` |
+| `TRUST_PROXY` | `true` |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | your email provider (port 587, STARTTLS) |
+| `SEED_DEMO_DATA` | leave unset; production refuses to start with it |
+
+Health check path: `/health`. The API refuses to start in production without email, CORS and a strong secret.
+
+**Frontend (Vercel)**: import the repo, set **Root Directory** to `frontend`, and add `NEXT_PUBLIC_API_BASE_URL` (the API's public URL). Redeploy whenever that URL changes, since it's built into the bundle.
 
 ## License
 

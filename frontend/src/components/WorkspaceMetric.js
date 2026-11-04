@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import Illustration from "./Illustration";
 
 const prefersReducedMotion = () =>
   typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -39,11 +40,24 @@ function Burst() {
   );
 }
 
+// Two-layer characters that cling to the card: kpi-<pose>-body sits behind the card, kpi-<pose>-hands
+// (same canvas) in front, gripping the top edge. `edge` is the share of the art's height that falls below
+// the card line, measured when the asset sheet was cut, so the knuckles land exactly on the border.
+export const POSES = {
+  peeking: { edge: 0.182 },
+  "chin-wave": { edge: 0.168 },
+  "pull-up": { edge: 0.171 },
+  volunteer: { edge: 0.169 },
+  ngo: { edge: 0.157 },
+  chef: { edge: 0.155 },
+};
+
 /**
  * KPI tile. `share` (0–1) draws a meter of this value against `shareOf`;
  * pass `share={null}` when the total is zero so the meter says so instead of lying.
+ * `pose` (a POSES key) adds a character clinging to the card's top edge.
  */
-function WorkspaceMetric({ label, value, hint, icon: Icon, index = 0, hero = false, share, shareOf }) {
+function WorkspaceMetric({ label, value, hint, icon: Icon, index = 0, hero = false, share, shareOf, pose }) {
   const shown = useCountUp(value, 260 + index * 120);
   const hasMeter = share !== undefined;
 
@@ -57,7 +71,7 @@ function WorkspaceMetric({ label, value, hint, icon: Icon, index = 0, hero = fal
     event.currentTarget.style.setProperty("--my", "0.5");
   };
 
-  return (
+  const card = (
     <div
       className={`workspace-metric${hero ? " is-hero" : ""}`}
       style={{ "--i": index }}
@@ -97,6 +111,17 @@ function WorkspaceMetric({ label, value, hint, icon: Icon, index = 0, hero = fal
       )}
 
       {hint && <small className="workspace-metric-hint">{hint}</small>}
+    </div>
+  );
+
+  if (!POSES[pose]) return card;
+  // The card clips its overflow (ghost numeral, sheen), so the character lives on a wrapper around it:
+  // body behind the card, card, then hands on top.
+  return (
+    <div className={`workspace-metric-slot${hero ? " is-hero" : ""}`} style={{ "--i": index, "--edge": POSES[pose].edge }}>
+      <Illustration name={`kpi-${pose}-body`} className="workspace-metric-art" />
+      {card}
+      <Illustration name={`kpi-${pose}-hands`} className="workspace-metric-art is-hands" />
     </div>
   );
 }

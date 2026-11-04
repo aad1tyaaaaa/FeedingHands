@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"feedinghands/backend-go/internal/auth"
-	"feedinghands/backend-go/internal/db"
 	"feedinghands/backend-go/internal/httpx"
 
 	"github.com/jackc/pgx/v5"
@@ -32,7 +31,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	org := func(next http.HandlerFunc) http.HandlerFunc { return h.Tokens.RequireRole("organization", next) }
 
 	mux.HandleFunc("GET /api/organizations", h.list)
-	mux.HandleFunc("POST /api/organizations", h.Tokens.Optional(h.create))
+	mux.HandleFunc("POST /api/organizations", org(h.saveMine)) // the Register form; same as PUT /me
 	mux.HandleFunc("GET /api/organizations/me", org(h.getMine))
 	mux.HandleFunc("PUT /api/organizations/me", org(h.saveMine))
 	mux.HandleFunc("PUT /api/organizations/me/logo", org(h.uploadLogo))
@@ -101,32 +100,6 @@ func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.JSON(w, http.StatusOK, map[string]any{"organizations": orgs})
-}
-
-// create is the public Register form. A signed-in organization account becomes the owner.
-func (h *Handler) create(w http.ResponseWriter, r *http.Request) {
-	var in Input
-	if !httpx.Decode(w, r, &in) {
-		return
-	}
-	if msg := in.validate(); msg != "" {
-		httpx.Error(w, http.StatusBadRequest, msg)
-		return
-	}
-	var owner *int64
-	if u, ok := auth.FromContext(r.Context()); ok && u.Role == "organization" {
-		owner = &u.ID
-	}
-	o, err := h.store().create(r.Context(), owner, in)
-	if db.IsUniqueViolation(err) {
-		httpx.Error(w, http.StatusConflict, "Your account already has an organization profile")
-		return
-	}
-	if err != nil {
-		httpx.Internal(w, r, err)
-		return
-	}
-	httpx.JSON(w, http.StatusCreated, map[string]any{"message": "Organization registered", "organization": o})
 }
 
 func (h *Handler) getMine(w http.ResponseWriter, r *http.Request) {

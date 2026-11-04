@@ -1,0 +1,46 @@
+# Local stack: Postgres + Go API + Next.js. `docker compose up --build`, then open http://localhost:3000.
+# Demo personas are seeded (see README). Not a production config: secrets here are for laptops only.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: feedinghands
+      POSTGRES_PASSWORD: feedinghands
+      POSTGRES_DB: feedinghands
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U feedinghands"]
+      interval: 2s
+      retries: 30
+
+  api:
+    build: ./backend-go
+    environment:
+      DATABASE_URL: postgres://feedinghands:feedinghands@db:5432/feedinghands?sslmode=disable
+      JWT_SECRET: ${JWT_SECRET:-local-dev-only-secret-change-me-0123456789}
+      CORS_ORIGIN: http://localhost:3000
+      APP_ENV: development
+      SEED_DEMO_DATA: "true"
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+    ports:
+      - "5001:5001"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:5001
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

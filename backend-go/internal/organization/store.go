@@ -60,14 +60,6 @@ func (s store) byOwner(ctx context.Context, ownerID int64) (Organization, error)
 	return scan(s.db.QueryRow(ctx, `SELECT `+cols+` FROM organizations WHERE owner_id = $1`, ownerID))
 }
 
-func (s store) create(ctx context.Context, ownerID *int64, in Input) (Organization, error) {
-	return scan(s.db.QueryRow(ctx, `
-		INSERT INTO organizations (owner_id, name, description, address, contact, email, phone, website, latitude, longitude)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-		RETURNING `+cols,
-		ownerID, in.Name, in.Description, in.Address, in.Contact, in.Email, in.Phone, in.Website, in.Latitude, in.Longitude))
-}
-
 // upsert creates the owner's profile on first save and updates it afterwards.
 func (s store) upsert(ctx context.Context, ownerID int64, in Input) (Organization, error) {
 	return scan(s.db.QueryRow(ctx, `

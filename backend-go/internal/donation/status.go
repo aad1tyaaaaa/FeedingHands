@@ -37,3 +37,51 @@ func canMove(from, to string) bool {
 	r, ok := rank[to]
 	return ok && r > rank[from]
 }
+
+// actor is the caller, with the profile ids their role links them to (0 = none).
+type actor struct {
+	role               string
+	userID, orgID, vol int64
+}
+
+// parties are who a donation currently belongs to (0 = nobody yet).
+type parties struct {
+	donor, org, vol int64
+}
+
+func (a actor) involved(p parties) bool {
+	return (a.userID != 0 && a.userID == p.donor) || (a.orgID != 0 && a.orgID == p.org) || (a.vol != 0 && a.vol == p.vol)
+}
+
+// permit returns "" when a may move a donation owned by p to status next ("" = only a note or label),
+// otherwise the reason it can't.
+func permit(a actor, p parties, next string) string {
+	if a.role == "admin" {
+		return ""
+	}
+	switch next {
+	case "":
+		if !a.involved(p) {
+			return "Only people involved in this donation can add notes"
+		}
+	case "requested":
+		if a.role != "organization" {
+			return "Only organizations can claim donations"
+		}
+		if a.orgID == 0 {
+			return "Complete your organization profile before claiming donations"
+		}
+	case "picked_up", "in_transit", "delivered":
+		if a.role != "volunteer" || a.vol == 0 {
+			return "Only volunteers can update pickup and delivery"
+		}
+		if p.vol != 0 && p.vol != a.vol {
+			return "Another volunteer is already handling this donation"
+		}
+	case "cancelled":
+		if (a.userID == 0 || a.userID != p.donor) && (a.orgID == 0 || a.orgID != p.org) {
+			return "Only the donor or the claiming organization can cancel"
+		}
+	}
+	return ""
+}

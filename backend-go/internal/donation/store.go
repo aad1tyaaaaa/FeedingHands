@@ -2,6 +2,7 @@ package donation
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -27,6 +28,8 @@ type Donation struct {
 	NGOName        *string   `json:"ngo_name"`
 	NGOAddress     *string   `json:"ngo_address"`
 	NGOPhone       *string   `json:"ngo_phone"`
+	NGOLatitude    *float64  `json:"ngo_latitude"`
+	NGOLongitude   *float64  `json:"ngo_longitude"`
 	VolunteerID    *int64    `json:"volunteer_id"`
 	VolunteerName  *string   `json:"volunteer_name"`
 	CreatedAt      time.Time `json:"created_at"`
@@ -46,7 +49,7 @@ type Event struct {
 const selectDonation = `
 	SELECT d.id, d.tracking_id, d.type, d.food_details, d.location, d.latitude, d.longitude, d.contact, d.notes,
 	       d.status, d.status_label, d.points, d.donor_id, u.full_name,
-	       d.organization_id, o.name, o.address, o.phone, d.volunteer_id, v.name, d.created_at, d.updated_at
+	       d.organization_id, o.name, o.address, o.phone, o.latitude, o.longitude, d.volunteer_id, v.name, d.created_at, d.updated_at
 	FROM donations d
 	LEFT JOIN users u ON u.id = d.donor_id
 	LEFT JOIN organizations o ON o.id = d.organization_id
@@ -56,7 +59,7 @@ func scan(row pgx.Row) (Donation, error) {
 	var d Donation
 	err := row.Scan(&d.ID, &d.TrackingID, &d.Type, &d.FoodDetails, &d.Location, &d.Latitude, &d.Longitude,
 		&d.Contact, &d.Notes, &d.Status, &d.StatusLabel, &d.Points, &d.DonorID, &d.DonorName,
-		&d.OrganizationID, &d.NGOName, &d.NGOAddress, &d.NGOPhone, &d.VolunteerID, &d.VolunteerName,
+		&d.OrganizationID, &d.NGOName, &d.NGOAddress, &d.NGOPhone, &d.NGOLatitude, &d.NGOLongitude, &d.VolunteerID, &d.VolunteerName,
 		&d.CreatedAt, &d.UpdatedAt)
 	return d, err
 }
@@ -67,9 +70,14 @@ type querier interface {
 	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
 }
 
-func list(ctx context.Context, q querier) ([]Donation, error) {
+// list returns donations matching every where clause (written with $n placeholders for args).
+func list(ctx context.Context, q querier, where []string, args []any) ([]Donation, error) {
+	sql := selectDonation
+	if len(where) > 0 {
+		sql += " WHERE " + strings.Join(where, " AND ")
+	}
 	// ponytail: newest 500 only; add ?limit/&before= paging when donations outgrow that.
-	rows, err := q.Query(ctx, selectDonation+` ORDER BY d.created_at DESC LIMIT 500`)
+	rows, err := q.Query(ctx, sql+` ORDER BY d.created_at DESC LIMIT 500`, args...)
 	if err != nil {
 		return nil, err
 	}

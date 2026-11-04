@@ -1,114 +1,185 @@
-/* /Donate — scoped under .donate-page; /donateFood — scoped under .donatefood-page */
+/* /Donate: three-step form + sticky summary. Tokens and panels come from the workspace shell. */
 
-.donate-page .fh-page { max-width: 760px; }
+.donate-layout { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(280px, 1fr); align-items: start; gap: 22px; }
+.donate-form { display: grid; gap: 18px; }
 
-.donate-page .donheader { margin-bottom: 28px; }
-.donate-page .donheader .fh-title { margin: 14px 0 10px; }
-.donate-page .donheader p { margin: 0; font-size: 1.1rem; color: #444; }
-
-.donate-page .donation-form { animation: fh-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
-.donate-page .donation-form h3 { margin: 0 0 22px; font-size: 1.4rem; font-weight: 800; }
-
-.donate-page .form-group { margin-bottom: 22px; }
-.donate-page .form-group .fh-label { display: block; margin-bottom: 8px; }
-
-.donate-page .form-group input:not([type="checkbox"]):not([type="radio"]),
-.donate-page .form-group select,
-.donate-page .form-group textarea { width: 100%; }
-
-.donate-page .form-group textarea { resize: vertical; }
-
-.donate-page .food-input {
+.donate-step header { display: flex; align-items: center; justify-content: flex-start; gap: 12px; margin-bottom: 18px; }
+.donate-step h2 { margin: 0; color: var(--ink); font-size: 1.2rem; font-weight: 600; }
+.donate-step-no {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.donate-page .food-input input { min-width: 0; }
-
-.donate-page .remove-food-button {
-  width: 44px;
-  border: var(--fh-border, 2px solid var(--ink));
-  border-radius: 12px;
-  background: #fff;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.donate-page .remove-food-button:hover { background: var(--pop); }
-
-.donate-page .add-food-button { padding: 8px 14px; font-size: 0.9rem; }
-
-.donate-page .location-input-group { display: flex; gap: 10px; }
-.donate-page .location-input-group input { flex: 1; min-width: 0; }
-.donate-page .locate-me-button { flex-shrink: 0; white-space: nowrap; }
-
-.donate-page .coordinates-display,
-.donate-page .location-help-text { margin-top: 8px; font-size: 0.85rem; color: #555; }
-
-.donate-page .coordinates-display small {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 8px;
-  background: var(--pop);
-  color: var(--ink);
-  font-family: var(--mono);
-}
-
-.donate-page .submit-button { width: 100%; padding: 14px; font-size: 1.05rem; }
-
-.donate-page .error-message {
-  margin-top: 16px;
-  padding: 12px 14px;
-  border: var(--fh-border, 2px solid var(--ink));
-  border-radius: 12px;
-  background: #ffe1e1;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--on-accent);
   font-weight: 700;
 }
 
-.donate-page .spinner {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border: 2.5px solid currentColor;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: donate-spin 0.7s linear infinite;
+.donate-label { display: block; margin-bottom: 8px; color: var(--ink); font-size: 0.92rem; font-weight: 600; }
+.donate-optional { color: var(--ink-faint); font-weight: 500; }
+
+/* shared field look inside this page */
+.donate-dashboard input:not([type="radio"]),
+.donate-dashboard textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  transition: border-color 180ms, box-shadow 180ms;
 }
+.donate-dashboard textarea { resize: vertical; }
+.donate-dashboard input:not([type="radio"]):focus,
+.donate-dashboard textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent); }
 
-.donate-page .spinner.small { width: 12px; height: 12px; }
-
-@keyframes donate-spin { to { transform: rotate(360deg); } }
-
-.donate-page :is(button, a):focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 3px;
-}
-
-.donate-page .footer {
-  margin-top: 40px;
-  padding-top: 20px;
-  border-top: 2px dashed rgba(20, 20, 20, 0.25);
+/* food type cards */
+.donate-types { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 24px; }
+.donate-type {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 14px 10px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
   text-align: center;
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  color: #555;
+  cursor: pointer;
+  transition: border-color 200ms var(--ease), background 200ms var(--ease), transform 300ms var(--spring);
+}
+.donate-type input { position: absolute; opacity: 0; pointer-events: none; }
+.donate-type:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); transform: translateY(-2px); }
+.donate-type:has(input:focus-visible) { outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 2px; }
+.donate-type.is-selected { border-color: var(--accent); background: var(--tint); }
+.donate-type-art { height: 64px; width: auto; max-width: 100%; object-fit: contain; margin-bottom: 6px; transition: transform 400ms var(--spring); }
+.donate-type.is-selected .donate-type-art { transform: scale(1.08) rotate(-3deg); }
+.donate-type strong { color: var(--ink); font-size: 0.95rem; font-weight: 600; }
+.donate-type span { color: var(--ink-faint); font-size: 0.78rem; line-height: 1.3; }
+.donate-type-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 3px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity 200ms, transform 300ms var(--spring);
+}
+.donate-type.is-selected .donate-type-check { opacity: 1; transform: scale(1); }
+
+/* items */
+.donate-items-head { display: flex; align-items: baseline; justify-content: space-between; }
+.donate-total { color: var(--accent-ink); font-size: 0.9rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.donate-item { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; margin-bottom: 10px; }
+
+.donate-stepper { display: flex; align-items: center; border: 1.5px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); }
+.donate-stepper button { display: grid; place-items: center; width: 38px; height: 44px; border: 0; background: none; color: var(--ink-soft); cursor: pointer; }
+.donate-stepper button:hover { color: var(--accent-ink); }
+.fh-theme .donate-stepper input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]) {
+  width: 56px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  text-align: center;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
+}
+.fh-theme .donate-stepper input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):focus { box-shadow: none; transform: none; }
+.donate-stepper input::-webkit-inner-spin-button,
+.donate-stepper input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.donate-stepper:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent); }
+
+.donate-remove { display: grid; place-items: center; width: 46px; border: 1.5px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink-faint); cursor: pointer; }
+.donate-remove:hover:not(:disabled) { border-color: #f3c4c4; background: #fff1f1; color: #b42318; }
+.donate-remove:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.donate-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border: 1.5px dashed color-mix(in srgb, var(--accent) 50%, var(--line));
+  border-radius: 999px;
+  background: none;
+  color: var(--accent-ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.donate-add:hover { border-style: solid; background: var(--tint); }
+
+/* location */
+.donate-location { position: relative; display: flex; gap: 10px; }
+.donate-input-icon { position: absolute; top: 23px; left: 14px; transform: translateY(-50%); color: var(--ink-faint); pointer-events: none; }
+/* outranks the theme's .fh-theme input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]) rule */
+.fh-theme .donate-location input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]) { padding-left: 42px; }
+.donate-location .workspace-secondary { flex: none; }
+.donate-hint { display: flex; align-items: center; gap: 6px; margin: 10px 0 0; color: var(--ink-faint); font-size: 0.86rem; }
+.donate-hint.is-ok { color: #087443; }
+
+.donate-two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 16px; }
+
+.donate-error { margin: 0; padding: 12px 16px; border-radius: var(--radius-sm); background: #fff1f1; color: #b42318; font-weight: 600; }
+.donate-submit { justify-content: center; width: 100%; padding: 16px; font-size: 1.05rem; }
+.donate-submit:disabled { opacity: 0.7; cursor: wait; }
+
+/* side column */
+.donate-side { position: sticky; top: 18px; display: grid; gap: 16px; }
+.donate-side h2 { margin: 0 0 14px; color: var(--ink); font-size: 1.1rem; font-weight: 600; }
+
+.donate-summary-type { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius-sm); background: var(--tint); }
+.donate-summary-art { height: 52px; width: auto; }
+.donate-summary-type div { display: grid; }
+.donate-summary-type strong { color: var(--ink); font-weight: 600; }
+.donate-summary-type span { color: var(--ink-soft); font-size: 0.88rem; }
+.donate-summary-items { display: grid; gap: 6px; margin: 12px 0 0; padding: 0; list-style: none; }
+.donate-summary-items li { display: flex; justify-content: space-between; gap: 10px; color: var(--ink); font-size: 0.92rem; }
+.donate-summary-items li span:last-child { color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.donate-summary-where { display: flex; gap: 6px; margin: 14px 0 0; padding-top: 12px; border-top: 1.5px dashed var(--line); color: var(--ink-soft); font-size: 0.88rem; overflow-wrap: anywhere; }
+.donate-summary-where svg { flex: none; margin-top: 2px; }
+
+.donate-next ol { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.donate-next li { display: flex; align-items: center; gap: 12px; }
+.donate-next-art { width: 56px; height: 48px; object-fit: contain; flex: none; }
+.donate-next li div { display: grid; }
+.donate-next strong { color: var(--ink); font-size: 0.95rem; font-weight: 600; }
+.donate-next span { color: var(--ink-faint); font-size: 0.84rem; }
+
+.donate-fresh { display: flex; align-items: center; gap: 12px; color: var(--ink); text-decoration: none; transition: transform 300ms var(--spring), box-shadow 300ms var(--ease); }
+.donate-fresh:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+.donate-fresh-art { height: 54px; width: auto; flex: none; }
+.donate-fresh div { display: grid; flex: 1; }
+.donate-fresh strong { font-weight: 600; }
+.donate-fresh span { display: inline-flex; align-items: center; gap: 4px; color: var(--accent-ink); font-size: 0.86rem; }
+
+/* success */
+.donate-success { max-width: 620px; margin: 30px auto; text-align: center; }
+.donate-success-art { height: 140px; width: auto; animation: fh-art-perch 800ms var(--spring) both; }
+.donate-success h1 { margin: 12px 0 8px; color: var(--ink); font-size: clamp(1.6rem, 3vw, 2.1rem); font-weight: 700; }
+.donate-success p { max-width: 46ch; margin: 0 auto 20px; color: var(--ink-soft); line-height: 1.5; }
+.donate-success-id { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 22px; padding: 8px 8px 8px 18px; border: 1.5px dashed var(--accent); border-radius: 999px; background: var(--tint); }
+.donate-success-id code { color: var(--ink); font-size: 1.25rem; font-weight: 700; letter-spacing: 0.06em; }
+.donate-success-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+
+@media (max-width: 1100px) {
+  .donate-layout { grid-template-columns: 1fr; }
+  .donate-side { position: static; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 }
 
-.donate-page .footer p { margin: 4px 0; }
-
-@media (max-width: 520px) {
-  .donate-page .fh-page { padding: 24px 16px 48px; }
-  .donate-page .donation-form { padding: 18px; }
-  .donate-page .food-input { grid-template-columns: 1fr auto; }
-  .donate-page .food-input input[name="name"] { grid-column: 1 / -1; }
-  .donate-page .location-input-group { flex-direction: column; }
+@media (max-width: 640px) {
+  .donate-types { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .donate-item { grid-template-columns: minmax(0, 1fr) auto; }
+  .donate-item input[aria-label$="name"] { grid-column: 1 / -1; }
+  .donate-location { flex-wrap: wrap; }
+  .donate-location .workspace-secondary { width: 100%; justify-content: center; }
+  .donate-two { grid-template-columns: 1fr; }
 }
-
-/* ---- /donateFood ---- */
-
-.donatefood-page .fh-page { max-width: 640px; }
-.donatefood-page .donatefood-card { display: grid; gap: 14px; }
-.donatefood-page .donatefood-card textarea { width: 100%; min-height: 140px; resize: vertical; }
-.donatefood-page .fh-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }

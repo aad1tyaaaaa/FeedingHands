@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./PersonaTheme.css";
 import "./FoodSpoiledPage.css"; // Add styles if needed
+import Illustration from "./Illustration";
 
 const FoodSpoiledPage = () => {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ const FoodSpoiledPage = () => {
     <div className="fh-theme food-spoiled">
       <div className="fh-blob" aria-hidden="true" />
       <div className="food-spoiled-container fh-card" role="status">
-        <span className="food-spoiled-icon" aria-hidden="true">!</span>
+        <Illustration name="not-fresh-phone" className="food-spoiled-art" />
         <h1 className="fh-title">Food <em>Spoiled</em></h1>
         <p>Unfortunately, the food you donated has been marked as spoiled.</p>
         <p className="fh-label">You will be redirected to your Dashboard shortly...</p>

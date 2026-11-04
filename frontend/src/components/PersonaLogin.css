@@ -151,6 +151,8 @@
 .persona-card.donor .persona-card-image { background: #ffca28; }
 .persona-card.volunteer .persona-card-image { background: #00d2b2; }
 .persona-card.organization .persona-card-image { background: #88b4ff; }
+.persona-card.biogas .persona-card-image { background: #f6c66a; object-fit: contain; }
+.persona-error { margin: 0 0 12px; color: #b42318; font-weight: 600; }
 
 @keyframes persona-pop {
   from { opacity: 0; transform: translateY(24px) rotate(2deg) scale(0.96); }

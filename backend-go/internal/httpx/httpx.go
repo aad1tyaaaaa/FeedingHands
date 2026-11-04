@@ -5,11 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"net"
 	"net/http"
 	"net/mail"
 	"runtime/debug"
 	"slices"
+	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -108,4 +111,71 @@ func Origins(s string) []string {
 		}
 	}
 	return out
+}
+
+// Secure adds the response headers every API answer should carry.
+func Secure(hsts bool, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		h := w.Header()
+		h.Set("X-Content-Type-Options", "nosniff")
+		h.Set("X-Frame-Options", "DENY")
+		h.Set("Referrer-Policy", "no-referrer")
+		if hsts {
+			h.Set("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+// ClientIP is the caller's address. Behind a proxy (TRUST_PROXY=true) it is the last X-Forwarded-For hop,
+// the one the proxy itself appended; earlier hops are client-controlled and can be forged.
+func ClientIP(r *http.Request, trustProxy bool) string {
+	if trustProxy {
+		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+			parts := strings.Split(xff, ",")
+			return strings.TrimSpace(parts[len(parts)-1])
+		}
+	}
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return r.RemoteAddr
+	}
+	return host
+}
+
+// Limiter allows each client IP at most n requests per window.
+// ponytail: in-memory fixed window, per instance; move to Redis if the API runs on several replicas.
+type Limiter struct {
+	n          int
+	window     time.Duration
+	trustProxy bool
+
+	mu    sync.Mutex
+	start time.Time
+	hits  map[string]int
+}
+
+func NewLimiter(n int, window time.Duration, trustProxy bool) *Limiter {
+	return &Limiter{n: n, window: window, trustProxy: trustProxy, hits: map[string]int{}}
+}
+
+func (l *Limiter) allow(ip string) bool {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if now := time.Now(); now.Sub(l.start) >= l.window {
+		l.start, l.hits = now, map[string]int{} // new window; dropping the map also bounds memory
+	}
+	l.hits[ip]++
+	return l.hits[ip] <= l.n
+}
+
+func (l *Limiter) Wrap(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if !l.allow(ClientIP(r, l.trustProxy)) {
+			w.Header().Set("Retry-After", strconv.Itoa(int(l.window.Seconds())))
+			Error(w, http.StatusTooManyRequests, "Too many attempts, please wait a minute and try again")
+			return
+		}
+		next(w, r)
+	}
 }

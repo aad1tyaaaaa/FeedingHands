@@ -1,117 +1,99 @@
-/* Food Heroes (featured donor). Base look comes from PersonaTheme.css. */
-.food-heroes .food-heroes-container {
-  box-sizing: border-box;
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 40px 24px 64px;
-}
+/* /FoodHeroes: podium + ranked list. Layout and tokens come from the workspace shell. */
 
-/* Hero banner */
-.food-heroes .food-heroes-header {
-  display: block;
-  margin: 0;
-  padding: 36px 28px;
-  background: var(--accent);
-  color: #fff;
-  text-align: center;
-  transform: rotate(-1deg);
-}
+.heroes-dashboard .workspace-panel + .workspace-panel { margin-top: 22px; }
 
-.food-heroes .food-heroes-header h1 {
-  margin: 0;
-  color: #fff;
-  font-size: clamp(1.8rem, 4.5vw, 3rem);
-  text-shadow: 3px 3px 0 var(--fh-hard, var(--ink));
-}
-
-.food-heroes .food-heroes-header p {
-  display: inline-block;
-  margin: 16px 0 0;
-  padding: 5px 12px;
-  border: var(--fh-border, 2px solid var(--ink));
-  border-radius: 999px;
-  background: var(--pop);
-  color: var(--ink);
-}
-
-/* Donor story */
-.food-heroes .food-heroes-section {
+/* podium: 2nd · 1st · 3rd, with steps of different heights */
+.heroes-podium {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: 16px;
+  max-width: 760px;
+  margin: 8px auto 26px;
+  padding: 0;
+  list-style: none;
+}
+.heroes-place { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+.heroes-place.gold { order: 2; }
+.heroes-place.silver { order: 1; }
+.heroes-place.bronze { order: 3; }
+
+.heroes-place-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 28px;
-  margin-top: 36px;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
 }
+.gold .heroes-place-badge { background: #fff1bf; color: #8a5a00; }
+.silver .heroes-place-badge { background: #eef0f4; color: #4b5162; }
+.bronze .heroes-place-badge { background: #fde5d4; color: #9a4a17; }
 
-.food-heroes .food-heroes-image {
-  display: block;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border: var(--fh-border, 2.5px solid var(--ink));
-  border-radius: 16px;
-  transition: transform 0.2s;
-}
-
-.food-heroes .food-heroes-image:hover { transform: rotate(-1.5deg) scale(1.02); }
-
-.food-heroes .food-heroes-text h2 {
-  margin: 0 0 12px;
+.heroes-avatar {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--tint);
+  color: var(--accent-ink);
   font-size: 1.6rem;
-  font-weight: 800;
-  line-height: 1.15;
+  font-weight: 700;
+  box-shadow: 0 0 0 4px var(--surface), 0 10px 20px -12px rgb(27 21 48 / 0.5);
 }
+.gold .heroes-avatar { width: 78px; height: 78px; background: var(--pop); color: var(--ink); font-size: 2rem; }
+.heroes-avatar.small { width: 36px; height: 36px; font-size: 1rem; box-shadow: none; }
 
-.food-heroes .food-heroes-text p { margin: 0; color: #444; line-height: 1.6; }
+.heroes-name { color: var(--ink); font-size: 1.05rem; font-weight: 600; }
+.heroes-points { color: var(--ink-soft); font-size: 0.9rem; font-variant-numeric: tabular-nums; }
 
-.food-heroes .food-heroes-text strong {
-  padding: 0 4px;
-  background: var(--pop);
-  color: var(--ink);
+.heroes-step {
+  width: 100%;
+  margin-top: 6px;
+  border-radius: 16px 16px 6px 6px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 22%, #fff), var(--tint));
 }
+.gold .heroes-step { height: 110px; background: linear-gradient(180deg, color-mix(in srgb, var(--pop) 70%, #fff), color-mix(in srgb, var(--pop) 25%, #fff)); }
+.silver .heroes-step { height: 78px; }
+.bronze .heroes-step { height: 54px; }
 
-.food-heroes .food-heroes-btn { margin-top: 22px; }
-
-/* Contact */
-.food-heroes .food-heroes-contact { margin-top: 36px; }
-
-.food-heroes .food-heroes-contact h2 {
-  margin: 0 0 14px;
-  font-size: 1.4rem;
-  font-weight: 800;
+/* ranks 4–10 */
+.heroes-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.heroes-list li {
+  display: grid;
+  grid-template-columns: 28px 36px minmax(80px, 160px) 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
 }
+.heroes-rank { color: var(--ink-faint); font-weight: 700; text-align: center; font-variant-numeric: tabular-nums; }
+.heroes-list strong { color: var(--ink); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.heroes-bar { height: 8px; border-radius: 999px; background: color-mix(in srgb, var(--tint) 70%, #f1eef4); overflow: hidden; }
+.heroes-bar > span { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+.heroes-list-points { color: var(--ink-soft); font-size: 0.9rem; font-variant-numeric: tabular-nums; }
 
-.food-heroes .food-heroes-contact p { margin: 6px 0; color: #333; }
-.food-heroes .food-heroes-contact p:first-of-type { font-size: 1.15rem; }
-
-/* Footer strip */
-.food-heroes .food-heroes-footer {
-  display: block;
-  margin-top: 28px;
-  padding: 18px 22px;
-  border: var(--fh-border, 2.5px solid var(--ink));
-  border-radius: 22px;
-  background: var(--ink);
-  color: #fff;
-  text-align: center;
-  font-family: var(--mono);
-  font-size: 0.85rem;
+/* impact tiles */
+.heroes-impact { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+.heroes-impact > div {
+  display: grid;
+  gap: 4px;
+  padding: 18px;
+  border-radius: var(--radius-sm);
+  background: var(--tint);
+  color: var(--accent-ink);
 }
+.heroes-impact strong { color: var(--ink); font-size: 1.8rem; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.heroes-impact span { color: var(--ink-soft); font-size: 0.92rem; }
 
-.food-heroes .food-heroes-footer p { margin: 0; }
-
-.food-heroes .food-heroes-footer a { color: var(--pop); font-weight: 700; }
-
-.food-heroes a:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 3px;
-}
-
-.food-heroes .food-heroes-footer a:focus-visible { outline-color: var(--pop); }
-
-@media (max-width: 760px) {
-  .food-heroes .food-heroes-container { padding: 24px 16px 48px; }
-  .food-heroes .food-heroes-header { padding: 28px 18px; transform: none; }
-  .food-heroes .food-heroes-section { grid-template-columns: 1fr; }
-  .food-heroes .food-heroes-btn { width: 100%; }
+@media (max-width: 560px) {
+  .heroes-podium { gap: 8px; }
+  .heroes-avatar { width: 52px; height: 52px; font-size: 1.3rem; }
+  .gold .heroes-avatar { width: 62px; height: 62px; }
+  .heroes-list li { grid-template-columns: 24px 32px 1fr auto; }
+  .heroes-bar { display: none; }
 }

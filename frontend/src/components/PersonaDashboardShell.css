@@ -51,6 +51,14 @@
   --pop: #ff9ade;
 }
 
+.fh-theme.fh-workspace.theme-biogas {
+  --bg: #fff8ea;
+  --accent: #b7791f;
+  --accent-ink: #8a5a12;
+  --on-accent: #fff;
+  --pop: #7fd1ae;
+}
+
 .fh-workspace::after,
 .fh-workspace > .fh-blob { display: none; }
 
@@ -666,4 +674,51 @@
   .fh-workspace *::before,
   .fh-workspace *::after { animation: none !important; transition: none !important; }
   .workspace-heading h1::after { clip-path: none; }
+}
+
+/* ---------- illustration library ---------- */
+
+/* KPI characters: body behind the card, hands in front gripping its top edge (see POSES in WorkspaceMetric) */
+.workspace-metrics:has(.workspace-metric-art) { margin-top: 92px; }
+.workspace-metric-slot { --art-h: 124px; position: relative; display: grid; min-width: 0; }
+.workspace-metric-slot > .workspace-metric { position: relative; z-index: 1; }
+.workspace-metric-art {
+  position: absolute;
+  z-index: 0;
+  right: 76px; /* clear of the card's icon */
+  bottom: calc(100% - var(--edge) * var(--art-h));
+  height: var(--art-h);
+  width: auto;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  /* the body climbs up from behind the card with it, then breathes */
+  animation:
+    fh-art-climb 900ms var(--spring) calc(260ms + var(--i, 0) * 110ms) both,
+    fh-art-idle 4.6s ease-in-out calc(1300ms + var(--i, 0) * 400ms) infinite;
+}
+.workspace-metric-art.is-hands { z-index: 2; animation: fh-art-grip 500ms var(--spring) calc(620ms + var(--i, 0) * 110ms) both; }
+.workspace-metric-slot.is-hero .workspace-metric-art { right: auto; left: 34%; } /* hero cards wear a burst sticker top-right */
+@keyframes fh-art-climb { from { transform: translateY(55%); } }
+@keyframes fh-art-grip { from { opacity: 0; transform: translateY(6px) scale(0.85); } }
+@keyframes fh-art-idle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes fh-art-perch { from { opacity: 0; transform: translateY(20px) scale(0.92); } }
+
+/* page heading illustration, between the text and the main action */
+.workspace-heading-art { align-self: flex-end; height: clamp(104px, 11vw, 140px); width: auto; margin: -18px 0 0 auto; pointer-events: none; animation: fh-art-perch 900ms var(--spring) 200ms backwards; }
+
+/* empty states */
+.workspace-empty-art { display: block; height: 120px; width: auto; margin: 0 auto 12px; }
+
+@media (max-width: 760px) {
+  .workspace-metric-slot.is-hero { grid-column: 1 / -1; }
+  .workspace-metric-slot { --art-h: 100px; }
+  .workspace-heading-art { display: none; }
+}
+
+@media (max-width: 420px) {
+  .workspace-metrics:has(.workspace-metric-art) { margin-top: 76px; row-gap: 12px; }
+  .workspace-metric-slot:not(:first-child) .workspace-metric-art { display: none; } /* one perched character per stacked column is plenty */
+}
+@media (max-width: 760px) {
+  .workspace-metrics:has(.workspace-metric-art) { row-gap: 84px; }
 }

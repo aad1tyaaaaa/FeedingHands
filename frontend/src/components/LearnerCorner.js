@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./PersonaTheme.css";
 import "./LearnerCorner.css";
+import Illustration from "./Illustration";
 
 const LearnerCorner = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -176,6 +177,7 @@ const LearnerCorner = () => {
         {/* Left Column: Title, Subtitle, Search, and Categories */}
         <div className="learners-corner-left">
           <h2 className="learners-title fh-title">Learners <em>Corner</em></h2>
+          <Illustration name="books" className="learners-art" />
           {/* <p className="learners-subtitle">
           Explore articles, videos, and resources on food waste management and sustainability.
           </p> */}

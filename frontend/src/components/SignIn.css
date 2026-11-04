@@ -230,6 +230,27 @@
   text-decoration: underline;
 }
 
+/* "Resend code" reads as a link, not a second big button */
+.signin-container .signin-link-button {
+  display: inline;
+  width: auto;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  color: #2e7d32;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.signin-container .signin-link-button:hover {
+  background: none;
+  transform: none;
+  text-decoration: underline;
+}
+
 @keyframes auth-route-enter {
   from { opacity: 0; transform: translateX(16px); }
   to { opacity: 1; transform: translateX(0); }

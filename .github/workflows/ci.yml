@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: feedinghands
+          POSTGRES_PASSWORD: feedinghands
+          POSTGRES_DB: feedinghands
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U feedinghands" --health-interval 2s --health-retries 30
+    env:
+      DATABASE_URL: postgres://feedinghands:feedinghands@localhost:5432/feedinghands?sslmode=disable
+      JWT_SECRET: ci-only-secret-0123456789abcdefghijklmnop
+      SEED_DEMO_DATA: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: backend-go/go.mod
+          cache-dependency-path: backend-go/go.sum
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Vet and unit tests
+        working-directory: backend-go
+        run: |
+          test -z "$(gofmt -l .)" || (gofmt -l . && exit 1)
+          go vet ./...
+          go test ./...
+      - name: End-to-end smoke test against a live API
+        working-directory: backend-go
+        run: |
+          go build -o api ./cmd/server
+          ./api > api.log 2>&1 &
+          for i in $(seq 1 30); do curl -fs localhost:5001/health && break; sleep 1; done
+          node ../scripts/smoke.mjs || (cat api.log && exit 1)
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_API_BASE_URL: https://api.example.com

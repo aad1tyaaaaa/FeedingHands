@@ -1,49 +1,17 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PersonaTheme.css';
 import './DonationOptions.css';
+import Illustration from "./Illustration";
 
 const DonationOptions = () => {
   const navigate = useNavigate();
+
+  const handleMoneyDonation = () => navigate("/FundraisingPage");
   
-  useEffect(() => {
-    console.log("DonationOptions component rendered");
-    console.log("Navigate function available:", typeof navigate === 'function');
-  }, [navigate]);
+  const handleFoodWasteDonation = () => navigate("/Donate");
   
-  // Navigation handlers with error handling
-  const handleMoneyDonation = () => {
-    try {
-      console.log("Attempting to navigate to: /FundraisingPage");
-      navigate("/FundraisingPage");
-    } catch (error) {
-      console.error("Navigation error:", error);
-      // Fallback navigation
-      window.location.href = "/FundraisingPage";
-    }
-  };
-  
-  const handleFoodWasteDonation = () => {
-    try {
-      console.log("Attempting to navigate to: /Donate");
-      navigate("/Donate");
-    } catch (error) {
-      console.error("Navigation error:", error);
-      // Fallback navigation
-      window.location.href = "/Donate";
-    }
-  };
-  
-  const handleBiogasDonation = () => {
-    try {
-      console.log("Attempting to navigate to: /BiogasDonation");
-      navigate("/BiogasDonation");
-    } catch (error) {
-      console.error("Navigation error:", error);
-      // Fallback navigation
-      window.location.href = "/BiogasDonation";
-    }
-  };
+  const handleBiogasDonation = () => navigate("/BiogasDonation");
   
   return (
     <div className="fh-theme donation-options-page">
@@ -53,7 +21,7 @@ const DonationOptions = () => {
       <h1 className="donation-header fh-title">Choose Your <em>Donation Type</em></h1>
       <div className="options-grid">
         <div className="option-card fh-card">
-          <div className="card-icon" aria-hidden="true">💰</div>
+          <Illustration name="coin-heart-hand" className="option-art" />
           <h2 className="card-title">Monetary Donation</h2>
           <p className="card-description">
             Support our mission with financial contributions.
@@ -63,7 +31,7 @@ const DonationOptions = () => {
           </button>
         </div>
         <div className="option-card fh-card">
-          <div className="card-icon" aria-hidden="true">♻️</div>
+          <Illustration name="donation-box" className="option-art" />
           <h2 className="card-title">Surplus Food</h2>
           <p className="card-description">
             Donate surplus food to feed those in need.
@@ -73,7 +41,7 @@ const DonationOptions = () => {
           </button>
         </div>
         <div className="option-card fh-card">
-          <div className="card-icon" aria-hidden="true">⚡</div>
+          <Illustration name="waste-to-energy" className="option-art" />
           <h2 className="card-title">Food to Biogas</h2>
           <p className="card-description">
             Convert food waste into sustainable energy.

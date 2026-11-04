@@ -1,328 +1,137 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./PersonaTheme.css";
-import "./Route.css"; // Updated CSS file
-import polyline from "@mapbox/polyline"; // For decoding polyline
+import "./Route.css";
 import { apiFetch } from "../api/client";
+import { FALLBACK_CENTER, currentPosition, drivingRoute, hasCoords, popup } from "../api/geo";
+import { useAuth } from "./AuthContext";
+import Illustration from "./Illustration";
 
-// Custom icons for start, destination, and NGO
-const startIcon = new L.Icon({
-  iconUrl:
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-  iconSize: [25, 41], // Size of the icon
-  iconAnchor: [12, 41], // Point of the icon which will correspond to marker's location
-  popupAnchor: [1, -34], // Point from which the popup should open relative to the iconAnchor
-  shadowSize: [41, 41], // Size of the shadow
-});
+const DOT = { start: "#12b76a", pickup: "#ff6b2c", ngo: "#6c4cff" };
+const dot = (color) => ({ radius: 9, color: "#fff", weight: 3, fillColor: color, fillOpacity: 1 });
 
-const endIcon = new L.Icon({
-  iconUrl:
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-  iconSize: [25, 41], // Size of the icon
-  iconAnchor: [12, 41], // Point of the icon which will correspond to marker's location
-  popupAnchor: [1, -34], // Point from which the popup should open relative to the iconAnchor
-  shadowSize: [41, 41], // Size of the shadow
-});
-
-const ngoIcon = new L.Icon({
-  iconUrl:
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-  iconSize: [25, 41], // Size of the icon
-  iconAnchor: [12, 41], // Point of the icon which will correspond to marker's location
-  popupAnchor: [1, -34], // Point from which the popup should open relative to the iconAnchor
-  shadowSize: [41, 41], // Size of the shadow
-});
-
+// Route for one donation: your location -> donor pickup -> claiming NGO.
+// Without ?id= it opens the caller's first donation still on the move.
 const RouteOptimization = () => {
-  const mapRef = useRef(null);
-  const mapInstanceRef = useRef(null);
-  const [startAddress, setStartAddress] = useState("");
-  const [endAddress, setEndAddress] = useState("");
-  const [ngoAddress, setNgoAddress] = useState("");
-  const [volunteerCoords, setVolunteerCoords] = useState(null); // User's current location
-  const [donorCoords, setDonorCoords] = useState(null); // Destination coordinates
-  const [ngoCoords, setNgoCoords] = useState(null); // NGO coordinates
-  const [routeInfo, setRouteInfo] = useState(null);
-  const [error, setError] = useState(null); // For error handling
+  const { user } = useAuth();
+  const [params] = useSearchParams();
+  const mapEl = useRef(null);
+  const [donation, setDonation] = useState(null);
+  const [route, setRoute] = useState(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // Function to reverse geocode coordinates into addresses
-  const reverseGeocode = async (lat, lng) => {
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
-      );
-      const data = await response.json();
-      return data.display_name || "Address not found";
-    } catch (error) {
-      console.error("Error with reverse geocoding:", error);
-      return "Address lookup failed";
-    }
-  };
-
-  const fetchDonorAddress = async () => {
-    try {
-      const response = await apiFetch("/api/donations");
-      const data = response.donations || [];
-      if (!data || data.length === 0) {
-        throw new Error("No donor data found in the database.");
-      }
-
-      console.log("Donor data fetched:", data[0]);
-      return data[0];
-    } catch (error) {
-      console.error("Error fetching donor data:", error);
-      setError("Failed to fetch donor data: " + error.message);
-      return null;
-    }
-  };
-
-  const fetchNgoAddress = async () => {
-    try {
-      const response = await apiFetch("/api/organizations");
-      const data = response.organizations || [];
-      if (!data || data.length === 0) {
-        throw new Error("No NGO data found in the database.");
-      }
-
-      console.log("NGO data fetched:", data[0]);
-      return data[0];
-    } catch (error) {
-      console.error("Error fetching NGO data:", error);
-      setError("Present at same locations " );
-      return null;
-    }
-  };
-
-  // Function to calculate route using OSRM
-  const calculateRoute = async (map, start, end) => {
-    const url = `https://router.project-osrm.org/route/v1/driving/${start[1]},${start[0]};${end[1]},${end[0]}?overview=full&geometries=polyline`;
-
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      console.log("OSRM API Response:", data);
-
-      if (data && data.routes && data.routes.length > 0) {
-        const route = data.routes[0];
-
-        // Decode the polyline to get coordinates
-        const coordinates = polyline.decode(route.geometry);
-
-        // Format coordinates for Leaflet
-        const latLngCoordinates = coordinates.map((coord) => [
-          coord[0],
-          coord[1],
-        ]);
-
-        // Draw the route on the map
-        const routeLine = L.polyline(latLngCoordinates, {
-          color: "blue",
-          weight: 5,
-          opacity: 0.9,
-          lineJoin: "round",
-        }).addTo(map);
-
-        // Set route information
-        setRouteInfo({
-          distance: (route.distance / 1000).toFixed(2), // Convert to km
-          time: Math.floor(route.duration / 60), // Convert to minutes
-        });
-
-        // Fit map to show the route
-        map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
-
-        return routeLine;
-      } else {
-        console.error("No route found in OSRM response");
-        setError("Could not calculate a route. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error calculating route with OSRM:", error);
-      setError("");
-    }
-  };
-
-  // Effect to fetch user's current location
   useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          console.log("Volunteer coordinates:", latitude, longitude);
-          setVolunteerCoords([latitude, longitude]);
-        },
-        (error) => {
-          console.error("Error fetching user's location:", error);
-          setError("Failed to fetch your location. Please enable geolocation.");
-          setVolunteerCoords([19.0605, 72.8996]); // Fallback to default coordinates
+    let cancelled = false;
+    (async () => {
+      try {
+        const id = params.get("id");
+        let d;
+        if (id) {
+          d = (await apiFetch(`/api/donations/${encodeURIComponent(id)}`)).donation;
+        } else {
+          const { donations } = await apiFetch("/api/donations?assigned=me&status=requested,picked_up,in_transit");
+          d = (donations || [])[0];
         }
-      );
-    } else {
-      console.error("Geolocation is not supported by this browser.");
-      setError("Geolocation is not supported by your browser.");
-      setVolunteerCoords([19.0605, 72.8996]); // Fallback to default coordinates
-    }
-  }, []);
-
-  // Effect to fetch donor's location
-  useEffect(() => {
-    fetchDonorAddress().then((donorData) => {
-      if (donorData && donorData.latitude && donorData.longitude) {
-        console.log(
-          "Setting donor coordinates:",
-          donorData.latitude,
-          donorData.longitude
-        );
-        setDonorCoords([donorData.latitude, donorData.longitude]);
-      } else {
-        console.error("Invalid donor data:", donorData);
-        setError(
-          "No valid donor coordinates found. Please check your database."
-        );
+        if (!cancelled) setDonation(d || null);
+      } catch (err) {
+        if (!cancelled) setError(err.message);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-    });
-  }, []);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [params]);
 
-  // Effect to fetch NGO's location
   useEffect(() => {
-    fetchNgoAddress().then((ngoData) => {
-      if (ngoData && ngoData.latitude && ngoData.longitude) {
-        console.log(
-          "Setting NGO coordinates:",
-          ngoData.latitude,
-          ngoData.longitude
-        );
-        setNgoCoords([ngoData.latitude, ngoData.longitude]);
-      } else {
-        console.error("Invalid NGO data:", ngoData);
-        setError("No valid NGO coordinates found. Please check your database.");
-      }
-    });
-  }, []);
-
-  // Effect to initialize map and display route
-  useEffect(() => {
-    if (!volunteerCoords || !donorCoords || !ngoCoords) {
-      console.log("Waiting for coordinates...");
-      return;
-    }
-
-    console.log(
-      "Initializing map with:",
-      volunteerCoords,
-      donorCoords,
-      ngoCoords
-    );
-
-    // Initialize the map
-    const map = L.map("map", {
-      center: volunteerCoords,
-      zoom: 12,
-    });
-
-    // Add a tile layer (Map tiles)
+    if (!donation || !mapEl.current) return undefined;
+    const map = L.map(mapEl.current, { center: FALLBACK_CENTER, zoom: 12 });
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
-    // Add markers for start, end, and NGO points with custom icons
-    const startMarker = L.marker(volunteerCoords, { icon: startIcon })
-      .addTo(map)
-      .bindPopup("Start Location");
-
-    const endMarker = L.marker(donorCoords, { icon: endIcon })
-      .addTo(map)
-      .bindPopup("Destination");
-
-    const ngoMarker = L.marker(ngoCoords, { icon: ngoIcon })
-      .addTo(map)
-      .bindPopup("NGO Location");
-
-    // Get addresses for the markers
-    reverseGeocode(volunteerCoords[0], volunteerCoords[1]).then((address) => {
-      setStartAddress(address);
-      startMarker.setPopupContent(
-        `<strong>Start Location</strong><br>${address}`
-      );
-    });
-
-    reverseGeocode(donorCoords[0], donorCoords[1]).then((address) => {
-      setEndAddress(address);
-      endMarker.setPopupContent(`<strong>Destination</strong><br>${address}`);
-    });
-
-    reverseGeocode(ngoCoords[0], ngoCoords[1]).then((address) => {
-      setNgoAddress(address);
-      ngoMarker.setPopupContent(`<strong>NGO Location</strong><br>${address}`);
-    });
-
-    // Calculate and display the route
-    calculateRoute(map, volunteerCoords, donorCoords);
-
-    // Store the map instance in ref
-    mapInstanceRef.current = map;
-
-    // Cleanup on unmount
-    return () => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
+    let alive = true;
+    (async () => {
+      const pickup = hasCoords(donation.latitude, donation.longitude) ? [donation.latitude, donation.longitude] : null;
+      const ngo = hasCoords(donation.ngo_latitude, donation.ngo_longitude) ? [donation.ngo_latitude, donation.ngo_longitude] : null;
+      if (!pickup) {
+        setError("This donation has no map location; use the address instead.");
+        return;
       }
+      // Once the food is picked up, the trip starts at the donor.
+      const enRoute = ["picked_up", "in_transit"].includes(donation.status);
+      const start = enRoute ? null : await currentPosition();
+      if (!alive) return;
+
+      const stops = [start, pickup, ngo].filter(Boolean);
+      if (start) L.circleMarker(start, dot(DOT.start)).addTo(map).bindPopup("You are here");
+      L.circleMarker(pickup, dot(DOT.pickup)).addTo(map).bindPopup(popup("Pickup", donation.location));
+      if (ngo) L.circleMarker(ngo, dot(DOT.ngo)).addTo(map).bindPopup(popup(donation.ngo_name, donation.ngo_address));
+      map.fitBounds(L.latLngBounds(stops), { padding: [50, 50], maxZoom: 15 });
+
+      if (stops.length < 2) return;
+      try {
+        const r = await drivingRoute(stops);
+        if (!alive) return;
+        L.polyline(r.path, { color: "#6c4cff", weight: 5, opacity: 0.85 }).addTo(map);
+        setRoute(r);
+      } catch (err) {
+        if (alive) setError(`${err.message}. Showing stops only.`);
+      }
+    })();
+
+    return () => {
+      alive = false;
+      map.remove();
     };
-  }, [volunteerCoords, donorCoords, ngoCoords]);
+  }, [donation]);
+
+  const theme = user.role === "organization" ? "theme-organization" : "theme-volunteer";
 
   return (
-    <div className="fh-theme theme-volunteer route-optimization-container">
+    <div className={`fh-theme ${theme} route-optimization-container`}>
       <div className="fh-blob" aria-hidden="true" />
       <div className="fh-page route-optimization-page">
-      <div className="route-optimization-header">
-        <h2 className="fh-title">Route <em>Planner</em></h2>
-        {error && <div className="route-optimization-error" role="alert">{error}</div>}
-        {routeInfo && (
-          <div className="route-optimization-info fh-label">
-            <span>
-              <strong>Distance:</strong> {routeInfo.distance} km
-            </span>
-            <span>
-              <strong>Estimated Time:</strong> {routeInfo.time} minutes
-            </span>
-          </div>
+        <div className="route-optimization-header">
+          <Illustration name="hero-route" className="route-art" />
+          <h2 className="fh-title">Route <em>Planner</em></h2>
+          {error && <div className="route-optimization-error" role="alert">{error}</div>}
+          {route && (
+            <div className="route-optimization-info fh-label">
+              <span><strong>Distance:</strong> {route.distanceKm} km</span>
+              <span><strong>Driving time:</strong> {route.minutes} min</span>
+            </div>
+          )}
+        </div>
+
+        {loading ? (
+          <p className="fh-card" role="status">Loading…</p>
+        ) : !donation ? (
+          <p className="fh-card">
+            No donation on the move.{" "}
+            {user.role === "volunteer" ? <Link to="/VolunteerMap">Find a pickup</Link> : <Link to="/NgoDashboard">Claim a donation</Link>}
+          </p>
+        ) : (
+          <>
+            <div className="route-optimization-map-frame">
+              <div ref={mapEl} className="route-optimization-map" />
+            </div>
+            <div className="route-optimization-location-info">
+              <div className="route-optimization-location-card fh-card end">
+                <div className="route-optimization-marker-icon end" aria-hidden="true" />
+                <div><h3>Pickup · {donation.donation_tracking_id}</h3><p>{donation.location}</p></div>
+              </div>
+              <div className="route-optimization-location-card fh-card ngo">
+                <div className="route-optimization-marker-icon ngo" aria-hidden="true" />
+                <div><h3>Drop-off</h3><p>{donation.ngo_name ? `${donation.ngo_name} · ${donation.ngo_address}` : "Not claimed by an NGO yet"}</p></div>
+              </div>
+            </div>
+          </>
         )}
-      </div>
-      <div className="route-optimization-map-frame">
-        <div id="map" className="route-optimization-map"></div>
-      </div>
-      <div className="route-optimization-location-info">
-        <div className="route-optimization-location-card fh-card start">
-          <div className="route-optimization-marker-icon start" aria-hidden="true"></div>
-          <div>
-            <h3>Start Location</h3>
-            <p>{startAddress || "Loading..."}</p>
-          </div>
-        </div>
-        <div className="route-optimization-location-card fh-card end">
-          <div className="route-optimization-marker-icon end" aria-hidden="true"></div>
-          <div>
-            <h3>Destination</h3>
-            <p>{endAddress || "Loading..."}</p>
-          </div>
-        </div>
-        <div className="route-optimization-location-card fh-card ngo">
-          <div className="route-optimization-marker-icon ngo" aria-hidden="true"></div>
-          <div>
-            <h3>NGO Location</h3>
-            <p>{ngoAddress || "Loading..."}</p>
-          </div>
-        </div>
-      </div>
       </div>
     </div>
   );

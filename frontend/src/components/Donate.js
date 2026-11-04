@@ -1,371 +1,284 @@
-import React, { useState } from "react";
-import { useDonation } from "./DonationContext";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight, Check, Copy, LocateFixed, MapPin, Minus, Plus, ScanSearch, Trash2 } from "lucide-react";
 import "./PersonaTheme.css";
 import "./Donate.css";
-import { useFoodTracking } from "./FoodTrackingContext";
-import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../api/client";
+import { useAuth } from "./AuthContext";
+import Illustration from "./Illustration";
 
-function Donate({ onDonationSuccess }) {
-  const { addDonation } = useDonation();
-  const navigate = useNavigate();
-  const { setDonationId, advanceToDonationPosted } = useFoodTracking();
+const TYPES = [
+  { value: "Vegetarian", art: "icon-veg", hint: "Veg meals, rotis, rice" },
+  { value: "Non-Vegetarian", art: "icon-non-veg", hint: "Chicken, fish, eggs" },
+  { value: "Packaged Food", art: "icon-packaged", hint: "Sealed, labelled packs" },
+  { value: "Other", art: "icon-other-food", hint: "Fruit, bakery, mixed" },
+];
 
-  const [formState, setFormState] = useState({
-    type: "Vegetarian",
-    location: "",
-    notes: "",
-    contact: "",
-    foodDetails: [{ name: "", quantity: "" }],
-    latitude: null,
-    longitude: null,
-  });
+const NEXT_STEPS = [
+  { art: "ngo-building", title: "An NGO nearby claims it", text: "Usually within the hour." },
+  { art: "volunteer-scooter", title: "A volunteer picks it up", text: "They'll call you before arriving." },
+  { art: "trophy", title: "Delivered: +10 Puniya points", text: "Track every step live." },
+];
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [isLocating, setIsLocating] = useState(false);
+const blankItem = () => ({ name: "", quantity: 10 });
 
-  const handleFoodChange = (index, event) => {
-    const updatedFoodDetails = formState.foodDetails.map((item, i) => 
-      i === index ? { ...item, [event.target.name]: event.target.value } : item
-    );
-    setFormState(prev => ({ ...prev, foodDetails: updatedFoodDetails }));
-  };
+// Nominatim is free but rate-limited; a failed lookup never blocks a donation.
+async function geocode(address) {
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(address)}`);
+    const [hit] = res.ok ? await res.json() : [];
+    return hit ? { latitude: Number(hit.lat), longitude: Number(hit.lon) } : {};
+  } catch {
+    return {};
+  }
+}
 
-  const handleAddFood = () => {
-    setFormState(prev => ({
-      ...prev,
-      foodDetails: [...prev.foodDetails, { name: "", quantity: "" }]
-    }));
-  };
+function Donate() {
+  const { user } = useAuth();
+  const [type, setType] = useState("Vegetarian");
+  const [items, setItems] = useState([blankItem()]);
+  const [location, setLocation] = useState("");
+  const [coords, setCoords] = useState(null);
+  const [contact, setContact] = useState(user.phone || "");
+  const [notes, setNotes] = useState("");
+  const [locating, setLocating] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [posted, setPosted] = useState(null);
+  const [copied, setCopied] = useState(false);
 
-  const handleRemoveFood = (index) => {
-    setFormState(prev => ({
-      ...prev,
-      foodDetails: prev.foodDetails.filter((_, i) => i !== index)
-    }));
-  };
+  const setItem = (i, patch) => setItems((list) => list.map((it, j) => (j === i ? { ...it, ...patch } : it)));
+  const portions = items.reduce((sum, it) => sum + (Number(it.quantity) || 0), 0);
+  const namedItems = items.filter((it) => it.name.trim());
 
-  const handleLocateMe = async () => {
-    setIsLocating(true);
-    setError(null);
-
-    if (!navigator.geolocation) {
-      setError("Geolocation is not supported by your browser");
-      setIsLocating(false);
-      return;
-    }
-
-    try {
-      const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
-      });
-
-      const { latitude, longitude } = position.coords;
-      
-      // Reverse geocoding using OpenStreetMap Nominatim API
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
-        {
-          headers: {
-            'User-Agent': 'FeedingHands/1.0 (your-contact@email.com)'
-          }
-        }
-      );
-      
-      if (!response.ok) throw new Error('Failed to fetch address');
-      
-      const data = await response.json();
-      const address = data.display_name || 'Location found but address unavailable';
-      
-      setFormState(prev => ({
-        ...prev,
-        location: address,
-        latitude: latitude,
-        longitude: longitude
-      }));
-    } catch (err) {
-      console.error('Location error:', err);
-      setError(err.message || 'Failed to get location');
-    } finally {
-      setIsLocating(false);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      if (!formState.location.trim()) {
-        throw new Error("Pickup location is required");
-      }
-      if (formState.foodDetails.some(item => 
-        !item.name.trim() || !item.quantity.trim()
-      )) {
-        throw new Error("All food items must have name and quantity");
-      }
-
-      const fullTimestampId = Date.now();
-      
-      // const { data: { user } } = await supabase.auth.getUser();
-      // if (!user) throw new Error("User not authenticated");
-
-      // Get coordinates - either from state or by geocoding the address
-      let latitude = formState.latitude;
-      let longitude = formState.longitude;
-
-      // If coordinates are not available, try to geocode the manually entered address
-      if (!latitude || !longitude) {
+  const locateMe = () => {
+    if (!navigator.geolocation) return setError("Your browser can't share a location. Type the address instead.");
+    setLocating(true);
+    setError("");
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords: c }) => {
+        setCoords({ latitude: c.latitude, longitude: c.longitude });
         try {
-          console.log("Geocoding address:", formState.location);
-          const encodedAddress = encodeURIComponent(formState.location);
-          const geocodeResponse = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=1`,
-            {
-              headers: {
-                'User-Agent': 'FeedingHands/1.0 (your-contact@email.com)'
-              }
-            }
-          );
-          
-          if (!geocodeResponse.ok) throw new Error('Failed to geocode address');
-          
-          const geocodeData = await geocodeResponse.json();
-          
-          if (geocodeData && geocodeData.length > 0) {
-            latitude = parseFloat(geocodeData[0].lat);
-            longitude = parseFloat(geocodeData[0].lon);
-            console.log("Geocoded coordinates:", latitude, longitude);
-          } else {
-            console.warn("No geocoding results found for address:", formState.location);
-          }
-        } catch (geocodeErr) {
-          console.warn('Geocoding failed:', geocodeErr);
-          // Continue without coordinates rather than failing the donation
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${c.latitude}&lon=${c.longitude}`);
+          const data = await res.json();
+          if (data.display_name) setLocation(data.display_name);
+        } catch {
+          // coordinates are enough; the address can be typed
         }
-      }
+        setLocating(false);
+      },
+      () => {
+        setError("Couldn't read your location. Type the address instead.");
+        setLocating(false);
+      },
+      { timeout: 10000 },
+    );
+  };
 
-      // Convert latitude and longitude to numbers to ensure proper data type
-      const finalLatitude = latitude !== null && latitude !== undefined ? Number(latitude) : null;
-      const finalLongitude = longitude !== null && longitude !== undefined ? Number(longitude) : null;
-
-      const donationData = {
-        // user_id: user.id,
-        type: formState.type,
-        location: formState.location,
-        latitude: finalLatitude,
-        longitude: finalLongitude,
-        contact: formState.contact,
-        notes: formState.notes,
-        foodDetails: JSON.stringify(formState.foodDetails),
-        donation_tracking_id: fullTimestampId.toString(),
-        puniya_points: 0,
-        status2: "Donation Posted",
-        created_at: new Date().toISOString()
-      };
-
-      const insertedData = await apiFetch("/api/donations", {
+  const submit = async (e) => {
+    e.preventDefault();
+    setError("");
+    if (!namedItems.length) return setError("Add at least one food item.");
+    if (namedItems.some((it) => !(Number(it.quantity) > 0))) return setError("Each item needs a number of portions.");
+    setSubmitting(true);
+    try {
+      const where = coords || (await geocode(location));
+      const { donation } = await apiFetch("/api/donations", {
         method: "POST",
-        body: JSON.stringify(donationData),
+        body: JSON.stringify({
+          type,
+          location: location.trim(),
+          latitude: where.latitude ?? null,
+          longitude: where.longitude ?? null,
+          contact: contact.trim(),
+          notes: notes.trim(),
+          foodDetails: JSON.stringify(namedItems.map((it) => ({ name: it.name.trim(), quantity: String(it.quantity) }))),
+        }),
       });
-
-      setDonationId(fullTimestampId);
-      localStorage.setItem("currentDonationId", fullTimestampId.toString());
-
-      const totalQuantity = formState.foodDetails.reduce(
-        (sum, item) => sum + (parseInt(item.quantity) || 0), 0
-      );
-      addDonation(totalQuantity);
-
-      setFormState({
-        type: "Vegetarian",
-        location: "",
-        notes: "",
-        contact: "",
-        foodDetails: [{ name: "", quantity: "" }],
-        latitude: null,
-        longitude: null
-      });
-
-      alert(`Donation submitted! ID: ${fullTimestampId}`);
-      navigate("/Tracking");
-
+      setPosted(donation);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
-      console.error("Donation error:", err);
       setError(err.message);
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
-  return (
-    <div className="fh-theme donate-page">
-      <div className="fh-blob" aria-hidden="true" />
-      <div className="fh-page">
-      <div className="donheader">
-        <span className="fh-chip">Donor</span>
-        <h1 className="fh-title">Donate <em>Food</em></h1>
-        <p>Share Your Kindness with Those in Need</p>
-      </div>
+  const reset = () => {
+    setPosted(null);
+    setItems([blankItem()]);
+    setNotes("");
+    setCopied(false);
+  };
 
-      <div className="main-section">
-        <div className="donation-form fh-card">
-          <h3>Food Donation Form</h3>
-
-          <div className="form-group">
-            <label className="fh-label" htmlFor="donate-type">Type of Food</label>
-            <select
-              id="donate-type"
-              value={formState.type} 
-              onChange={(e) => setFormState(prev => ({
-                ...prev,
-                type: e.target.value
-              }))}
+  if (posted) {
+    return (
+      <div className="donate-dashboard">
+        <section className="workspace-panel donate-success">
+          <Illustration name="state-success" className="donate-success-art" />
+          <h1>Donation posted. Thank you!</h1>
+          <p>NGOs nearby can claim it now. Share this tracking ID with anyone who wants to follow along.</p>
+          <div className="donate-success-id">
+            <code>{posted.donation_tracking_id}</code>
+            <button
+              type="button"
+              className="workspace-secondary"
+              onClick={() => navigator.clipboard?.writeText(posted.donation_tracking_id).then(() => setCopied(true)).catch(() => {})}
             >
-              <option value="Vegetarian">Vegetarian</option>
-              <option value="Non-Vegetarian">Non-Vegetarian</option>
-              <option value="Packaged Food">Packaged Food</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-
-          <div className="form-group">
-            <span className="fh-label">Food Items</span>
-            {formState.foodDetails.map((food, index) => (
-              <div key={index} className="food-input">
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Food name"
-                  value={food.name}
-                  onChange={(e) => handleFoodChange(index, e)}
-                />
-                <input
-                  type="text"
-                  name="quantity"
-                  placeholder="Quantity (portions)"
-                  value={food.quantity}
-                  onChange={(e) => handleFoodChange(index, e)}
-                />
-                {formState.foodDetails.length > 1 && (
-                  <button 
-                    type="button" 
-                    className="remove-food-button"
-                    onClick={() => handleRemoveFood(index)}
-                    aria-label="Remove food item"
-                  >
-                    ❌
-                  </button>
-                )}
-              </div>
-            ))}
-            <button 
-              type="button" 
-              onClick={handleAddFood}
-              className="add-food-button fh-btn fh-btn--ghost"
-            >
-              + Add More Items
+              {copied ? <><Check size={15} /> Copied</> : <><Copy size={15} /> Copy</>}
             </button>
           </div>
+          <div className="donate-success-actions">
+            <Link className="workspace-primary" to={`/Tracking?id=${posted.id}`}>Track this donation <ArrowRight size={16} /></Link>
+            <button type="button" className="workspace-secondary" onClick={reset}>Donate something else</button>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
-          <div className="form-group">
-            <label className="fh-label" htmlFor="donate-location">Pickup Location</label>
-            <div className="location-input-group">
-              <input
-                id="donate-location"
-                type="text"
-                placeholder="Enter your full address"
-                value={formState.location}
-                onChange={(e) => setFormState(prev => ({
-                  ...prev,
-                  location: e.target.value
-                }))}
-              />
-              <button
-                type="button"
-                onClick={handleLocateMe}
-                className="locate-me-button fh-btn fh-btn--pop"
-                disabled={isLocating}
-              >
-                {isLocating ? (
-                  <>
-                    <span className="spinner small"></span>
-                    Locating...
-                  </>
-                ) : (
-                  '📍 Locate Me'
-                )}
+  return (
+    <div className="donate-dashboard">
+      <section className="workspace-heading">
+        <div>
+          <h1>Donate food</h1>
+          <p>Tell us what you have and where to collect it. NGOs nearby can claim it right away.</p>
+        </div>
+        <Illustration name="hero-donate" className="workspace-heading-art" />
+      </section>
+
+      <div className="donate-layout">
+        <form className="donate-form" onSubmit={submit}>
+          <section className="workspace-panel donate-step">
+            <header><span className="donate-step-no">1</span><h2>What are you donating?</h2></header>
+
+            <div className="donate-types" role="radiogroup" aria-label="Type of food">
+              {TYPES.map((t) => (
+                <label key={t.value} className={`donate-type${type === t.value ? " is-selected" : ""}`}>
+                  <input type="radio" name="type" value={t.value} checked={type === t.value} onChange={() => setType(t.value)} />
+                  <Illustration name={t.art} className="donate-type-art" />
+                  <strong>{t.value}</strong>
+                  <span>{t.hint}</span>
+                  <Check size={16} className="donate-type-check" aria-hidden="true" />
+                </label>
+              ))}
+            </div>
+
+            <div className="donate-items">
+              <div className="donate-items-head">
+                <span className="donate-label">Food items</span>
+                <span className="donate-total">{portions} portions</span>
+              </div>
+              {items.map((it, i) => (
+                <div key={i} className="donate-item">
+                  <input
+                    aria-label={`Item ${i + 1} name`}
+                    placeholder={i === 0 ? "e.g. Veg pulao" : "Another item"}
+                    value={it.name}
+                    onChange={(e) => setItem(i, { name: e.target.value })}
+                    maxLength={80}
+                  />
+                  <div className="donate-stepper" role="group" aria-label={`Item ${i + 1} portions`}>
+                    <button type="button" aria-label="Fewer portions" onClick={() => setItem(i, { quantity: Math.max(1, (Number(it.quantity) || 1) - 5) })}><Minus size={15} /></button>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min="1"
+                      aria-label="Portions"
+                      value={it.quantity}
+                      onChange={(e) => setItem(i, { quantity: e.target.value.replace(/\D/g, "").slice(0, 5) })}
+                    />
+                    <button type="button" aria-label="More portions" onClick={() => setItem(i, { quantity: (Number(it.quantity) || 0) + 5 })}><Plus size={15} /></button>
+                  </div>
+                  <button type="button" className="donate-remove" aria-label={`Remove item ${i + 1}`} disabled={items.length === 1} onClick={() => setItems((l) => l.filter((_, j) => j !== i))}>
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))}
+              <button type="button" className="donate-add" onClick={() => setItems((l) => [...l, blankItem()])}>
+                <Plus size={16} /> Add another item
               </button>
             </div>
-            {formState.latitude && formState.longitude && (
-              <div className="coordinates-display">
-                <small>✓ Coordinates captured: {formState.latitude.toFixed(6)}, {formState.longitude.toFixed(6)}</small>
+          </section>
+
+          <section className="workspace-panel donate-step">
+            <header><span className="donate-step-no">2</span><h2>Where should we pick it up?</h2></header>
+            <label className="donate-label" htmlFor="donate-location">Pickup address</label>
+            <div className="donate-location">
+              <span className="donate-input-icon"><MapPin size={18} /></span>
+              <input
+                id="donate-location"
+                required
+                maxLength={500}
+                placeholder="House / building, street, area, city"
+                value={location}
+                onChange={(e) => {
+                  setLocation(e.target.value);
+                  setCoords(null);
+                }}
+              />
+              <button type="button" className="workspace-secondary" onClick={locateMe} disabled={locating}>
+                <LocateFixed size={16} /> {locating ? "Locating…" : "Use my location"}
+              </button>
+            </div>
+            <p className={`donate-hint${coords ? " is-ok" : ""}`}>
+              {coords ? <><Check size={14} /> Exact location captured: volunteers get a precise map pin.</> : "A full address with area and city helps volunteers find you."}
+            </p>
+          </section>
+
+          <section className="workspace-panel donate-step">
+            <header><span className="donate-step-no">3</span><h2>How can volunteers reach you?</h2></header>
+            <div className="donate-two">
+              <div>
+                <label className="donate-label" htmlFor="donate-contact">Phone number</label>
+                <input id="donate-contact" type="tel" required maxLength={20} placeholder="+91 98765 43210" value={contact} onChange={(e) => setContact(e.target.value)} />
               </div>
-            )}
-            <div className="location-help-text">
-              <small>
-                💡 For best results, use the "Locate Me" button or enter a complete address with city and area details.
-              </small>
+              <div>
+                <label className="donate-label" htmlFor="donate-notes">Notes <span className="donate-optional">(optional)</span></label>
+                <textarea id="donate-notes" rows={3} maxLength={500} placeholder="Gate code, cooked at 2 pm, contains nuts…" value={notes} onChange={(e) => setNotes(e.target.value)} />
+              </div>
             </div>
-          </div>
+          </section>
 
-          <div className="form-group">
-            <label className="fh-label" htmlFor="donate-contact">Contact Number</label>
-            <input
-              id="donate-contact"
-              type="tel"
-              placeholder="Enter your contact number"
-              value={formState.contact}
-              onChange={(e) => setFormState(prev => ({
-                ...prev,
-                contact: e.target.value
-              }))}
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="fh-label" htmlFor="donate-notes">Additional Notes</label>
-            <textarea
-              id="donate-notes"
-              placeholder="Special instructions, dietary restrictions, etc."
-              value={formState.notes}
-              onChange={(e) => setFormState(prev => ({
-                ...prev,
-                notes: e.target.value
-              }))}
-              rows="4"
-            />
-          </div>
-
-          <button 
-            className="submit-button fh-btn" 
-            onClick={handleSubmit} 
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <span className="spinner"></span>
-                Submitting...
-              </>
-            ) : (
-              "Submit Donation"
-            )}
+          {error && <p className="donate-error" role="alert">{error}</p>}
+          <button type="submit" className="workspace-primary donate-submit" disabled={submitting}>
+            {submitting ? "Posting…" : <>Post donation <ArrowRight size={17} /></>}
           </button>
+        </form>
 
-          {error && (
-            <div className="error-message" role="alert">
-              ⚠️ {error}
+        <aside className="donate-side">
+          <section className="workspace-panel donate-summary">
+            <h2>Your donation</h2>
+            <div className="donate-summary-type">
+              <Illustration name={TYPES.find((t) => t.value === type).art} className="donate-summary-art" />
+              <div><strong>{type}</strong><span>{portions} portions · {namedItems.length || 0} item{namedItems.length === 1 ? "" : "s"}</span></div>
             </div>
-          )}
-        </div>
-      </div>
+            {namedItems.length > 0 && (
+              <ul className="donate-summary-items">
+                {namedItems.map((it, i) => <li key={i}><span>{it.name}</span><span>{it.quantity}</span></li>)}
+              </ul>
+            )}
+            <p className="donate-summary-where"><MapPin size={15} /> {location || "Pickup address not added yet"}</p>
+          </section>
 
-      <div className="footer">
-        <p>Contact Us: 1-800-FOOD-HELP</p>
-        <p>© 2024 Food Donation Platform. All rights reserved.</p>
-      </div>
+          <section className="workspace-panel donate-next">
+            <h2>What happens next</h2>
+            <ol>
+              {NEXT_STEPS.map((s) => (
+                <li key={s.title}>
+                  <Illustration name={s.art} className="donate-next-art" />
+                  <div><strong>{s.title}</strong><span>{s.text}</span></div>
+                </li>
+              ))}
+            </ol>
+          </section>
+
+          <Link className="workspace-panel donate-fresh" to="/ImageRecognition">
+            <Illustration name="scan-tomato" className="donate-fresh-art" />
+            <div><strong>Not sure it's still fresh?</strong><span><ScanSearch size={14} /> Run a quick freshness check</span></div>
+            <ArrowRight size={18} />
+          </Link>
+        </aside>
       </div>
     </div>
   );

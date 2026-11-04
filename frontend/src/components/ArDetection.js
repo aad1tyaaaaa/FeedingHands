@@ -5,6 +5,7 @@ import WebcamContainer from './WebcamContainer';
 import ResultContainer from './ResultContainer';
 import './PersonaTheme.css';
 import './ArDetection.css';
+import Illustration from "./Illustration";
 
 const ArDetection = () => {
   const [model, setModel] = useState(null);
@@ -99,6 +100,7 @@ const ArDetection = () => {
     <div className="fh-theme ar-detection">
       <div className="fh-blob" aria-hidden="true" />
       <div className="fh-page">
+      <Illustration name="phone-scan" className="fh-hero-art" />
       <h1 className="fh-title">Food <em>Freshness</em> Detector</h1>
       <CameraConnectionUI 
         setImageCapture={setImageCapture} 
