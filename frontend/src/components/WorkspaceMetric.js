@@ -44,12 +44,12 @@ function Burst() {
 // (same canvas) in front, gripping the top edge. `edge` is the share of the art's height that falls below
 // the card line, measured when the asset sheet was cut, so the knuckles land exactly on the border.
 export const POSES = {
-  peeking: { edge: 0.182 },
-  "chin-wave": { edge: 0.168 },
-  "pull-up": { edge: 0.171 },
-  volunteer: { edge: 0.169 },
-  ngo: { edge: 0.157 },
-  chef: { edge: 0.155 },
+  peeking: { edge: 0.13 },
+  "chin-wave": { edge: 0.138 },
+  "pull-up": { edge: 0.13 },
+  volunteer: { edge: 0.12 },
+  ngo: { edge: 0.113 },
+  chef: { edge: 0.109 },
 };
 
 /**

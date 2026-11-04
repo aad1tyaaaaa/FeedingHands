@@ -679,8 +679,8 @@
 /* ---------- illustration library ---------- */
 
 /* KPI characters: body behind the card, hands in front gripping its top edge (see POSES in WorkspaceMetric) */
-.workspace-metrics:has(.workspace-metric-art) { margin-top: 92px; }
-.workspace-metric-slot { --art-h: 124px; position: relative; display: grid; min-width: 0; }
+.workspace-metrics:has(.workspace-metric-art) { margin-top: 112px; }
+.workspace-metric-slot { --art-h: 108px; position: relative; display: grid; min-width: 0; }
 .workspace-metric-slot > .workspace-metric { position: relative; z-index: 1; }
 .workspace-metric-art {
   position: absolute;
@@ -711,14 +711,14 @@
 
 @media (max-width: 760px) {
   .workspace-metric-slot.is-hero { grid-column: 1 / -1; }
-  .workspace-metric-slot { --art-h: 100px; }
+  .workspace-metric-slot { --art-h: 92px; }
   .workspace-heading-art { display: none; }
 }
 
 @media (max-width: 420px) {
-  .workspace-metrics:has(.workspace-metric-art) { margin-top: 76px; row-gap: 12px; }
+  .workspace-metrics:has(.workspace-metric-art) { margin-top: 96px; row-gap: 12px; }
   .workspace-metric-slot:not(:first-child) .workspace-metric-art { display: none; } /* one perched character per stacked column is plenty */
 }
 @media (max-width: 760px) {
-  .workspace-metrics:has(.workspace-metric-art) { row-gap: 84px; }
+  .workspace-metrics:has(.workspace-metric-art) { margin-top: 100px; row-gap: 96px; }
 }
