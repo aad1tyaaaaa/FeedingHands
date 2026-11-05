@@ -1,0 +1,39 @@
+# Render Blueprint: Go API + Postgres. New > Blueprint, pick this repo.
+# You'll be prompted for the sync:false values (Vercel URL, SMTP).
+services:
+  - type: web
+    name: feedinghands-api
+    runtime: docker
+    rootDir: backend-go
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: feedinghands-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: APP_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "true"
+      - key: CORS_ORIGIN
+        sync: false # e.g. https://feedinghands.vercel.app
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "2525" # Render free tier blocks 25/465/587
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+
+databases:
+  - name: feedinghands-db
+    databaseName: feedinghands
+    user: feedinghands
+    plan: free

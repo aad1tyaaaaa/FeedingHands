@@ -113,7 +113,9 @@ The recommended setup is **Vercel** (frontend), **Railway or Render** (Go API) a
 
 **Database**: create a managed Postgres (Railway, Render, Neon, Supabase…). Use its connection string with `sslmode=require`.
 
-**API (Railway / Render)**: deploy `backend-go/` using its `Dockerfile`, with these settings:
+**Render, one click**: New → Blueprint → this repo. [render.yaml](render.yaml) creates the API and its Postgres, generates `JWT_SECRET`, and prompts for `CORS_ORIGIN` and SMTP. (Free Postgres expires after 30 days; bump `plan` for real use.)
+
+**API (Railway / Render, by hand)**: deploy `backend-go/` using its `Dockerfile`, with these settings:
 
 | Variable | Value |
 |---|---|
