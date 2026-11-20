@@ -121,13 +121,13 @@ Everything runs on free tiers. No service needs a credit card except Razorpay's 
 |---|---|---|
 | Database | [Neon](https://neon.com) Free | 1 GB storage, 100 compute-hours/month, scales to zero when idle. Never expires |
 | API | [Render](https://render.com) free web service | 750 instance-hours/month (one service 24/7 fits); sleeps after 15 min idle, ~1 min to wake |
-| Frontend | Render free static site (or Cloudflare Pages / Netlify) | Plain static files in `frontend/out` |
+| Frontend | Vercel (see below) or a Render free static site, Cloudflare Pages, Netlify | Plain static files in `frontend/out` |
 | Email | [Brevo](https://www.brevo.com) Free | 300 emails/day over SMTP port 2525 |
 | Maps | OpenStreetMap tiles, Nominatim, OSRM demo server | Free under fair-use policies (Nominatim: max 1 request/second) |
 | Payments (optional) | Razorpay | No setup or yearly fee; about 2% (+GST) is deducted per donation. Leave the keys empty to keep payments off |
 | Help bot (optional) | Chatbase free plan | Leave `NEXT_PUBLIC_CHATBASE_ID` empty to hide it |
 
-Why not Vercel and Render Postgres? Vercel's free Hobby plan is for personal, non-commercial use only. Render's free Postgres is deleted after 30 days.
+Render's free Postgres is deleted after 30 days, hence Neon. Vercel's free Hobby plan is for personal, non-commercial use only; a platform that takes donations may need Vercel Pro, or use the free Render static site instead.
 
 The code is tuned to stay inside these limits:
 - the API closes idle database connections after a minute, so Neon can scale to zero
@@ -166,7 +166,9 @@ The API refuses to start in production without email, `CORS_ORIGIN` and a strong
 | `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET` | optional; webhook URL `https://<api>/api/payments/webhook`, event `payment.captured`. Unset = payments off |
 | `NOTIFY_RADIUS_KM` | how far (km) a new donation is announced to NGOs; default 10 |
 
-**Frontend** elsewhere: run `npm run build` in `frontend/` with `NEXT_PUBLIC_API_BASE_URL` set, publish `frontend/out`, and rewrite every path without a file to `/index.html`.
+**Frontend on Vercel**: Add New → Project → import this repo, set **Root Directory** to `frontend` (Vercel then reads [frontend/vercel.json](frontend/vercel.json): Next.js preset, SPA fallback to `/index.html`, security headers). Add the environment variable `NEXT_PUBLIC_API_BASE_URL` = the API's public URL (the build fails without it) and deploy. Then add the Vercel URL to the API's `CORS_ORIGIN` (comma-separated, e.g. `https://feedinghands.vercel.app,https://feedinghands-web.onrender.com`). Preview deployments get their own URLs, which CORS refuses unless you add them too. If you use Vercel, you can delete the `feedinghands-web` service from render.yaml.
+
+**Frontend elsewhere**: run `npm run build` in `frontend/` with `NEXT_PUBLIC_API_BASE_URL` set, publish `frontend/out`, and rewrite every path without a file to `/index.html`.
 
 ## License
 

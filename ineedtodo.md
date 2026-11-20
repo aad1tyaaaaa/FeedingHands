@@ -36,6 +36,17 @@ Tick them off as I go. Full deployment details are in [README.md](README.md#depl
 - [ ] Open `https://<api>/health`. It should say `"db":"up"`.
 - [ ] Never set `SEED_DEMO_DATA` in production. The demo passwords are public.
 
+## 3b. Website on Vercel (instead of the Render static site)
+- [ ] Note: Vercel's free Hobby plan is for non-commercial use. A donation platform may need Vercel Pro. The Render static site is free either way.
+- [ ] https://vercel.com → Add New → Project → import the GitHub repo
+- [ ] Set **Root Directory** to `frontend` (the framework is detected from `frontend/vercel.json`)
+- [ ] Add the environment variable `NEXT_PUBLIC_API_BASE_URL` = the Render API URL, e.g. `https://feedinghands-api.onrender.com` (the build fails on purpose without it)
+- [ ] Optional: `NEXT_PUBLIC_CHATBASE_ID`
+- [ ] Deploy, then open the site and refresh on a deep page like `/donate`. It should load, not show a 404.
+- [ ] On Render → `feedinghands-api` → Environment: set `CORS_ORIGIN` to the Vercel URL, e.g. `https://feedinghands.vercel.app` (comma-separate it to keep the Render site too)
+- [ ] If Vercel is the only website: delete the `feedinghands-web` service on Render
+- [ ] Whenever the API URL changes, update `NEXT_PUBLIC_API_BASE_URL` on Vercel and redeploy. It's built into the bundle.
+
 ## 4. After the first deploy
 - [ ] Sign up on the live site with my own email (this checks Brevo delivers the code)
 - [ ] Make myself admin. In Neon's SQL editor:
