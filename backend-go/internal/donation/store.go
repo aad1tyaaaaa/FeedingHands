@@ -2,6 +2,7 @@ package donation
 
 import (
 	"context"
+	"strconv"
 	"strings"
 	"time"
 
@@ -32,6 +33,9 @@ type Donation struct {
 	NGOLongitude   *float64  `json:"ngo_longitude"`
 	VolunteerID    *int64    `json:"volunteer_id"`
 	VolunteerName  *string   `json:"volunteer_name"`
+	Freshness      *string   `json:"freshness"`            // label from the in-browser freshness check
+	FreshnessConf  *float32  `json:"freshness_confidence"` // 0..1
+	Photos         []int64   `json:"photos"`               // ids for GET /api/donations/{id}/photos/{photoId}
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
 	Events         []Event   `json:"events,omitempty"`
@@ -49,7 +53,10 @@ type Event struct {
 const selectDonation = `
 	SELECT d.id, d.tracking_id, d.type, d.food_details, d.location, d.latitude, d.longitude, d.contact, d.notes,
 	       d.status, d.status_label, d.points, d.donor_id, u.full_name,
-	       d.organization_id, o.name, o.address, o.phone, o.latitude, o.longitude, d.volunteer_id, v.name, d.created_at, d.updated_at
+	       d.organization_id, o.name, o.address, o.phone, o.latitude, o.longitude, d.volunteer_id, v.name,
+	       d.freshness, d.freshness_confidence,
+	       COALESCE((SELECT array_agg(p.id ORDER BY p.id) FROM donation_photos p WHERE p.donation_id = d.id), '{}'),
+	       d.created_at, d.updated_at
 	FROM donations d
 	LEFT JOIN users u ON u.id = d.donor_id
 	LEFT JOIN organizations o ON o.id = d.organization_id
@@ -60,7 +67,7 @@ func scan(row pgx.Row) (Donation, error) {
 	err := row.Scan(&d.ID, &d.TrackingID, &d.Type, &d.FoodDetails, &d.Location, &d.Latitude, &d.Longitude,
 		&d.Contact, &d.Notes, &d.Status, &d.StatusLabel, &d.Points, &d.DonorID, &d.DonorName,
 		&d.OrganizationID, &d.NGOName, &d.NGOAddress, &d.NGOPhone, &d.NGOLatitude, &d.NGOLongitude, &d.VolunteerID, &d.VolunteerName,
-		&d.CreatedAt, &d.UpdatedAt)
+		&d.Freshness, &d.FreshnessConf, &d.Photos, &d.CreatedAt, &d.UpdatedAt)
 	return d, err
 }
 
@@ -70,14 +77,14 @@ type querier interface {
 	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
 }
 
-// list returns donations matching every where clause (written with $n placeholders for args).
-func list(ctx context.Context, q querier, where []string, args []any) ([]Donation, error) {
+// list returns up to limit donations matching every where clause (written with $n placeholders for args),
+// newest first. Paging is keyset on id: pass the last id of one page as a "d.id < $n" clause for the next.
+func list(ctx context.Context, q querier, where []string, args []any, limit int) ([]Donation, error) {
 	sql := selectDonation
 	if len(where) > 0 {
 		sql += " WHERE " + strings.Join(where, " AND ")
 	}
-	// ponytail: newest 500 only; add ?limit/&before= paging when donations outgrow that.
-	rows, err := q.Query(ctx, sql+` ORDER BY d.created_at DESC LIMIT 500`, args...)
+	rows, err := q.Query(ctx, sql+` ORDER BY d.id DESC LIMIT `+strconv.Itoa(limit), args...)
 	if err != nil {
 		return nil, err
 	}

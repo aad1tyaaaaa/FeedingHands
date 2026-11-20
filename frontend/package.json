@@ -8,7 +8,6 @@
     "@mapbox/polyline": "^1.2.1",
     "@teachablemachine/image": "^0.8.5",
     "@tensorflow/tfjs": "^4.22.0",
-    "axios": "1.7.9",
     "chart.js": "4.4.7",
     "fast-text-encoding": "^1.0.6",
     "leaflet": "1.9.4",
@@ -25,8 +24,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "test": "node --test src/api/forecast.test.mjs"
+    "test": "node --test \"src/api/*.test.mjs\""
   },
   "browserslist": [
     ">0.2%",

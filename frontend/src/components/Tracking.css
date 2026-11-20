@@ -174,3 +174,13 @@
 @media (max-width: 760px) {
   .tracking-lookup { flex: none; width: 100%; }
 }
+
+/* Donation photos (DonationPhoto.js) and the "Load more" button (LoadMore.js) */
+.donation-photos { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 22px; }
+.donation-photo { display: grid; place-items: center; width: 120px; height: 120px; border-radius: var(--radius-sm, 12px); background: var(--tint, #f5f1ff); object-fit: cover; color: var(--ink-faint, #8a8499); font-size: 0.8rem; text-align: center; }
+.donation-photos.is-small { gap: 6px; margin: 6px 0 0; }
+.donation-photos.is-small .donation-photo { width: 48px; height: 48px; font-size: 0.65rem; }
+.load-more { display: flex; justify-content: center; margin-top: 14px; }
+@media (max-width: 420px) {
+  .donation-photo { width: calc(33% - 7px); height: auto; aspect-ratio: 1; }
+}

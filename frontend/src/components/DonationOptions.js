@@ -7,11 +7,11 @@ import Illustration from "./Illustration";
 const DonationOptions = () => {
   const navigate = useNavigate();
 
-  const handleMoneyDonation = () => navigate("/FundraisingPage");
+  const handleMoneyDonation = () => navigate("/fundraising");
   
-  const handleFoodWasteDonation = () => navigate("/Donate");
+  const handleFoodWasteDonation = () => navigate("/donate");
   
-  const handleBiogasDonation = () => navigate("/BiogasDonation");
+  const handleBiogasDonation = () => navigate("/biogas");
   
   return (
     <div className="fh-theme donation-options-page">

@@ -183,3 +183,15 @@
   .donate-location .workspace-secondary { width: 100%; justify-content: center; }
   .donate-two { grid-template-columns: 1fr; }
 }
+
+/* step 4: photos and the optional freshness check */
+.donate-photo-input { display: block; max-width: 100%; margin-top: 6px; font: inherit; }
+.donate-photos { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 0; padding: 0; list-style: none; }
+.donate-photos li { position: relative; width: 96px; height: 96px; }
+.donate-photos img { width: 100%; height: 100%; border-radius: var(--radius-sm); object-fit: cover; }
+.donate-photos .donate-remove { position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; }
+.donate-freshness { display: grid; justify-items: start; gap: 14px; margin-top: 20px; padding-top: 18px; border-top: 1.5px dashed var(--line); }
+.donate-freshness > .freshness-check { justify-self: stretch; }
+.donate-freshness .freshness-layout { grid-template-columns: 1fr; }
+.donate-freshness .workspace-panel { padding: 0; border: 0; background: none; box-shadow: none; }
+button.donate-fresh { width: 100%; font: inherit; text-align: left; cursor: pointer; }

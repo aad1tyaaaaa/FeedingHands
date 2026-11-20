@@ -42,6 +42,7 @@ func canMove(from, to string) bool {
 type actor struct {
 	role               string
 	userID, orgID, vol int64
+	orgVerified        bool // an admin has verified the caller's organization
 }
 
 // parties are who a donation currently belongs to (0 = nobody yet).
@@ -70,6 +71,9 @@ func permit(a actor, p parties, next string) string {
 		}
 		if a.orgID == 0 {
 			return "Complete your organization profile before claiming donations"
+		}
+		if !a.orgVerified {
+			return "Your organization is awaiting verification"
 		}
 	case "picked_up", "in_transit", "delivered":
 		if a.role != "volunteer" || a.vol == 0 {

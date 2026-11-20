@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import {
   FaRecycle,
   FaLeaf,
@@ -9,6 +9,8 @@ import {
 import "./PersonaTheme.css";
 import "./BiogasDonation.css";
 import { apiFetch } from "../api/client";
+import { usePagedList } from "../api/usePolling";
+import LoadMore from "./LoadMore";
 import { useAuth } from "./AuthContext";
 import Illustration from "./Illustration";
 import WorkspaceMetric from "./WorkspaceMetric";
@@ -21,29 +23,20 @@ const PICKUP_STATUS = { scheduled: "Scheduled", collected: "Collected", cancelle
 const BiogasDonation = () => {
   const { user } = useAuth();
   const partner = user.role === "biogas" || user.role === "admin";
-  const [pickups, setPickups] = useState([]);
-  const [listError, setListError] = useState("");
-
-  const loadPickups = useCallback(async () => {
-    try {
-      setPickups((await apiFetch("/api/biogas-donations")).donations || []);
-      setListError("");
-    } catch (err) {
-      setListError(err.message);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadPickups();
-  }, [loadPickups]);
+  const pickupsList = usePagedList("/api/biogas-donations");
+  const pickups = pickupsList.items;
+  const loadPickups = pickupsList.refresh;
+  const [actionError, setActionError] = useState("");
+  const listError = actionError || pickupsList.error;
 
   const setStatus = async (id, status) => {
     if (status === "cancelled" && !window.confirm("Cancel this pickup?")) return;
     try {
       await apiFetch(`/api/biogas-donations/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }) });
+      setActionError("");
       loadPickups();
     } catch (err) {
-      setListError(err.message);
+      setActionError(err.message);
     }
   };
 
@@ -74,6 +67,7 @@ const BiogasDonation = () => {
       ) : (
         <p>{partner ? "No pickup requests yet." : "You haven't scheduled a pickup yet."}</p>
       )}
+      <LoadMore list={pickupsList} />
     </section>
   );
   const [formData, setFormData] = useState({

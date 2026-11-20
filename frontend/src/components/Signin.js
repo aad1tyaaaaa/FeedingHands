@@ -33,6 +33,10 @@ function SignIn() {
         navigate("/sign-up", { state: { verifyEmail: formData.email.trim() } });
         return;
       }
+      if (err.data?.code === "suspended") {
+        setError("This account has been suspended. If you think this is a mistake, contact the FeedingHands team.");
+        return;
+      }
       setError(err.message || "Sign-in failed. Please try again.");
     } finally {
       setLoading(false);
@@ -78,6 +82,9 @@ function SignIn() {
                 required
               />
             </div>
+            <Link to="/forgot-password" viewTransition style={{ alignSelf: "flex-end", color: "#2e7d32", fontSize: "0.9rem", fontWeight: 600 }}>
+              Forgot password?
+            </Link>
 
             <button type="submit" disabled={loading}>
               {loading ? "Signing in..." : "Sign In"}

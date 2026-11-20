@@ -1,13 +1,13 @@
 
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import "./PersonaTheme.css";
 import "./Dashboard.css";
 import { ArrowUpRight, Award, CalendarDays, Clock3, HandHeart, Plus } from "lucide-react";
 import WorkspaceMetric from "./WorkspaceMetric";
 import { Link } from "react-router-dom";
 import { Bar } from "react-chartjs-2";
-import { apiFetch } from "../api/client";
+import { usePagedList } from "../api/usePolling";
 import { useAuth } from "./AuthContext";
 import { STATUS_TEXT } from "./DonationTimeline";
 import {
@@ -39,27 +39,23 @@ ChartJS.defaults.color = "#5d5672";
 
 function Dashboard() {
   const { user, refresh: refreshUser } = useAuth();
-  const [donations, setDonations] = useState([]);
-  const [loadError, setLoadError] = useState("");
-  const [chartData, setChartData] = useState({
-    labels: [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ],
+  const { items: donations, error: loadError } = usePagedList("/api/donations");
+
+  useEffect(() => {
+    refreshUser(); // points change when a volunteer delivers
+  }, [refreshUser]);
+
+  const monthlyCounts = Array(12).fill(0);
+  donations.forEach((donation) => {
+    const date = new Date(donation.created_at);
+    if (!Number.isNaN(date.getTime())) monthlyCounts[date.getMonth()] += 1;
+  });
+  const chartData = {
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
     datasets: [
       {
         label: "Monthly Donations",
-        data: Array(12).fill(0),
+        data: monthlyCounts,
         backgroundColor: "#ff6b2c",
         hoverBackgroundColor: "#ffd84a",
         borderWidth: 0,
@@ -68,34 +64,7 @@ function Dashboard() {
         borderSkipped: false,
       },
     ],
-  });
-
-  useEffect(() => {
-    const refresh = async () => {
-      try {
-        const data = await apiFetch("/api/donations");
-        const records = data.donations || [];
-        setDonations(records);
-        setLoadError("");
-        const monthlyCounts = Array(12).fill(0);
-        records.forEach((donation) => {
-          const date = new Date(donation.created_at);
-          if (!Number.isNaN(date.getTime())) monthlyCounts[date.getMonth()] += 1;
-        });
-        setChartData((current) => ({
-          ...current,
-          datasets: [{ ...current.datasets[0], data: monthlyCounts }],
-        }));
-      } catch (error) {
-        setLoadError(error.message);
-      }
-    };
-
-    refresh();
-    refreshUser(); // points change when a volunteer delivers
-    const interval = setInterval(refresh, 30000);
-    return () => clearInterval(interval);
-  }, [refreshUser]);
+  };
 
   const now = new Date();
   const thisMonthCount = donations.filter((donation) => {
@@ -113,7 +82,7 @@ function Dashboard() {
             <p>Make a donation, follow its progress, and see your community activity.</p>
           </div>
           <Illustration name="hero-donor" className="workspace-heading-art" />
-          <Link className="workspace-primary" to="/Donate"><Plus size={17} /> Start a donation</Link>
+          <Link className="workspace-primary" to="/donate"><Plus size={17} /> Start a donation</Link>
         </section>
 
         <section className="workspace-metrics" aria-label="Donation summary">
@@ -126,7 +95,7 @@ function Dashboard() {
           <section className="workspace-panel donor-chart-panel">
             <div className="workspace-panel-heading">
               <h2>Monthly donation activity</h2>
-              <Link className="workspace-inline-link" to="/Tracking">Donation history <ArrowUpRight size={15} /></Link>
+              <Link className="workspace-inline-link" to="/tracking">Donation history <ArrowUpRight size={15} /></Link>
             </div>
             <div className="donor-chart">
               {donations.length ? (
@@ -140,7 +109,7 @@ function Dashboard() {
               ) : (
                 <div className="workspace-empty donor-chart-empty"><Illustration name="trend-chart" className="workspace-empty-art" />
                   <p>Your monthly activity will appear here after your first donation.</p>
-                  <Link className="workspace-inline-link" to="/Donate">Start a donation <ArrowUpRight size={15} /></Link>
+                  <Link className="workspace-inline-link" to="/donate">Start a donation <ArrowUpRight size={15} /></Link>
                 </div>
               )}
             </div>
@@ -149,9 +118,9 @@ function Dashboard() {
           <aside className="workspace-panel donor-tools-panel">
             <div className="workspace-panel-heading"><h2>Useful tools</h2></div>
             <div className="workspace-tool-links">
-              <Link className="workspace-tool-link" to="/Tracking"><span>Track a donation</span><ArrowUpRight size={16} /></Link>
-              <Link className="workspace-tool-link" to="/ImageRecognition"><span>Check food freshness</span><ArrowUpRight size={16} /></Link>
-              <Link className="workspace-tool-link" to="/LearnerCorner"><span>Learn about food safety</span><ArrowUpRight size={16} /></Link>
+              <Link className="workspace-tool-link" to="/tracking"><span>Track a donation</span><ArrowUpRight size={16} /></Link>
+              <Link className="workspace-tool-link" to="/freshness"><span>Check food freshness</span><ArrowUpRight size={16} /></Link>
+              <Link className="workspace-tool-link" to="/learn"><span>Learn about food safety</span><ArrowUpRight size={16} /></Link>
             </div>
           </aside>
         </div>
@@ -159,7 +128,7 @@ function Dashboard() {
         <section className="workspace-panel donor-recent-panel">
           <div className="workspace-panel-heading">
             <h2>Recent donations</h2>
-            <Link className="workspace-inline-link" to="/Tracking">View all <ArrowUpRight size={15} /></Link>
+            <Link className="workspace-inline-link" to="/tracking">View all <ArrowUpRight size={15} /></Link>
           </div>
           {donations.length ? (
             <div className="workspace-table-wrap">
@@ -167,7 +136,7 @@ function Dashboard() {
                 <thead><tr><th>Donation</th><th>Pickup location</th><th>Date added</th><th>Status</th></tr></thead>
                 <tbody>{donations.slice(0, 5).map((donation) => (
                   <tr key={donation.id}>
-                    <td><Link to={`/Tracking?id=${donation.id}`}>{donation.donation_tracking_id}</Link> · {donation.type}</td>
+                    <td><Link to={`/tracking?id=${donation.id}`}>{donation.donation_tracking_id}</Link> · {donation.type}</td>
                     <td>{donation.location || "Location not listed"}</td>
                     <td className="workspace-muted">{donation.created_at ? new Date(donation.created_at).toLocaleDateString() : "Date unavailable"}</td>
                     <td><span className={`status-pill ${donation.status}`}>{STATUS_TEXT[donation.status]}</span></td>
@@ -178,7 +147,7 @@ function Dashboard() {
           ) : (
             <div className="workspace-empty"><Illustration name="state-empty" className="workspace-empty-art" />
               <p>No donation records yet. Your first contribution will appear here.</p>
-              <Link className="workspace-secondary" to="/Donate"><Clock3 size={15} /> Create a donation</Link>
+              <Link className="workspace-secondary" to="/donate"><Clock3 size={15} /> Create a donation</Link>
             </div>
           )}
         </section>

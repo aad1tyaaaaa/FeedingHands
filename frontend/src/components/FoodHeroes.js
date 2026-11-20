@@ -42,7 +42,7 @@ const FoodHeroes = () => {
           <p>Donors whose food reached people in need. Every delivered donation earns 10 Puniya points.</p>
         </div>
         <Illustration name="hero-leaderboard" className="workspace-heading-art" />
-        <Link className="workspace-primary" to="/Donate"><HandHeart size={17} /> Donate food</Link>
+        <Link className="workspace-primary" to="/donate"><HandHeart size={17} /> Donate food</Link>
       </section>
 
       {error && <p className="workspace-panel" role="alert">{error}</p>}
@@ -61,7 +61,7 @@ const FoodHeroes = () => {
           <div className="workspace-empty">
             <Illustration name="team-banner" className="workspace-empty-art" />
             <p>No deliveries yet. Be the first food hero!</p>
-            <Link className="workspace-secondary" to="/Donate">Make a donation</Link>
+            <Link className="workspace-secondary" to="/donate">Make a donation</Link>
           </div>
         ) : (
           <>

@@ -34,6 +34,7 @@ var personas = []persona{
 	{"Farhan Shaikh", "biogas1@feedinghands.dev", "+919800000031", "biogas"},
 	{"Priya Menon", "biogas2@feedinghands.dev", "+919800000032", "biogas"},
 	{"Siddharth Rane", "biogas3@feedinghands.dev", "+919800000033", "biogas"},
+	{"Admin", "admin@feedinghands.dev", "+919800000041", "admin"},
 }
 
 type org struct {
@@ -104,9 +105,10 @@ func Demo(ctx context.Context, pool *pgxpool.Pool) error {
 		}
 		for _, o := range orgs {
 			if _, err := tx.Exec(ctx, `
-				INSERT INTO organizations (owner_id, name, description, address, contact, email, phone, latitude, longitude)
-				SELECT id, $2, $3, $4, full_name, email, $5, $6, $7 FROM users WHERE email = $1
-				ON CONFLICT (owner_id) DO NOTHING`,
+				INSERT INTO organizations (owner_id, name, description, address, contact, email, phone, latitude, longitude,
+					verification_status)
+				SELECT id, $2, $3, $4, full_name, email, $5, $6, $7, 'verified' FROM users WHERE email = $1
+				ON CONFLICT (owner_id) DO UPDATE SET verification_status = 'verified'`, // also verifies orgs seeded before 00008
 				o.ownerEmail, o.name, o.description, o.address, o.phone, o.lat, o.lng); err != nil {
 				return fmt.Errorf("organization %s: %w", o.name, err)
 			}
