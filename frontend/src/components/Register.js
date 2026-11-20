@@ -1,20 +1,23 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Building2, Check, Globe, ImageUp, LocateFixed, Mail, MapPin, Phone, UserRound } from "lucide-react";
+import { ArrowRight, BadgeCheck, Building2, Check, FileUp, Globe, Hash, Hourglass, ImageUp, LocateFixed, Mail, MapPin, Phone, UserRound, XCircle } from "lucide-react";
 import "./PersonaTheme.css";
 import "./Register.css";
 import { apiFetch, apiUrl } from "../api/client";
 import Illustration from "./Illustration";
 
-const EMPTY = { name: "", address: "", description: "", contact: "", email: "", phone: "", website: "", latitude: null, longitude: null };
+const EMPTY = { name: "", registrationNo: "", address: "", description: "", contact: "", email: "", phone: "", website: "", latitude: null, longitude: null };
 
 // The signed-in organization's own profile: created on first save (right after choosing the role), edited afterwards.
 function Register() {
   const navigate = useNavigate();
   const fileRef = useRef(null);
+  const docRef = useRef(null);
   const [form, setForm] = useState(EMPTY);
   const [isNew, setIsNew] = useState(true);
   const [logoUrl, setLogoUrl] = useState(null);
+  // verificationStatus, reviewNote, hasDocument: set by the admin review, shown read-only here
+  const [review, setReview] = useState(null);
   const [saving, setSaving] = useState(false);
   const [locating, setLocating] = useState(false);
   const [error, setError] = useState("");
@@ -24,10 +27,11 @@ function Register() {
     apiFetch("/api/organizations/me")
       .then(({ organization: o }) => {
         setForm({
-          name: o.name, address: o.address, description: o.description, contact: o.contact, email: o.email,
+          name: o.name, registrationNo: o.registrationNo || "", address: o.address, description: o.description, contact: o.contact, email: o.email,
           phone: o.phone, website: o.website, latitude: o.latitude, longitude: o.longitude,
         });
         setLogoUrl(o.logo_url);
+        setReview(o);
         setIsNew(false);
       })
       .catch((err) => err.status !== 404 && setError(err.message));
@@ -66,8 +70,9 @@ function Register() {
     setSaving(true);
     setError("");
     try {
-      await apiFetch("/api/organizations/me", { method: "PUT", body: JSON.stringify(form) });
-      if (isNew) navigate("/NgoDashboard", { replace: true });
+      const data = await apiFetch("/api/organizations/me", { method: "PUT", body: JSON.stringify(form) });
+      if (data?.organization) setReview(data.organization); // saving a rejected profile resubmits it
+      if (isNew) navigate("/ngo", { replace: true });
       else setNotice("Profile saved.");
     } catch (err) {
       setError(err.message);
@@ -93,6 +98,23 @@ function Register() {
     }
   };
 
+  const uploadDocument = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) return setError("Document must be 5 MB or smaller.");
+    const body = new FormData();
+    body.append("document", file);
+    try {
+      const { organization } = await apiFetch("/api/organizations/me/document", { method: "PUT", body });
+      setReview(organization);
+      setNotice("Registration document uploaded.");
+      setError("");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
     <div className="org-dashboard">
       <section className="workspace-heading">
@@ -109,6 +131,26 @@ function Register() {
         </p>
       )}
 
+      {review?.verificationStatus === "verified" && (
+        <p className="org-notice" role="status" style={{ marginBottom: 18 }}>
+          <BadgeCheck size={16} /> Verified: you can claim donations and appear in the NGO directory.
+        </p>
+      )}
+      {review?.verificationStatus === "pending" && (
+        <p className="org-banner" role="status">
+          <Hourglass size={16} />
+          {review.hasDocument
+            ? "Awaiting verification: our team is reviewing your registration. You can claim donations once you're verified."
+            : "Awaiting verification: upload your registration document so our team can verify you."}
+        </p>
+      )}
+      {review?.verificationStatus === "rejected" && (
+        <p className="org-error" role="alert" style={{ marginBottom: 18 }}>
+          <XCircle size={16} style={{ verticalAlign: "-3px" }} /> Verification was not approved
+          {review.reviewNote ? `: ${review.reviewNote}` : "."} Fix your details or upload a new document to resubmit.
+        </p>
+      )}
+
       <div className="org-layout">
         <form className="org-form" onSubmit={submit}>
           <section className="workspace-panel org-step">
@@ -117,6 +159,11 @@ function Register() {
             <div className="org-field">
               <Building2 size={18} className="org-field-icon" />
               <input id="org-name" value={form.name} onChange={set("name")} required maxLength={200} placeholder="e.g. Annapurna Food Bank" />
+            </div>
+            <label className="org-label" htmlFor="org-registration">Registration number</label>
+            <div className="org-field">
+              <Hash size={18} className="org-field-icon" />
+              <input id="org-registration" value={form.registrationNo} onChange={set("registrationNo")} required maxLength={100} placeholder="Trust / society / Section 8 registration no." />
             </div>
             <label className="org-label" htmlFor="org-description">What you do</label>
             <textarea id="org-description" rows={3} value={form.description} onChange={set("description")} required maxLength={2000} placeholder="Who you feed, how many meals a day, your kitchen hours…" />
@@ -197,6 +244,25 @@ function Register() {
             <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={uploadLogo} />
           </section>
 
+          <section className="workspace-panel org-logo">
+            <h2>Registration document</h2>
+            {isNew ? (
+              <p className="org-hint">Save your profile first, then upload your registration certificate.</p>
+            ) : (
+              <>
+                <p className={`org-hint${review?.hasDocument ? " is-ok" : ""}`} style={{ marginTop: 0, marginBottom: 12 }}>
+                  {review?.hasDocument ? <><Check size={14} /> Document on file. Only our review team can see it.</> : "No document uploaded yet."}
+                </p>
+                <button type="button" className="workspace-secondary org-logo-button" onClick={() => docRef.current.click()}>
+                  <FileUp size={16} /> {review?.hasDocument ? "Replace document" : "Upload document"}
+                </button>
+                <p className="org-hint">PDF, PNG or JPEG, up to 5 MB.</p>
+              </>
+            )}
+            <input ref={docRef} type="file" accept="application/pdf,image/png,image/jpeg" hidden onChange={uploadDocument}
+              aria-label="Registration document" />
+          </section>
+
           <section className="workspace-panel org-preview">
             <h2>Directory preview</h2>
             <div className="org-preview-card">
@@ -208,7 +274,7 @@ function Register() {
               <span><MapPin size={14} /> {form.address || "Address"}</span>
               <span><Phone size={14} /> {form.phone || "Phone"}</span>
             </div>
-            {!isNew && <Link className="workspace-inline-link" to="/KnowYourNgo">Open the directory</Link>}
+            {!isNew && <Link className="workspace-inline-link" to="/ngos">Open the directory</Link>}
           </section>
         </aside>
       </div>

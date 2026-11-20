@@ -99,4 +99,19 @@ const vols = await call("GET", "/api/volunteers");
 assert.ok(vols.volunteers.every((v) => v.email === undefined && v.phone === undefined));
 step("stats served; volunteer list has no contact details");
 
+// 9. Forgot / reset password; the directory lists verified NGOs only; non-admins can't reach the admin API.
+const nobody = await call("POST", "/api/auth/forgot-password", { body: { email: `nobody-${email}` } });
+const forgot = await call("POST", "/api/auth/forgot-password", { body: { email } });
+assert.equal(nobody.message, forgot.message, "same answer whether or not the account exists");
+assert.ok(forgot.otp && !nobody.otp, "dev mode returns the reset code, only for a real account");
+const wrongCode = forgot.otp === "000000" ? "111111" : "000000";
+await call("POST", "/api/auth/reset-password", { body: { email, token: wrongCode, password: "SmokeTest#2" }, expect: 400 });
+const reset = await call("POST", "/api/auth/reset-password", { body: { email, token: forgot.otp, password: "SmokeTest#2" } });
+await call("GET", "/api/auth/me", { token: reset.access_token });
+await call("POST", "/api/auth/signin", { body: { email, password: "SmokeTest#2" } });
+const dir = await call("GET", "/api/organizations");
+assert.ok(dir.organizations.length > 0 && dir.organizations.every((o) => o.verificationStatus === "verified"));
+await call("GET", "/api/admin/overview", { token: reset.access_token, expect: 403 });
+step("password reset with emailed code; directory verified-only; admin API refuses a donor");
+
 console.log("\nAll smoke checks passed.");

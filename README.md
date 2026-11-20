@@ -12,7 +12,12 @@ A food donation and redistribution platform. Donors post surplus food, NGOs clai
 - **Biogas pickups**: anyone schedules a food-waste pickup; biogas partners mark it collected.
 - **Analytics & forecast**: weekly donation history and a 4-week trend forecast for NGOs.
 - **Freshness check**: TensorFlow.js / Teachable Machine camera model, runs in the browser.
-- **Fundraising & gift cards**: demo UI only: no payment is taken and no card details are collected (Razorpay is a later phase).
+- **Fundraising**: Razorpay checkout with signature-verified webhook and emailed receipts (falls back to a clearly labelled demo pledge when Razorpay keys are unset).
+- **Rewards**: server-issued reward codes unlock at 10 / 50 / 100 Puniya points; admins redeem them.
+- **Trust and safety**: NGOs upload a registration document and must be verified by an admin before claiming food; anyone involved in a donation can report a problem; admins can suspend users.
+- **Accounts**: forgot / reset password by emailed code, edit profile, change password (signs out other devices), delete account, email notification opt-out.
+- **Notifications**: emails when a donation is claimed, picked up and delivered, and to verified NGOs within `NOTIFY_RADIUS_KM` of a new donation. Dashboards refresh every 30 s.
+- **Food photos**: up to 3 photos per donation plus an optional freshness check result.
 
 ## Tech Stack
 
@@ -78,22 +83,23 @@ Without SMTP settings, signup codes are printed in the API terminal and shown on
 
 ### Demo personas
 
-With `SEED_DEMO_DATA=true` (the default in `.env.example` and docker compose), the API creates three verified accounts per role, plus sample donations at every stage. **Every demo account uses the password `Demo@1234`.**
+With `SEED_DEMO_DATA=true` (the default in `.env.example` and docker compose), the API creates three verified accounts per role plus one admin, plus sample donations at every stage. **Every demo account uses the password `Demo@1234`.**
 
 | Role | Name | Email | Password | Lands on |
 |---|---|---|---|---|
 | Donor | Aarav Sharma | `donor1@feedinghands.dev` | `Demo@1234` | `/dashboard` |
 | Donor | Diya Patel | `donor2@feedinghands.dev` | `Demo@1234` | `/dashboard` |
 | Donor | Kabir Mehta | `donor3@feedinghands.dev` | `Demo@1234` | `/dashboard` |
-| Volunteer | Rohan Iyer | `volunteer1@feedinghands.dev` | `Demo@1234` | `/VolunteerDashboard` |
-| Volunteer | Sneha Kulkarni | `volunteer2@feedinghands.dev` | `Demo@1234` | `/VolunteerDashboard` |
-| Volunteer | Arjun Nair | `volunteer3@feedinghands.dev` | `Demo@1234` | `/VolunteerDashboard` |
-| Organization | Meera Joshi (Annapurna Food Bank) | `ngo1@feedinghands.dev` | `Demo@1234` | `/NgoDashboard` |
-| Organization | Vikram Desai (Roti Ghar Trust) | `ngo2@feedinghands.dev` | `Demo@1234` | `/NgoDashboard` |
-| Organization | Ananya Rao (Seva Sahyog Foundation) | `ngo3@feedinghands.dev` | `Demo@1234` | `/NgoDashboard` |
-| Biogas partner | Farhan Shaikh | `biogas1@feedinghands.dev` | `Demo@1234` | `/BiogasDonation` |
-| Biogas partner | Priya Menon | `biogas2@feedinghands.dev` | `Demo@1234` | `/BiogasDonation` |
-| Biogas partner | Siddharth Rane | `biogas3@feedinghands.dev` | `Demo@1234` | `/BiogasDonation` |
+| Volunteer | Rohan Iyer | `volunteer1@feedinghands.dev` | `Demo@1234` | `/volunteer` |
+| Volunteer | Sneha Kulkarni | `volunteer2@feedinghands.dev` | `Demo@1234` | `/volunteer` |
+| Volunteer | Arjun Nair | `volunteer3@feedinghands.dev` | `Demo@1234` | `/volunteer` |
+| Organization | Meera Joshi (Annapurna Food Bank) | `ngo1@feedinghands.dev` | `Demo@1234` | `/ngo` |
+| Organization | Vikram Desai (Roti Ghar Trust) | `ngo2@feedinghands.dev` | `Demo@1234` | `/ngo` |
+| Organization | Ananya Rao (Seva Sahyog Foundation) | `ngo3@feedinghands.dev` | `Demo@1234` | `/ngo` |
+| Biogas partner | Farhan Shaikh | `biogas1@feedinghands.dev` | `Demo@1234` | `/biogas` |
+| Biogas partner | Priya Menon | `biogas2@feedinghands.dev` | `Demo@1234` | `/biogas` |
+| Biogas partner | Siddharth Rane | `biogas3@feedinghands.dev` | `Demo@1234` | `/biogas` |
+| Admin | Admin | `admin@feedinghands.dev` | `Demo@1234` | `/admin` |
 
 New users go through the real flow: **Sign up → enter the email code → choose a role → workspace**.
 
@@ -107,29 +113,60 @@ node scripts/smoke.mjs              # full lifecycle against a running API (dev 
 
 CI runs all three on every push and pull request.
 
-## Deployment
+## Deployment ($0/month)
 
-The recommended setup is **Vercel** (frontend), **Railway or Render** (Go API) and **managed PostgreSQL**.
+Everything runs on free tiers. No service needs a credit card except Razorpay's business verification, and Razorpay is optional.
 
-**Database**: create a managed Postgres (Railway, Render, Neon, Supabase…). Use its connection string with `sslmode=require`.
+| Piece | Free service | Free limits that matter |
+|---|---|---|
+| Database | [Neon](https://neon.com) Free | 1 GB storage, 100 compute-hours/month, scales to zero when idle. Never expires |
+| API | [Render](https://render.com) free web service | 750 instance-hours/month (one service 24/7 fits); sleeps after 15 min idle, ~1 min to wake |
+| Frontend | Render free static site (or Cloudflare Pages / Netlify) | Plain static files in `frontend/out` |
+| Email | [Brevo](https://www.brevo.com) Free | 300 emails/day over SMTP port 2525 |
+| Maps | OpenStreetMap tiles, Nominatim, OSRM demo server | Free under fair-use policies (Nominatim: max 1 request/second) |
+| Payments (optional) | Razorpay | No setup or yearly fee; about 2% (+GST) is deducted per donation. Leave the keys empty to keep payments off |
+| Help bot (optional) | Chatbase free plan | Leave `NEXT_PUBLIC_CHATBASE_ID` empty to hide it |
 
-**Render, one click**: New → Blueprint → this repo. [render.yaml](render.yaml) creates the API and its Postgres, generates `JWT_SECRET`, and prompts for `CORS_ORIGIN` and SMTP. (Free Postgres expires after 30 days; bump `plan` for real use.)
+Why not Vercel and Render Postgres? Vercel's free Hobby plan is for personal, non-commercial use only. Render's free Postgres is deleted after 30 days.
 
-**API (Railway / Render, by hand)**: deploy `backend-go/` using its `Dockerfile`, with these settings:
+The code is tuned to stay inside these limits:
+- the API closes idle database connections after a minute, so Neon can scale to zero
+- Render's health check uses `/livez`, which never touches the database
+- photos are shrunk in the browser (≤1280 px JPEG, ~150 KB)
+- photos of donations finished more than 30 days ago are deleted daily
+
+### Steps
+
+1. **Neon**: create a project and copy its connection string (it already ends in `sslmode=require`).
+2. **Brevo**: create an account, verify a sender address, then copy the SMTP login and SMTP key from *SMTP & API*.
+3. **Render**: New → Blueprint → this repo. [render.yaml](render.yaml) creates `feedinghands-api` and `feedinghands-web` and asks for:
+   - `DATABASE_URL`: the Neon string
+   - `SMTP_HOST`: `smtp-relay.brevo.com`
+   - `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`: from Brevo
+   - `CORS_ORIGIN`: `https://feedinghands-web.onrender.com`
+   - `NEXT_PUBLIC_API_BASE_URL`: `https://feedinghands-api.onrender.com`
+   - the Razorpay keys: leave empty unless you set up Razorpay
+
+   If Render gave the services different URLs, update those two values and redeploy the static site. The API URL is built into the bundle.
+4. **Admin**: sign up on the live site, then in Neon's SQL editor run `UPDATE users SET role = 'admin' WHERE email = 'you@example.com';`.
+5. **Optional, no cold starts**: point a free uptime monitor (UptimeRobot, cron-job.org) at `https://<api>/livez` every 10 minutes. It keeps the API awake without waking the database.
+
+The API refuses to start in production without email, `CORS_ORIGIN` and a strong `JWT_SECRET`. Never set `SEED_DEMO_DATA` there.
+
+**API environment variables** (for hosting by hand with `backend-go/Dockerfile`):
 
 | Variable | Value |
 |---|---|
-| `DATABASE_URL` | managed Postgres URL |
+| `DATABASE_URL` | Postgres URL with `sslmode=require` |
 | `JWT_SECRET` | 32+ random characters, never reused from development |
 | `APP_ENV` | `production` |
-| `CORS_ORIGIN` | your Vercel URL, e.g. `https://feedinghands.vercel.app` |
-| `TRUST_PROXY` | `true` |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | your email provider (port 587, STARTTLS) |
-| `SEED_DEMO_DATA` | leave unset; production refuses to start with it |
+| `CORS_ORIGIN` | the frontend's URL |
+| `TRUST_PROXY` | `true` behind a load balancer |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | your email provider |
+| `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET` | optional; webhook URL `https://<api>/api/payments/webhook`, event `payment.captured`. Unset = payments off |
+| `NOTIFY_RADIUS_KM` | how far (km) a new donation is announced to NGOs; default 10 |
 
-Health check path: `/health`. The API refuses to start in production without email, CORS and a strong secret.
-
-**Frontend (Vercel)**: import the repo, set **Root Directory** to `frontend`, and add `NEXT_PUBLIC_API_BASE_URL` (the API's public URL). Redeploy whenever that URL changes, since it's built into the bundle.
+**Frontend** elsewhere: run `npm run build` in `frontend/` with `NEXT_PUBLIC_API_BASE_URL` set, publish `frontend/out`, and rewrite every path without a file to `/index.html`.
 
 ## License
 

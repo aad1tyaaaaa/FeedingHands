@@ -19,6 +19,8 @@ import {
   Menu,
   Route,
   ScanSearch,
+  Settings,
+  ShieldCheck,
   Truck,
   X,
 } from "lucide-react";
@@ -31,66 +33,83 @@ const WORKSPACES = {
     home: "/dashboard",
     links: [
       { label: "Overview", to: "/dashboard", icon: LayoutDashboard },
-      { label: "Donate food", to: "/Donate", icon: HandHeart },
-      { label: "Donation tracking", to: "/Tracking", icon: ClipboardList },
-      { label: "Biogas pickup", to: "/BiogasDonation", icon: Recycle },
-      { label: "Freshness check", to: "/ImageRecognition", icon: ScanSearch },
-      { label: "Fundraising", to: "/FundraisingPage", icon: HeartHandshake },
-      { label: "Gift cards", to: "/GiftCard", icon: Gift },
-      { label: "Food learning", to: "/LearnerCorner", icon: BookOpen },
-      { label: "Food heroes", to: "/FoodHeroes", icon: Award },
+      { label: "Donate food", to: "/donate", icon: HandHeart },
+      { label: "Donation tracking", to: "/tracking", icon: ClipboardList },
+      { label: "Biogas pickup", to: "/biogas", icon: Recycle },
+      { label: "Freshness check", to: "/freshness", icon: ScanSearch },
+      { label: "Fundraising", to: "/fundraising", icon: HeartHandshake },
+      { label: "Rewards", to: "/rewards", icon: Gift },
+      { label: "Food learning", to: "/learn", icon: BookOpen },
+      { label: "Food heroes", to: "/food-heroes", icon: Award },
+      { label: "Settings", to: "/settings", icon: Settings },
     ],
   },
   volunteer: {
     label: "Volunteer",
-    home: "/VolunteerDashboard",
+    home: "/volunteer",
     links: [
-      { label: "Overview", to: "/VolunteerDashboard", icon: LayoutDashboard },
-      { label: "Volunteer map", to: "/VolunteerMap", icon: Map },
-      { label: "Delivery progress", to: "/DeliveryTrackingPage", icon: Truck },
-      { label: "Donation tracking", to: "/Tracking", icon: ClipboardList },
-      { label: "My profile", to: "/VolunteerForm", icon: UserRound },
-      { label: "Food learning", to: "/LearnerCorner", icon: BookOpen },
+      { label: "Overview", to: "/volunteer", icon: LayoutDashboard },
+      { label: "Volunteer map", to: "/volunteer/map", icon: Map },
+      { label: "Delivery progress", to: "/volunteer/deliveries", icon: Truck },
+      { label: "Donation tracking", to: "/tracking", icon: ClipboardList },
+      { label: "My profile", to: "/volunteer/profile", icon: UserRound },
+      { label: "Food learning", to: "/learn", icon: BookOpen },
+      { label: "Settings", to: "/settings", icon: Settings },
     ],
   },
   organization: {
     label: "Organization",
-    home: "/NgoDashboard",
+    home: "/ngo",
     links: [
-      { label: "Overview", to: "/NgoDashboard", icon: LayoutDashboard },
-      { label: "Donation tracking", to: "/NgoTracking", icon: ClipboardList },
-      { label: "Route planning", to: "/Route_Optimization", icon: Route },
-      { label: "Event forecast", to: "/Event_prediction", icon: CalendarDays },
-      { label: "Organization profile", to: "/Register", icon: Building2 },
-      { label: "NGO directory", to: "/KnowYourNgo", icon: Activity },
+      { label: "Overview", to: "/ngo", icon: LayoutDashboard },
+      { label: "Donation tracking", to: "/ngo/tracking", icon: ClipboardList },
+      { label: "Route planning", to: "/routes", icon: Route },
+      { label: "Event forecast", to: "/ngo/forecast", icon: CalendarDays },
+      { label: "Organization profile", to: "/ngo/profile", icon: Building2 },
+      { label: "NGO directory", to: "/ngos", icon: Activity },
+      { label: "Settings", to: "/settings", icon: Settings },
     ],
   },
   biogas: {
     label: "Biogas partner",
-    home: "/BiogasDonation",
+    home: "/biogas",
     links: [
-      { label: "Pickups", to: "/BiogasDonation", icon: Flame },
-      { label: "Freshness check", to: "/ImageRecognition", icon: ScanSearch },
-      { label: "Food learning", to: "/LearnerCorner", icon: BookOpen },
+      { label: "Pickups", to: "/biogas", icon: Flame },
+      { label: "Freshness check", to: "/freshness", icon: ScanSearch },
+      { label: "Food learning", to: "/learn", icon: BookOpen },
+      { label: "Settings", to: "/settings", icon: Settings },
+    ],
+  },
+  admin: {
+    label: "Admin",
+    home: "/admin",
+    links: [
+      { label: "Admin console", to: "/admin", icon: ShieldCheck },
+      { label: "Donation tracking", to: "/tracking", icon: ClipboardList },
+      { label: "NGO directory", to: "/ngos", icon: Activity },
+      { label: "Food heroes", to: "/food-heroes", icon: Award },
+      { label: "Settings", to: "/settings", icon: Settings },
     ],
   },
 };
 
-const CHATBOT_ID = process.env.NEXT_PUBLIC_CHATBASE_ID ?? "yjdpcsT5vE7OpzrkI5BYv";
+// Only loads when a Chatbase bot trained on FeedingHands content is configured.
+const CHATBOT_ID = process.env.NEXT_PUBLIC_CHATBASE_ID;
 
 // Pages that act on one role's data; anything else in the shell is open to every signed-in user.
 const ROLE_PAGES = {
   "/dashboard": ["donor"],
   "/donate": ["donor"],
-  "/volunteerdashboard": ["volunteer"],
-  "/volunteermap": ["volunteer"],
-  "/deliverytrackingpage": ["volunteer"],
-  "/volunteerform": ["volunteer"],
-  "/ngodashboard": ["organization"],
-  "/ngotracking": ["organization"],
-  "/route_optimization": ["organization", "volunteer"],
-  "/event_prediction": ["organization"],
-  "/register": ["organization"],
+  "/volunteer": ["volunteer"],
+  "/volunteer/map": ["volunteer"],
+  "/volunteer/deliveries": ["volunteer"],
+  "/volunteer/profile": ["volunteer"],
+  "/ngo": ["organization"],
+  "/ngo/tracking": ["organization"],
+  "/routes": ["organization", "volunteer"],
+  "/ngo/forecast": ["organization"],
+  "/ngo/profile": ["organization"],
+  "/admin": ["admin"],
 };
 
 // Layout route: every in-app page renders inside this shell via <Outlet />, behind the sign-in guard.
@@ -105,7 +124,7 @@ function PersonaDashboardShell() {
 
 function Workspace({ pathname }) {
   const { user, logout: endSession } = useAuth();
-  const role = WORKSPACES[user.role] ? user.role : "donor"; // admin browses with the donor menu
+  const role = WORKSPACES[user.role] ? user.role : "donor";
   const workspace = WORKSPACES[role];
   const displayName = user.fullName || workspace.label;
   const title = workspace.links.find((link) => link.to.toLowerCase() === pathname.toLowerCase())?.label

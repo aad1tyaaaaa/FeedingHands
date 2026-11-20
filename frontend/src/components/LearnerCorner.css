@@ -195,3 +195,6 @@
   .learners-corner .featured-text { padding: 22px; }
   .learners-corner .resources-grid { grid-template-columns: 1fr; }
 }
+
+.learners-corner .pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px; margin-top: 24px; font-weight: 600; }
+.learners-corner .pagination button:disabled { opacity: 0.45; cursor: not-allowed; }

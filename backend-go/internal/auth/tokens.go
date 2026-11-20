@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -10,6 +11,8 @@ import (
 	"feedinghands/backend-go/internal/httpx"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 const tokenTTL = 7 * 24 * time.Hour
@@ -22,6 +25,9 @@ type claims struct {
 // Tokens signs and verifies the JWTs handed out at signin.
 type Tokens struct {
 	secret []byte
+	// DB, when set, is read on every authenticated request so a suspension, password change, role change or
+	// deleted account takes effect at once instead of when the token expires. main always sets it.
+	DB *pgxpool.Pool
 }
 
 func NewTokens(secret string) *Tokens {
@@ -63,30 +69,78 @@ func UserID(ctx context.Context) *int64 {
 	return nil
 }
 
-func (t *Tokens) verify(r *http.Request) (User, bool) {
+var (
+	errBadToken  = errors.New("missing, invalid or revoked token")
+	errSuspended = errors.New("account suspended")
+)
+
+// revoked reports whether a token issued at iat predates the last password change.
+// iat has whole-second precision, so the change time is truncated too: a token signed in the same
+// second as the change (the one the change itself hands out) stays valid.
+func revoked(changedAt *time.Time, iat *jwt.NumericDate) bool {
+	return changedAt != nil && (iat == nil || changedAt.Truncate(time.Second).After(iat.Time))
+}
+
+// verify returns the caller, errBadToken, errSuspended, or a database error.
+func (t *Tokens) verify(r *http.Request) (User, error) {
 	raw, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
 	if !ok || raw == "" {
-		return User{}, false
+		return User{}, errBadToken
 	}
 	var c claims
 	_, err := jwt.ParseWithClaims(raw, &c, func(*jwt.Token) (any, error) { return t.secret, nil },
 		jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}), jwt.WithExpirationRequired())
 	if err != nil {
-		return User{}, false
+		return User{}, errBadToken
 	}
 	id, err := strconv.ParseInt(c.Subject, 10, 64)
 	if err != nil {
-		return User{}, false
+		return User{}, errBadToken
 	}
-	return User{ID: id, Role: c.Role}, true
+	u := User{ID: id, Role: c.Role}
+	if t.DB == nil {
+		return u, nil
+	}
+	// The role is read fresh too, so an admin's role change applies without signing in again.
+	var suspended bool
+	var changedAt *time.Time
+	err = t.DB.QueryRow(r.Context(), `SELECT role, suspended_at IS NOT NULL, password_changed_at FROM users WHERE id = $1`, id).
+		Scan(&u.Role, &suspended, &changedAt)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows), err == nil && revoked(changedAt, c.IssuedAt):
+		return User{}, errBadToken
+	case err != nil:
+		return User{}, err
+	case suspended:
+		return User{}, errSuspended
+	}
+	return u, nil
+}
+
+// reject answers a request whose token didn't pass verify.
+func reject(w http.ResponseWriter, r *http.Request, err error) {
+	switch {
+	case errors.Is(err, errSuspended):
+		Suspended(w)
+	case errors.Is(err, errBadToken):
+		httpx.Error(w, http.StatusUnauthorized, "Please sign in again")
+	default:
+		httpx.Internal(w, r, err)
+	}
+}
+
+// Suspended sends the 403 the frontend recognises by its code.
+func Suspended(w http.ResponseWriter) {
+	httpx.JSON(w, http.StatusForbidden, map[string]any{
+		"message": "Your account is suspended. Contact the FeedingHands team.", "code": "suspended"})
 }
 
 // Require rejects requests without a valid token.
 func (t *Tokens) Require(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		u, ok := t.verify(r)
-		if !ok {
-			httpx.Error(w, http.StatusUnauthorized, "Please sign in again")
+		u, err := t.verify(r)
+		if err != nil {
+			reject(w, r, err)
 			return
 		}
 		next(w, r.WithContext(context.WithValue(r.Context(), ctxKey{}, u)))
@@ -105,10 +159,16 @@ func (t *Tokens) RequireRole(role string, next http.HandlerFunc) http.HandlerFun
 }
 
 // Optional attaches the user when a valid token is present and lets anonymous requests through.
+// A bad or revoked token counts as anonymous; a suspended account is still refused.
 func (t *Tokens) Optional(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if u, ok := t.verify(r); ok {
+		u, err := t.verify(r)
+		switch {
+		case err == nil:
 			r = r.WithContext(context.WithValue(r.Context(), ctxKey{}, u))
+		case !errors.Is(err, errBadToken):
+			reject(w, r, err)
+			return
 		}
 		next(w, r)
 	}

@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 
 	"feedinghands/backend-go/migrations"
 
@@ -17,7 +18,15 @@ import (
 
 // Connect opens a connection pool and checks the database answers.
 func Connect(ctx context.Context, url string) (*pgxpool.Pool, error) {
-	pool, err := pgxpool.New(ctx, url)
+	cfg, err := pgxpool.ParseConfig(url)
+	if err != nil {
+		return nil, fmt.Errorf("parse DATABASE_URL: %w", err)
+	}
+	// Close idle connections quickly so a serverless Postgres (Neon free plan) can scale to zero between
+	// requests instead of burning its monthly compute hours on an open, idle connection.
+	cfg.MinConns = 0
+	cfg.MaxConnIdleTime = time.Minute
+	pool, err := pgxpool.NewWithConfig(ctx, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("open pool: %w", err)
 	}

@@ -57,13 +57,35 @@ func (h *Handler) Register(mux *http.ServeMux) {
 }
 
 // list: biogas partners and admins see every pickup; everyone else sees the ones they scheduled.
+// Paging is keyset on id, newest first: ?before=<id>&limit=<n> (default 50, max 200).
 func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 	u, _ := auth.FromContext(r.Context())
-	sql, args := `SELECT `+cols+from+` ORDER BY b.created_at DESC LIMIT 500`, []any{}
-	if u.Role != "biogas" && u.Role != "admin" {
-		sql, args = `SELECT `+cols+from+` WHERE b.donor_id = $1 ORDER BY b.created_at DESC LIMIT 500`, []any{u.ID}
+	limit, before := 50, int64(0)
+	q := r.URL.Query()
+	if s := q.Get("limit"); s != "" {
+		n, err := strconv.Atoi(s)
+		if err != nil || n < 1 {
+			httpx.Error(w, http.StatusBadRequest, "limit must be a positive number")
+			return
+		}
+		limit = min(n, 200)
 	}
-	rows, err := h.DB.Query(r.Context(), sql, args...)
+	if s := q.Get("before"); s != "" {
+		b, err := strconv.ParseInt(s, 10, 64)
+		if err != nil || b < 1 {
+			httpx.Error(w, http.StatusBadRequest, "before must be a positive number")
+			return
+		}
+		before = b
+	}
+	// $1 = 0 means no "before"; $2 = 0 means every donor (partners and admins).
+	var donor int64
+	if u.Role != "biogas" && u.Role != "admin" {
+		donor = u.ID
+	}
+	rows, err := h.DB.Query(r.Context(), `SELECT `+cols+from+`
+		WHERE ($1 = 0 OR b.id < $1) AND ($2 = 0 OR b.donor_id = $2)
+		ORDER BY b.id DESC LIMIT `+strconv.Itoa(limit), before, donor)
 	if err != nil {
 		httpx.Internal(w, r, err)
 		return
@@ -73,7 +95,11 @@ func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 		httpx.Internal(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, map[string]any{"donations": donations})
+	var next *int64 // a full page means there may be more
+	if len(donations) == limit {
+		next = &donations[len(donations)-1].ID
+	}
+	httpx.JSON(w, http.StatusOK, map[string]any{"donations": donations, "next": next})
 }
 
 func (h *Handler) create(w http.ResponseWriter, r *http.Request) {

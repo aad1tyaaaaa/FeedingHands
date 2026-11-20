@@ -38,7 +38,7 @@ services:
       args:
         NEXT_PUBLIC_API_BASE_URL: http://localhost:5001
     ports:
-      - "3000:3000"
+      - "3000:80"
     depends_on:
       - api
 

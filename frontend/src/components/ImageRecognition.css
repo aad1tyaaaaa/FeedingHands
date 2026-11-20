@@ -1,6 +1,7 @@
-/* /ImageRecognition: freshness check. Layout and tokens come from the workspace shell. */
+/* /ImageRecognition and FreshnessCheck.js (also inside Donate). Layout and tokens come from the workspace shell. */
 
-.freshness-dashboard {
+.freshness-dashboard,
+.freshness-check {
   --fresh: #12a35f;
   --fresh-bg: #e3f8ec;
   --semi: #b7791f;
@@ -32,6 +33,7 @@
 /* source tabs */
 .freshness-tabs {
   display: inline-flex;
+  flex-wrap: wrap;
   gap: 4px;
   margin-bottom: 18px;
   padding: 4px;
@@ -136,3 +138,10 @@
   .freshness-scan,
   .spin { animation: none; }
 }
+
+/* model status sits above the source tabs; the ESP32 snapshot URL row */
+.freshness-input .freshness-model { margin: 0 0 14px; }
+.freshness-input .freshness-tabs { display: flex; width: fit-content; max-width: 100%; }
+.freshness-ipcam { flex-wrap: wrap; }
+.freshness-ipcam label { flex-basis: 100%; color: var(--ink-soft); font-size: 0.9rem; font-weight: 600; }
+.freshness-ipcam input { flex: 1 1 200px; min-width: 0; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: var(--radius-sm, 12px); font: inherit; }

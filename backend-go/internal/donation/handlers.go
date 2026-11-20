@@ -8,12 +8,14 @@ import (
 	"fmt"
 	"math/big"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
 
 	"feedinghands/backend-go/internal/auth"
 	"feedinghands/backend-go/internal/httpx"
+	"feedinghands/backend-go/internal/notify"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -25,6 +27,7 @@ const pointsPerDonation = 10
 type Handler struct {
 	DB     *pgxpool.Pool
 	Tokens *auth.Tokens
+	Notify *notify.Notifier // nil = no emails
 }
 
 func (h *Handler) Register(mux *http.ServeMux) {
@@ -34,6 +37,8 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/donations/{id}", req(h.get))
 	mux.HandleFunc("GET /api/donations/tracking/{trackingId}", h.tracking)
 	mux.HandleFunc("PATCH /api/donations/{id}/status", req(h.updateStatus))
+	mux.HandleFunc("POST /api/donations/{id}/photos", req(h.uploadPhoto))
+	mux.HandleFunc("GET /api/donations/{id}/photos/{photoId}", req(h.servePhoto))
 }
 
 type createInput struct {
@@ -45,6 +50,9 @@ type createInput struct {
 	Longitude   *float64        `json:"longitude"`
 	Contact     string          `json:"contact"`
 	Notes       string          `json:"notes"`
+	// Optional result of the in-browser freshness check.
+	Freshness           string   `json:"freshness"`
+	FreshnessConfidence *float64 `json:"freshnessConfidence"`
 }
 
 func (h *Handler) create(w http.ResponseWriter, r *http.Request) {
@@ -52,7 +60,7 @@ func (h *Handler) create(w http.ResponseWriter, r *http.Request) {
 	if !httpx.Decode(w, r, &in) {
 		return
 	}
-	for _, f := range []*string{&in.Type, &in.Description, &in.Location, &in.Contact, &in.Notes} {
+	for _, f := range []*string{&in.Type, &in.Description, &in.Location, &in.Contact, &in.Notes, &in.Freshness} {
 		*f = strings.TrimSpace(*f)
 	}
 	food := foodText(in.FoodDetails, in.Description)
@@ -66,12 +74,16 @@ func (h *Handler) create(w http.ResponseWriter, r *http.Request) {
 	case in.Contact == "":
 		httpx.Error(w, http.StatusBadRequest, "A contact number is required so volunteers can reach you")
 		return
-	case len(in.Type) > 50 || len(in.Location) > 500 || len(in.Contact) > 100 || len(in.Notes) > 2000 || len(food) > 10000:
+	case len(in.Type) > 50 || len(in.Location) > 500 || len(in.Contact) > 100 || len(in.Notes) > 2000 || len(food) > 10000 ||
+		len(in.Freshness) > 50:
 		httpx.Error(w, http.StatusBadRequest, "One of the fields is too long")
 		return
 	case in.Latitude != nil && (*in.Latitude < -90 || *in.Latitude > 90),
 		in.Longitude != nil && (*in.Longitude < -180 || *in.Longitude > 180):
 		httpx.Error(w, http.StatusBadRequest, "Location coordinates are out of range")
+		return
+	case in.FreshnessConfidence != nil && (*in.FreshnessConfidence < 0 || *in.FreshnessConfidence > 1):
+		httpx.Error(w, http.StatusBadRequest, "freshnessConfidence must be between 0 and 1")
 		return
 	}
 	if in.Type == "" {
@@ -88,11 +100,12 @@ func (h *Handler) create(w http.ResponseWriter, r *http.Request) {
 	err = pgx.BeginFunc(r.Context(), h.DB, func(tx pgx.Tx) error {
 		var id int64
 		err := tx.QueryRow(r.Context(), `
-			INSERT INTO donations (tracking_id, donor_id, type, food_details, location, latitude, longitude, contact, notes, status_label, points)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+			INSERT INTO donations (tracking_id, donor_id, type, food_details, location, latitude, longitude, contact, notes,
+			                       status_label, points, freshness, freshness_confidence)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NULLIF($12, ''), $13)
 			RETURNING id`,
 			trackingID, donor, in.Type, food, in.Location, in.Latitude, in.Longitude, in.Contact, in.Notes,
-			labels["available"], pointsPerDonation,
+			labels["available"], pointsPerDonation, in.Freshness, in.FreshnessConfidence,
 		).Scan(&id)
 		if err != nil {
 			return err
@@ -106,6 +119,12 @@ func (h *Handler) create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		httpx.Internal(w, r, err)
 		return
+	}
+	if d.Latitude != nil && d.Longitude != nil {
+		h.Notify.Nearby("New food donation near you: "+d.TrackingID,
+			fmt.Sprintf("A donor just posted %s at %s (tracking ID %s).\n\nSign in to FeedingHands to claim it.\n",
+				d.Type, d.Location, d.TrackingID),
+			*d.Latitude, *d.Longitude)
 	}
 	httpx.JSON(w, http.StatusCreated, map[string]any{"message": "Donation created successfully", "donation": d})
 }
@@ -122,17 +141,19 @@ func foodText(raw json.RawMessage, fallback string) string {
 	return fallback
 }
 
-// caller loads the signed-in user's role and linked organization/volunteer profile ids.
+// caller loads the signed-in user's role, linked organization/volunteer profile ids and whether
+// their organization is verified.
 func (h *Handler) caller(ctx context.Context, q querier) (actor, error) {
 	u, _ := auth.FromContext(ctx)
 	a := actor{role: u.Role, userID: u.ID}
 	err := q.QueryRow(ctx, `
 		SELECT COALESCE((SELECT id FROM organizations WHERE owner_id = $1), 0),
-		       COALESCE((SELECT id FROM volunteers WHERE user_id = $1), 0)`, u.ID).Scan(&a.orgID, &a.vol)
+		       COALESCE((SELECT verification_status = 'verified' FROM organizations WHERE owner_id = $1), false),
+		       COALESCE((SELECT id FROM volunteers WHERE user_id = $1), 0)`, u.ID).Scan(&a.orgID, &a.orgVerified, &a.vol)
 	return a, err
 }
 
-// list filters: ?status=a,b  ?assigned=me (the caller's NGO or volunteer work).
+// list filters: ?status=a,b  ?assigned=me (the caller's NGO or volunteer work); paging: ?before=<id>&limit=<n>.
 // Donors and biogas partners only ever see their own donations; NGOs and volunteers see the open pool too.
 func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 	a, err := h.caller(r.Context(), h.DB)
@@ -147,6 +168,14 @@ func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 	arg := func(v any) string { args = append(args, v); return "$" + strconv.Itoa(len(args)) }
 
 	q := r.URL.Query()
+	before, limit, ok := page(q)
+	if !ok {
+		httpx.Error(w, http.StatusBadRequest, "before and limit must be positive numbers")
+		return
+	}
+	if before > 0 {
+		where = append(where, "d.id < "+arg(before))
+	}
 	switch {
 	case a.role == "admin":
 	case a.role == "organization" && q.Get("assigned") == "me":
@@ -168,12 +197,16 @@ func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 		where = append(where, "d.status = ANY("+arg(statuses)+")")
 	}
 
-	donations, err := list(r.Context(), h.DB, where, args)
+	donations, err := list(r.Context(), h.DB, where, args, limit)
 	if err != nil {
 		httpx.Internal(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, map[string]any{"donations": donations})
+	var next *int64 // a full page means there may be more
+	if len(donations) == limit {
+		next = &donations[len(donations)-1].ID
+	}
+	httpx.JSON(w, http.StatusOK, map[string]any{"donations": donations, "next": next})
 }
 
 func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
@@ -190,13 +223,17 @@ func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 		httpx.Internal(w, r, err)
 		return
 	}
-	// Donors see only their own donations (the 404 doesn't reveal that others exist).
-	if u, _ := auth.FromContext(r.Context()); u.Role != "organization" && u.Role != "volunteer" && u.Role != "admin" &&
-		(d.DonorID == nil || *d.DonorID != u.ID) {
+	if u, _ := auth.FromContext(r.Context()); !canSee(u, d.DonorID) {
 		httpx.Error(w, http.StatusNotFound, "Donation not found")
 		return
 	}
 	httpx.JSON(w, http.StatusOK, map[string]any{"donation": d})
+}
+
+// canSee: NGOs, volunteers and admins see every donation; donors only their own
+// (callers answer 404 either way, so it doesn't reveal that others exist).
+func canSee(u auth.User, donor *int64) bool {
+	return u.Role == "organization" || u.Role == "volunteer" || u.Role == "admin" || (donor != nil && *donor == u.ID)
 }
 
 // trackingView is the public tracking page: progress only, no contact details.
@@ -265,8 +302,8 @@ func (h *Handler) updateStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
-		d       Donation
-		current string
+		d             Donation
+		current, move string
 	)
 	err := pgx.BeginFunc(r.Context(), h.DB, func(tx pgx.Tx) error {
 		a, err := h.caller(r.Context(), tx)
@@ -284,7 +321,6 @@ func (h *Handler) updateStatus(w http.ResponseWriter, r *http.Request) {
 		p.donor, p.org, p.vol = deref(donor), deref(org), deref(vol)
 
 		next := current
-		move := ""
 		if in.Status != "" && in.Status != current {
 			if !canMove(current, in.Status) {
 				return errBadMove
@@ -336,8 +372,46 @@ func (h *Handler) updateStatus(w http.ResponseWriter, r *http.Request) {
 	case err != nil:
 		httpx.Internal(w, r, err)
 	default:
+		h.notifyMove(move, d)
 		httpx.JSON(w, http.StatusOK, map[string]any{"message": "Donation status updated", "donation": d})
 	}
+}
+
+// notifyMove emails the donor when their donation is claimed, picked up or delivered,
+// and the claiming NGO when it is picked up or delivered.
+func (h *Handler) notifyMove(move string, d Donation) {
+	if move != "requested" && move != "picked_up" && move != "delivered" {
+		return
+	}
+	subject := "Donation " + d.TrackingID + ": " + labels[move]
+	if d.DonorID != nil {
+		h.Notify.Users(subject, fmt.Sprintf("Your donation %s is now: %s.\n\nThank you for feeding hands.\n",
+			d.TrackingID, labels[move]), *d.DonorID)
+	}
+	if move != "requested" && d.OrganizationID != nil {
+		h.Notify.Orgs(subject, fmt.Sprintf("The donation %s you claimed is now: %s.\n", d.TrackingID, labels[move]),
+			*d.OrganizationID)
+	}
+}
+
+// page reads ?before=<id>&limit=<n> (limit defaults to 50, at most 200); ok is false for non-numbers.
+func page(q url.Values) (before int64, limit int, ok bool) {
+	limit = 50
+	if s := q.Get("limit"); s != "" {
+		n, err := strconv.Atoi(s)
+		if err != nil || n < 1 {
+			return 0, 0, false
+		}
+		limit = min(n, 200)
+	}
+	if s := q.Get("before"); s != "" {
+		b, err := strconv.ParseInt(s, 10, 64)
+		if err != nil || b < 1 {
+			return 0, 0, false
+		}
+		before = b
+	}
+	return before, limit, true
 }
 
 func deref(p *int64) int64 {

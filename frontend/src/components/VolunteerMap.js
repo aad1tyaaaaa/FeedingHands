@@ -87,7 +87,7 @@ const VolunteerMap = () => {
               <div>
                 <h3>{d.type} · {d.km.toFixed(1)} km</h3>
                 <p>{d.location}</p>
-                <p><Link to={`/Route_Optimization?id=${d.id}`}>Route</Link> · <Link to="/VolunteerDashboard">Pick up from dashboard</Link></p>
+                <p><Link to={`/routes?id=${d.id}`}>Route</Link> · <Link to="/volunteer">Pick up from dashboard</Link></p>
               </div>
             </div>
           ))}

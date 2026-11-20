@@ -39,15 +39,16 @@ type hero struct {
 func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	var t struct {
-		Donations       int `json:"donations"`
-		Delivered       int `json:"delivered"`
-		Active          int `json:"active"`
-		Cancelled       int `json:"cancelled"`
-		Donors          int `json:"donors"`
-		Volunteers      int `json:"volunteers"`
-		Organizations   int `json:"organizations"`
-		BiogasPickups   int `json:"biogas_pickups"`
-		BiogasCollected int `json:"biogas_collected"`
+		Donations       int   `json:"donations"`
+		Delivered       int   `json:"delivered"`
+		Active          int   `json:"active"`
+		Cancelled       int   `json:"cancelled"`
+		Donors          int   `json:"donors"`
+		Volunteers      int   `json:"volunteers"`
+		Organizations   int   `json:"organizations"`
+		BiogasPickups   int   `json:"biogas_pickups"`
+		BiogasCollected int   `json:"biogas_collected"`
+		RaisedRupees    int64 `json:"raisedRupees"` // paid online donations
 	}
 	err := h.DB.QueryRow(ctx, `
 		SELECT
@@ -59,9 +60,10 @@ func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 			(SELECT count(*) FROM volunteers),
 			(SELECT count(*) FROM organizations),
 			(SELECT count(*) FROM biogas_donations),
-			(SELECT count(*) FROM biogas_donations WHERE status = 'collected')`,
+			(SELECT count(*) FROM biogas_donations WHERE status = 'collected'),
+			(SELECT (COALESCE(sum(amount_paise), 0) / 100)::bigint FROM payments WHERE status = 'paid')`,
 	).Scan(&t.Donations, &t.Delivered, &t.Active, &t.Cancelled, &t.Donors, &t.Volunteers, &t.Organizations,
-		&t.BiogasPickups, &t.BiogasCollected)
+		&t.BiogasPickups, &t.BiogasCollected, &t.RaisedRupees)
 	if err != nil {
 		httpx.Internal(w, r, err)
 		return

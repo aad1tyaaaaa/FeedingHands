@@ -141,6 +141,15 @@ function SignUp() {
                 <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter your password"
                   autoComplete="new-password" value={formData.confirmPassword} onChange={handleChange} required />
               </div>
+              <label htmlFor="agree" style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: "0.9rem", color: "#2e3b2f" }}>
+                <input type="checkbox" id="agree" required style={{ marginTop: 3, accentColor: "#2e7d32" }} />
+                <span>
+                  I agree to the{" "}
+                  <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: "#2e7d32", fontWeight: 600 }}>Terms</a>
+                  {" "}and{" "}
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: "#2e7d32", fontWeight: 600 }}>Privacy Policy</a>
+                </span>
+              </label>
               <button type="submit" disabled={loading}>{loading ? "Creating account..." : "Sign Up"}</button>
             </form>
           ) : (

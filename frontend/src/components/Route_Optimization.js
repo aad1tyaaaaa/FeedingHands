@@ -113,7 +113,7 @@ const RouteOptimization = () => {
         ) : !donation ? (
           <p className="fh-card">
             No donation on the move.{" "}
-            {user.role === "volunteer" ? <Link to="/VolunteerMap">Find a pickup</Link> : <Link to="/NgoDashboard">Claim a donation</Link>}
+            {user.role === "volunteer" ? <Link to="/volunteer/map">Find a pickup</Link> : <Link to="/ngo">Claim a donation</Link>}
           </p>
         ) : (
           <>

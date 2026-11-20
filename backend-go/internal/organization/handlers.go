@@ -3,6 +3,7 @@ package organization
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -17,10 +18,16 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-const maxLogoBytes = 2 << 20 // 2 MB
+const (
+	maxLogoBytes     = 2 << 20 // 2 MB
+	maxDocumentBytes = 5 << 20 // 5 MB
+)
 
 // SVG is left out on purpose: it can carry scripts.
-var logoTypes = []string{"image/png", "image/jpeg", "image/webp"}
+var (
+	logoTypes     = []string{"image/png", "image/jpeg", "image/webp"}
+	documentTypes = []string{"application/pdf", "image/png", "image/jpeg"}
+)
 
 type Handler struct {
 	DB     *pgxpool.Pool
@@ -36,6 +43,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("PUT /api/organizations/me", org(h.saveMine))
 	mux.HandleFunc("PUT /api/organizations/me/logo", org(h.uploadLogo))
 	mux.HandleFunc("DELETE /api/organizations/me/logo", org(h.deleteLogo))
+	mux.HandleFunc("PUT /api/organizations/me/document", org(h.uploadDocument))
 	mux.HandleFunc("GET /api/organizations/{id}/logo", h.serveLogo)
 }
 
@@ -53,11 +61,13 @@ type Input struct {
 	Website     string   `json:"website"`
 	Latitude    *float64 `json:"latitude"`
 	Longitude   *float64 `json:"longitude"`
+	// NGO Darpan ID or trust/society registration number, checked by an admin.
+	RegistrationNo string `json:"registrationNo"`
 }
 
 // validate trims the input in place and returns a message for the first problem, or "".
 func (in *Input) validate() string {
-	for _, f := range []*string{&in.Name, &in.Description, &in.Address, &in.Contact, &in.Email, &in.Phone, &in.LegacyPhone, &in.Website} {
+	for _, f := range []*string{&in.Name, &in.Description, &in.Address, &in.Contact, &in.Email, &in.Phone, &in.LegacyPhone, &in.Website, &in.RegistrationNo} {
 		*f = strings.TrimSpace(*f)
 	}
 	if in.Phone == "" {
@@ -75,7 +85,8 @@ func (in *Input) validate() string {
 		return "Organization name must be at most 200 characters"
 	case len(in.Description) > 2000:
 		return "Description must be at most 2000 characters"
-	case len(in.Address) > 500 || len(in.Contact) > 200 || len(in.Phone) > 30 || len(in.Website) > 300 || len(in.Email) > 254:
+	case len(in.Address) > 500 || len(in.Contact) > 200 || len(in.Phone) > 30 || len(in.Website) > 300 || len(in.Email) > 254 ||
+		len(in.RegistrationNo) > 100:
 		return "One of the fields is too long"
 	case in.Email != "" && !httpx.ValidEmail(in.Email):
 		return "Email address is not valid"
@@ -134,38 +145,67 @@ func (h *Handler) saveMine(w http.ResponseWriter, r *http.Request) {
 	httpx.JSON(w, http.StatusOK, map[string]any{"message": "Profile saved", "organization": o})
 }
 
-// uploadLogo takes a multipart form with the image in the "logo" field.
-func (h *Handler) uploadLogo(w http.ResponseWriter, r *http.Request) {
-	r.Body = http.MaxBytesReader(w, r.Body, maxLogoBytes+64<<10) // room for the multipart framing
-	file, _, err := r.FormFile("logo")
+// readUpload reads the multipart field into memory and checks its size and type.
+// On failure it has already answered (what names the file in messages, e.g. "Logo").
+func readUpload(w http.ResponseWriter, r *http.Request, field, what string, maxBytes int, types []string, typeMsg string) ([]byte, string, bool) {
+	tooBigMsg := fmt.Sprintf("%s must be %d MB or smaller", what, maxBytes>>20)
+	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes)+64<<10) // room for the multipart framing
+	file, _, err := r.FormFile(field)
 	var tooBig *http.MaxBytesError
 	if errors.As(err, &tooBig) {
-		httpx.Error(w, http.StatusRequestEntityTooLarge, "Logo must be 2 MB or smaller")
-		return
+		httpx.Error(w, http.StatusRequestEntityTooLarge, tooBigMsg)
+		return nil, "", false
 	}
 	if err != nil {
-		httpx.Error(w, http.StatusBadRequest, `Send the image as a multipart form field named "logo"`)
-		return
+		httpx.Error(w, http.StatusBadRequest, `Send the file as a multipart form field named "`+field+`"`)
+		return nil, "", false
 	}
 	defer file.Close()
 
-	data, err := io.ReadAll(io.LimitReader(file, maxLogoBytes+1))
+	data, err := io.ReadAll(io.LimitReader(file, int64(maxBytes)+1))
 	if err != nil {
 		httpx.Error(w, http.StatusBadRequest, "Could not read the uploaded file")
-		return
+		return nil, "", false
 	}
-	if len(data) > maxLogoBytes {
-		httpx.Error(w, http.StatusRequestEntityTooLarge, "Logo must be 2 MB or smaller")
-		return
+	if len(data) > maxBytes {
+		httpx.Error(w, http.StatusRequestEntityTooLarge, tooBigMsg)
+		return nil, "", false
 	}
 	// Judge the type by the bytes, not the filename or the client's Content-Type.
 	contentType := http.DetectContentType(data)
-	if !slices.Contains(logoTypes, contentType) {
-		httpx.Error(w, http.StatusUnsupportedMediaType, "Logo must be a PNG, JPEG or WebP image")
+	if !slices.Contains(types, contentType) {
+		httpx.Error(w, http.StatusUnsupportedMediaType, typeMsg)
+		return nil, "", false
+	}
+	return data, contentType, true
+}
+
+// uploadLogo takes a multipart form with the image in the "logo" field.
+func (h *Handler) uploadLogo(w http.ResponseWriter, r *http.Request) {
+	data, contentType, ok := readUpload(w, r, "logo", "Logo", maxLogoBytes, logoTypes, "Logo must be a PNG, JPEG or WebP image")
+	if ok {
+		h.writeLogo(w, r, data, &contentType)
+	}
+}
+
+// uploadDocument takes the registration certificate admins check before verifying the organization.
+func (h *Handler) uploadDocument(w http.ResponseWriter, r *http.Request) {
+	data, contentType, ok := readUpload(w, r, "document", "Document", maxDocumentBytes, documentTypes,
+		"Document must be a PDF, PNG or JPEG file")
+	if !ok {
 		return
 	}
-
-	h.writeLogo(w, r, data, &contentType)
+	u, _ := auth.FromContext(r.Context())
+	o, err := h.store().setDocument(r.Context(), u.ID, data, contentType)
+	if errors.Is(err, pgx.ErrNoRows) {
+		httpx.Error(w, http.StatusNotFound, "Save your organization details before uploading a document")
+		return
+	}
+	if err != nil {
+		httpx.Internal(w, r, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, map[string]any{"message": "Document uploaded", "organization": o})
 }
 
 func (h *Handler) deleteLogo(w http.ResponseWriter, r *http.Request) {

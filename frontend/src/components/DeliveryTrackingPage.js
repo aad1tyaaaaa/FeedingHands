@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import "./PersonaTheme.css";
 import "./DeliveryTrackingPage.css";
 import { apiFetch } from "../api/client";
+import usePolling from "../api/usePolling";
+import DonationPhotos from "./DonationPhotos";
 import DonationTimeline, { STATUS_TEXT, foodSummary } from "./DonationTimeline";
 import Illustration from "./Illustration";
 
@@ -21,7 +23,7 @@ const DeliveryTrackingPage = () => {
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
-    setLoading(true);
+    let redirecting = false; // keep "Loading…" up while we jump to the current delivery
     try {
       if (id) {
         setDelivery((await apiFetch(`/api/donations/${encodeURIComponent(id)}`)).donation);
@@ -29,6 +31,7 @@ const DeliveryTrackingPage = () => {
         // No id: open the volunteer's oldest delivery still in progress.
         const { donations } = await apiFetch("/api/donations?assigned=me&status=picked_up,in_transit");
         const current = (donations || []).at(-1);
+        redirecting = Boolean(current);
         if (current) setParams({ id: String(current.id) }, { replace: true });
         else setDelivery(null);
       }
@@ -36,13 +39,11 @@ const DeliveryTrackingPage = () => {
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      if (!redirecting) setLoading(false);
     }
   }, [id, setParams]);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  usePolling(load);
 
   const advance = async () => {
     const next = NEXT[delivery.status];
@@ -74,7 +75,7 @@ const DeliveryTrackingPage = () => {
       <div className="fh-card delivery-state">
         <Illustration name="state-all-done" className="workspace-empty-art" />
         {error ? <p role="alert">{error}</p> : <p>All caught up! You have no delivery in progress.</p>}
-        <Link className="fh-btn" to="/VolunteerDashboard">Find a pickup</Link>
+        <Link className="fh-btn" to="/volunteer">Find a pickup</Link>
       </div>,
     );
 
@@ -87,7 +88,7 @@ const DeliveryTrackingPage = () => {
         <p className="fh-label delivery-status">
           Status: <span className={`status-badge fh-chip status-pill ${delivery.status}`}>{STATUS_TEXT[delivery.status]}</span>
         </p>
-        <Link to="/Route_Optimization" className="fh-btn fh-btn--ghost">Route map</Link>
+        <Link to="/routes" className="fh-btn fh-btn--ghost">Route map</Link>
       </div>
       {error && <p className="delivery-state--error" role="alert">{error}</p>}
 
@@ -99,6 +100,7 @@ const DeliveryTrackingPage = () => {
           <p className="address-details"><span>Phone:</span> <a href={`tel:${delivery.contact}`}>{delivery.contact}</a></p>
           <p className="address-details"><span>Food:</span> {delivery.type} — {foodSummary(delivery.foodDetails)}</p>
           {delivery.notes && <p className="address-details"><span>Notes:</span> {delivery.notes}</p>}
+          <DonationPhotos donation={delivery} />
         </div>
 
         <div className="address-card fh-card">
@@ -110,7 +112,7 @@ const DeliveryTrackingPage = () => {
               <p className="address-details"><span>Phone:</span> <a href={`tel:${delivery.ngo_phone}`}>{delivery.ngo_phone}</a></p>
             </>
           ) : (
-            <p className="address-details">No NGO has claimed this yet. Deliver to the nearest partner NGO from the <Link to="/KnowYourNgo">directory</Link>.</p>
+            <p className="address-details">No NGO has claimed this yet. Deliver to the nearest partner NGO from the <Link to="/ngos">directory</Link>.</p>
           )}
         </div>
 
@@ -126,7 +128,7 @@ const DeliveryTrackingPage = () => {
           ) : delivery.status === "delivered" ? (
             <div className="success-message fh-card" role="status">
               Delivered! Thank you — the donor has been credited with Puniya points.{" "}
-              <Link to="/VolunteerDashboard">Find your next pickup</Link>
+              <Link to="/volunteer">Find your next pickup</Link>
             </div>
           ) : null}
         </div>

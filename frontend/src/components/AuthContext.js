@@ -7,10 +7,10 @@ const AuthContext = createContext(null);
 // Where each role lands after signing in.
 export const ROLE_HOME = {
   donor: "/dashboard",
-  volunteer: "/VolunteerDashboard",
-  organization: "/NgoDashboard",
-  biogas: "/BiogasDonation",
-  admin: "/dashboard",
+  volunteer: "/volunteer",
+  organization: "/ngo",
+  biogas: "/biogas",
+  admin: "/admin",
 };
 
 export const homeFor = (user) =>

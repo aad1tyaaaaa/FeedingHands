@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Award, Check, Copy, Gift, Lock, Sparkles } from "lucide-react";
 import WorkspaceMetric from "./WorkspaceMetric";
 import { useAuth } from "./AuthContext";
+import { apiFetch } from "../api/client";
 import "./PersonaTheme.css";
 import "./GiftCard.css";
 import Illustration from "./Illustration";
@@ -14,19 +15,13 @@ const TIERS = [
   { points: 100, name: "Harvest", reward: "₹1,000 kitchen supplies", partner: "Kitchenware partners", tone: "harvest" },
 ];
 
-// A stable demo code per user and tier, so the same card always shows the same code.
-function demoCode(userId, tier) {
-  let h = 2166136261;
-  for (const ch of `${userId}:${tier.points}`) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
-  const s = (h >>> 0).toString(36).toUpperCase().padStart(7, "0");
-  return `FH-${tier.name.slice(0, 3).toUpperCase()}-${s.slice(0, 4)}-${s.slice(4, 7)}`;
-}
-
-function RewardCard({ tier, points, userId }) {
-  const unlocked = points >= tier.points;
+// reward is the server's row for this tier ({code, unlocked, redeemed_at}); codes are issued by the API.
+function RewardCard({ tier, points, reward }) {
+  const unlocked = reward ? reward.unlocked : points >= tier.points;
+  const code = reward?.code;
+  const redeemed = Boolean(reward?.redeemed_at);
   const [flipped, setFlipped] = useState(false);
   const [copied, setCopied] = useState(false);
-  const code = demoCode(userId, tier);
 
   const copy = async () => {
     try {
@@ -39,7 +34,7 @@ function RewardCard({ tier, points, userId }) {
   };
 
   return (
-    <article className={`reward ${tier.tone}${unlocked ? "" : " is-locked"}`}>
+    <article className={`reward ${tier.tone}${unlocked ? "" : " is-locked"}${redeemed ? " is-redeemed" : ""}`}>
       <div className={`reward-card${flipped ? " is-flipped" : ""}`}>
         <div className="reward-face reward-front" aria-hidden={flipped}>
           <div className="reward-top">
@@ -60,18 +55,22 @@ function RewardCard({ tier, points, userId }) {
         </div>
         <div className="reward-face reward-back" aria-hidden={!flipped}>
           <span className="reward-back-label">Your code</span>
-          <code className="reward-code">{code}</code>
-          <button type="button" className="reward-copy" onClick={copy} tabIndex={flipped ? 0 : -1}>
-            {copied ? <><Check size={15} /> Copied</> : <><Copy size={15} /> Copy code</>}
-          </button>
-          <span className="reward-demo">Demo code: not redeemable yet</span>
+          <code className="reward-code">{code || "Issuing…"}</code>
+          {code && !redeemed && (
+            <button type="button" className="reward-copy" onClick={copy} tabIndex={flipped ? 0 : -1}>
+              {copied ? <><Check size={15} /> Copied</> : <><Copy size={15} /> Copy code</>}
+            </button>
+          )}
+          <span className="reward-demo">
+            {redeemed ? `Redeemed on ${new Date(reward.redeemed_at).toLocaleDateString()}` : "Show this code at a partner store"}
+          </span>
         </div>
       </div>
 
       <div className="reward-meta">
         <div>
           <strong>{tier.points} points</strong>
-          <span>{unlocked ? "Unlocked" : `${Math.min(100, Math.round((points / tier.points) * 100))}% there`}</span>
+          <span>{redeemed ? "Redeemed" : unlocked ? "Unlocked" : `${Math.min(100, Math.round((points / tier.points) * 100))}% there`}</span>
         </div>
         {unlocked ? (
           <button type="button" className="workspace-secondary" onClick={() => setFlipped((f) => !f)}>
@@ -88,13 +87,19 @@ function RewardCard({ tier, points, userId }) {
 }
 
 const GiftCard = () => {
-  const { user, refresh } = useAuth();
+  const { user } = useAuth();
+  const [data, setData] = useState(null); // {points, rewards}
+  const [error, setError] = useState("");
 
+  // The server is the source of truth for points and codes (it issues a code when a tier unlocks).
   useEffect(() => {
-    refresh(); // points change when a volunteer delivers
-  }, [refresh]);
+    apiFetch("/api/rewards")
+      .then(setData)
+      .catch((err) => setError(err.message));
+  }, []);
 
-  const points = user.points || 0;
+  const points = data?.points ?? user.points ?? 0;
+  const rewardFor = (tier) => data?.rewards?.find((r) => r.tier === tier.points || r.name === tier.name);
   const next = TIERS.find((t) => points < t.points);
   const unlocked = TIERS.filter((t) => points >= t.points).length;
 
@@ -106,7 +111,7 @@ const GiftCard = () => {
           <p>Every delivered donation earns 10 Puniya points. Collect enough and partner stores say thank you too.</p>
         </div>
         <Illustration name="hero-gift" className="workspace-heading-art" />
-        <Link className="workspace-primary" to="/Donate"><Gift size={17} /> Earn more points</Link>
+        <Link className="workspace-primary" to="/donate"><Gift size={17} /> Earn more points</Link>
       </section>
 
       <section className="workspace-metrics" aria-label="Your rewards">
@@ -124,11 +129,12 @@ const GiftCard = () => {
       <section className="workspace-panel">
         <div className="workspace-panel-heading">
           <h2>Your rewards</h2>
-          <span className="reward-note">Demo: codes aren't redeemable yet</span>
+          <span className="reward-note">Partner stores confirm each code with the FeedingHands team</span>
         </div>
+        {error && <p role="alert">{error}</p>}
         <div className="reward-grid">
           {TIERS.map((tier) => (
-            <RewardCard key={tier.name} tier={tier} points={points} userId={user.id} />
+            <RewardCard key={tier.name} tier={tier} points={points} reward={rewardFor(tier)} />
           ))}
         </div>
       </section>

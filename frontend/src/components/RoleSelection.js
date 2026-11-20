@@ -151,7 +151,7 @@ function RoleSelection() {
       justChose.current = true;
       const updated = startSession(data);
       // Organizations need a profile (name, address) before they can claim food.
-      navigate(updated.role === "organization" ? "/Register" : homeFor(updated), { replace: true });
+      navigate(updated.role === "organization" ? "/ngo/profile" : homeFor(updated), { replace: true });
     } catch (err) {
       setError(err.message || "Couldn't save your role. Please try again.");
     } finally {

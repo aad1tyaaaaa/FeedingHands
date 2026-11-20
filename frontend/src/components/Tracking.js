@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Bike, Building2, Copy, MapPin, Search, Utensils, XCircle } from "lucide-react";
+import { Bike, Building2, Copy, MapPin, ScanSearch, Search, Utensils, XCircle } from "lucide-react";
 import "./PersonaTheme.css";
 import "./Tracking.css";
 import { apiFetch } from "../api/client";
+import usePolling, { usePagedList } from "../api/usePolling";
+import DonationPhotos from "./DonationPhotos";
+import LoadMore from "./LoadMore";
+import ReportButton from "./ReportButton";
 import { useAuth } from "./AuthContext";
 import DonationTimeline, { STATUS_TEXT, foodSummary, formatDate } from "./DonationTimeline";
 import Illustration from "./Illustration";
@@ -14,28 +18,20 @@ const Tracking = () => {
   const { user } = useAuth();
   const [params, setParams] = useSearchParams();
   const selectedId = params.get("id");
-  const [donations, setDonations] = useState([]);
   const [selected, setSelected] = useState(null);
   const [lookup, setLookup] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [orgId, setOrgId] = useState(null);
 
-  const listPath = user.role === "organization" || user.role === "volunteer" ? "/api/donations?assigned=me" : "/api/donations";
+  const listPath =
+    user.role === "biogas" ? null : user.role === "organization" || user.role === "volunteer" ? "/api/donations?assigned=me" : "/api/donations";
+  const list = usePagedList(listPath);
+  const donations = list.items;
+  const loading = list.loading;
 
-  const loadList = useCallback(async () => {
-    if (user.role === "biogas") return setLoading(false);
-    try {
-      const data = await apiFetch(listPath);
-      setDonations(data.donations || []);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [listPath, user.role]);
-
+  // A lookup by tracking ID clears ?id=, so with no id there's nothing to refresh (keep the lookup result).
   const loadSelected = useCallback(async () => {
-    if (!selectedId) return setSelected(null);
+    if (!selectedId) return;
     try {
       const data = await apiFetch(`/api/donations/${encodeURIComponent(selectedId)}`);
       setSelected(data.donation);
@@ -46,20 +42,19 @@ const Tracking = () => {
     }
   }, [selectedId]);
 
-  useEffect(() => {
-    loadList();
-  }, [loadList]);
-
   // Poll so progress made by the NGO or volunteer shows up without a reload.
+  usePolling(loadSelected);
+
+  // An NGO is involved in a donation when its organization claimed it.
   useEffect(() => {
-    loadSelected();
-    const timer = setInterval(loadSelected, 15000);
-    return () => clearInterval(timer);
-  }, [loadSelected]);
+    if (user.role !== "organization") return;
+    apiFetch("/api/organizations/me").then((data) => setOrgId(data.organization?.id ?? null)).catch(() => {});
+  }, [user.role]);
 
   useEffect(() => {
-    if (!selectedId && donations.length) setParams({ id: String(donations[0].id) }, { replace: true });
-  }, [donations, selectedId, setParams]);
+    // Open the newest donation by default, but never replace a tracking-ID lookup result.
+    if (!selectedId && !selected && donations.length) setParams({ id: String(donations[0].id) }, { replace: true });
+  }, [donations, selectedId, selected, setParams]);
 
   const handleLookup = async (e) => {
     e.preventDefault();
@@ -84,7 +79,7 @@ const Tracking = () => {
         body: JSON.stringify({ status: "cancelled" }),
       });
       setSelected(data.donation);
-      loadList();
+      list.refresh();
     } catch (err) {
       setError(err.message);
     }
@@ -93,6 +88,11 @@ const Tracking = () => {
   const canCancel =
     selected && !selected.public && ["available", "requested"].includes(selected.status) &&
     ((user.role === "donor" && selected.donor_id === user.id) || (user.role === "organization" && selected.status === "requested"));
+
+  const involved =
+    selected && !selected.public &&
+    (user.role === "admin" || selected.donor_id === user.id || selected.volunteer_id === user.id ||
+      (orgId != null && selected.organization_id === orgId));
 
   const copyId = () => navigator.clipboard?.writeText(selected.donation_tracking_id).catch(() => {});
   const listTitle = user.role === "donor" ? "Your donations" : user.role === "organization" ? "Claimed by you" : "Your deliveries";
@@ -114,7 +114,7 @@ const Tracking = () => {
         </form>
       </section>
 
-      {error && <p className="tracking-error" role="alert">{error}</p>}
+      {(error || list.error) && <p className="tracking-error" role="alert">{error || list.error}</p>}
 
       <div className="tracking-layout">
         <section className="workspace-panel tracking-detail" aria-live="polite">
@@ -146,6 +146,16 @@ const Tracking = () => {
                     </dd>
                   </div>
                 )}
+                {selected.freshness && (
+                  <div className="tracking-fact">
+                    <ScanSearch size={18} />
+                    <dt>Freshness check</dt>
+                    <dd>
+                      {selected.freshness}
+                      {selected.freshness_confidence != null && <small>{Math.round(selected.freshness_confidence * 100)}% confident · model estimate at posting</small>}
+                    </dd>
+                  </div>
+                )}
                 <div className="tracking-fact">
                   <Building2 size={18} />
                   <dt>NGO</dt>
@@ -161,10 +171,13 @@ const Tracking = () => {
                 </div>
               </dl>
 
+              {!selected.public && <DonationPhotos donation={selected} />}
+
               <DonationTimeline donation={selected} />
 
-              {(canCancel || selected.public) && (
+              {(canCancel || involved || selected.public) && (
                 <div className="tracking-actions">
+                  {involved && <ReportButton donationId={selected.id} />}
                   {canCancel && (
                     <button className="workspace-secondary tracking-cancel" type="button" onClick={cancel}>
                       <XCircle size={16} /> Cancel donation
@@ -207,11 +220,12 @@ const Tracking = () => {
               <div className="workspace-empty">
                 <Illustration name="state-no-results" className="workspace-empty-art" />
                 <p>Nothing to track yet.</p>
-                {user.role === "donor" && <Link className="workspace-secondary" to="/Donate">Make your first donation</Link>}
-                {user.role === "organization" && <Link className="workspace-secondary" to="/NgoDashboard">Claim a donation</Link>}
-                {user.role === "volunteer" && <Link className="workspace-secondary" to="/VolunteerDashboard">Pick up a donation</Link>}
+                {user.role === "donor" && <Link className="workspace-secondary" to="/donate">Make your first donation</Link>}
+                {user.role === "organization" && <Link className="workspace-secondary" to="/ngo">Claim a donation</Link>}
+                {user.role === "volunteer" && <Link className="workspace-secondary" to="/volunteer">Pick up a donation</Link>}
               </div>
             )}
+            <LoadMore list={list} />
           </aside>
         )}
       </div>

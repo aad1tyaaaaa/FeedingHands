@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Check, Copy, LocateFixed, MapPin, Minus, Plus, ScanSearch, Trash2 } from "lucide-react";
 import "./PersonaTheme.css";
 import "./Donate.css";
 import { apiFetch } from "../api/client";
+import { MAX_PHOTOS, PHOTO_TYPES, photoError, shrinkPhoto } from "../api/photos.mjs";
 import { useAuth } from "./AuthContext";
 import Illustration from "./Illustration";
 
@@ -19,6 +20,9 @@ const NEXT_STEPS = [
   { art: "volunteer-scooter", title: "A volunteer picks it up", text: "They'll call you before arriving." },
   { art: "trophy", title: "Delivered: +10 Puniya points", text: "Track every step live." },
 ];
+
+// TensorFlow and the model only download if the donor opens the optional freshness check.
+const FreshnessCheck = lazy(() => import("./FreshnessCheck"));
 
 const blankItem = () => ({ name: "", quantity: 10 });
 
@@ -46,6 +50,41 @@ function Donate() {
   const [error, setError] = useState("");
   const [posted, setPosted] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [photos, setPhotos] = useState([]); // [{file, url}] url = local preview
+  const [photoMsg, setPhotoMsg] = useState("");
+  const [uploadNote, setUploadNote] = useState("");
+  const [checkFresh, setCheckFresh] = useState(false);
+  const [freshness, setFreshness] = useState(null);
+
+  // Release the previews' memory when the donor leaves the page.
+  const photosRef = useRef(photos);
+  photosRef.current = photos;
+  useEffect(() => () => photosRef.current.forEach((ph) => URL.revokeObjectURL(ph.url)), []);
+
+  const addPhotos = async (picked) => {
+    // Shrink first: phone photos are often 3–8 MB, and storage on the free database is small.
+    const files = await Promise.all([...picked].map(shrinkPhoto));
+    const next = [...photosRef.current];
+    let msg = "";
+    for (const file of files) {
+      const problem = photoError(file, next.length);
+      if (problem) msg = problem;
+      else next.push({ file, url: URL.createObjectURL(file) });
+    }
+    setPhotos(next);
+    setPhotoMsg(msg);
+  };
+
+  const removePhoto = (i) => {
+    URL.revokeObjectURL(photos[i].url);
+    setPhotos((list) => list.filter((_, j) => j !== i));
+    setPhotoMsg("");
+  };
+
+  const toggleFreshness = () => {
+    setCheckFresh((open) => !open);
+    setFreshness(null);
+  };
 
   const setItem = (i, patch) => setItems((list) => list.map((it, j) => (j === i ? { ...it, ...patch } : it)));
   const portions = items.reduce((sum, it) => sum + (Number(it.quantity) || 0), 0);
@@ -93,8 +132,22 @@ function Donate() {
           contact: contact.trim(),
           notes: notes.trim(),
           foodDetails: JSON.stringify(namedItems.map((it) => ({ name: it.name.trim(), quantity: String(it.quantity) }))),
+          freshness: checkFresh && freshness ? freshness.label : null,
+          freshnessConfidence: checkFresh && freshness ? freshness.confidence : null,
         }),
       });
+      // The donation is already posted; a failed photo only earns a note, never a lost donation.
+      let failed = 0;
+      for (const ph of photos) {
+        const body = new FormData();
+        body.append("photo", ph.file);
+        try {
+          await apiFetch(`/api/donations/${donation.id}/photos`, { method: "POST", body });
+        } catch {
+          failed += 1;
+        }
+      }
+      setUploadNote(failed ? `${failed} of ${photos.length} photos couldn't be uploaded. Your donation is posted without them.` : "");
       setPosted(donation);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
@@ -109,6 +162,12 @@ function Donate() {
     setItems([blankItem()]);
     setNotes("");
     setCopied(false);
+    photos.forEach((ph) => URL.revokeObjectURL(ph.url));
+    setPhotos([]);
+    setPhotoMsg("");
+    setUploadNote("");
+    setCheckFresh(false);
+    setFreshness(null);
   };
 
   if (posted) {
@@ -118,6 +177,7 @@ function Donate() {
           <Illustration name="state-success" className="donate-success-art" />
           <h1>Donation posted. Thank you!</h1>
           <p>NGOs nearby can claim it now. Share this tracking ID with anyone who wants to follow along.</p>
+          {uploadNote && <p className="donate-error" role="alert">{uploadNote}</p>}
           <div className="donate-success-id">
             <code>{posted.donation_tracking_id}</code>
             <button
@@ -129,7 +189,7 @@ function Donate() {
             </button>
           </div>
           <div className="donate-success-actions">
-            <Link className="workspace-primary" to={`/Tracking?id=${posted.id}`}>Track this donation <ArrowRight size={16} /></Link>
+            <Link className="workspace-primary" to={`/tracking?id=${posted.id}`}>Track this donation <ArrowRight size={16} /></Link>
             <button type="button" className="workspace-secondary" onClick={reset}>Donate something else</button>
           </div>
         </section>
@@ -240,6 +300,54 @@ function Donate() {
             </div>
           </section>
 
+          <section className="workspace-panel donate-step" id="donate-extras">
+            <header><span className="donate-step-no">4</span><h2>Photos and freshness <span className="donate-optional">(optional)</span></h2></header>
+            <label className="donate-label" htmlFor="donate-photos">Food photos</label>
+            {photos.length < MAX_PHOTOS && (
+              <input
+                id="donate-photos"
+                className="donate-photo-input"
+                type="file"
+                accept={PHOTO_TYPES.join(",")}
+                multiple
+                onChange={(e) => {
+                  addPhotos([...e.target.files]);
+                  e.target.value = "";
+                }}
+              />
+            )}
+            <p className="donate-hint">Up to {MAX_PHOTOS} photos · PNG, JPEG or WebP. Large photos are shrunk automatically. The NGO and volunteer see them.</p>
+            {photoMsg && <p className="donate-error" role="alert">{photoMsg}</p>}
+            {photos.length > 0 && (
+              <ul className="donate-photos">
+                {photos.map((ph, i) => (
+                  <li key={ph.url}>
+                    <img src={ph.url} alt={`Food photo ${i + 1}: ${ph.file.name}`} />
+                    <button type="button" className="donate-remove" aria-label={`Remove photo ${i + 1}`} onClick={() => removePhoto(i)}>
+                      <Trash2 size={16} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <div className="donate-freshness">
+              <button type="button" className="workspace-secondary" aria-expanded={checkFresh} onClick={toggleFreshness}>
+                <ScanSearch size={16} /> {checkFresh ? "Skip the freshness check" : "Check freshness"}
+              </button>
+              {checkFresh && (
+                <Suspense fallback={<p role="status">Loading the freshness check…</p>}>
+                  <FreshnessCheck onResult={setFreshness} showActions={false} />
+                </Suspense>
+              )}
+              {checkFresh && freshness && (
+                <p className="donate-hint is-ok" role="status">
+                  <Check size={14} /> Attached to this donation: {freshness.label}, {Math.round(freshness.confidence * 100)}% confident
+                </p>
+              )}
+            </div>
+          </section>
+
           {error && <p className="donate-error" role="alert">{error}</p>}
           <button type="submit" className="workspace-primary donate-submit" disabled={submitting}>
             {submitting ? "Posting…" : <>Post donation <ArrowRight size={17} /></>}
@@ -273,11 +381,18 @@ function Donate() {
             </ol>
           </section>
 
-          <Link className="workspace-panel donate-fresh" to="/ImageRecognition">
+          <button
+            type="button"
+            className="workspace-panel donate-fresh"
+            onClick={() => {
+              setCheckFresh(true);
+              document.getElementById("donate-extras")?.scrollIntoView({ behavior: "smooth" });
+            }}
+          >
             <Illustration name="scan-tomato" className="donate-fresh-art" />
             <div><strong>Not sure it's still fresh?</strong><span><ScanSearch size={14} /> Run a quick freshness check</span></div>
             <ArrowRight size={18} />
-          </Link>
+          </button>
         </aside>
       </div>
     </div>

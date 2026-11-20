@@ -1,5 +1,6 @@
-# Render Blueprint: Go API + Postgres. New > Blueprint, pick this repo.
-# You'll be prompted for the sync:false values (Vercel URL, SMTP).
+# Render Blueprint, $0/month: the Go API (free web service) + the frontend (free static site).
+# The database is Neon's free Postgres (no expiry), not Render's free Postgres, which is deleted after 30 days.
+# New > Blueprint, pick this repo; you'll be prompted for every sync:false value.
 services:
   - type: web
     name: feedinghands-api
@@ -7,12 +8,11 @@ services:
     rootDir: backend-go
     dockerfilePath: ./Dockerfile
     plan: free
-    healthCheckPath: /health
+    # No database touch, so Render's frequent health checks don't keep Neon's compute awake (free plan = 100 CU-hours/month).
+    healthCheckPath: /livez
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: feedinghands-db
-          property: connectionString
+        sync: false # Neon connection string, with ?sslmode=require
       - key: JWT_SECRET
         generateValue: true
       - key: APP_ENV
@@ -20,20 +20,52 @@ services:
       - key: TRUST_PROXY
         value: "true"
       - key: CORS_ORIGIN
-        sync: false # e.g. https://feedinghands.vercel.app
+        sync: false # the static site's URL, e.g. https://feedinghands-web.onrender.com
       - key: SMTP_HOST
-        sync: false
+        sync: false # Brevo: smtp-relay.brevo.com (free: 300 emails/day)
       - key: SMTP_PORT
-        value: "2525" # Render free tier blocks 25/465/587
+        value: "2525" # Render's free tier blocks 25/465/587
       - key: SMTP_USER
         sync: false
       - key: SMTP_PASS
         sync: false
       - key: SMTP_FROM
         sync: false
+      - key: NOTIFY_RADIUS_KM
+        value: "10"
+      - key: RAZORPAY_KEY_ID
+        sync: false # optional; leave empty to keep online payments off
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false # webhook URL: https://<api>/api/payments/webhook, event payment.captured
 
-databases:
-  - name: feedinghands-db
-    databaseName: feedinghands
-    user: feedinghands
-    plan: free
+  - type: web
+    name: feedinghands-web
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./out
+    envVars:
+      - key: NEXT_PUBLIC_API_BASE_URL
+        sync: false # the API's URL, e.g. https://feedinghands-api.onrender.com
+      - key: NODE_VERSION
+        value: "22"
+    # Client-side routing: any path without a file gets the app shell.
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: Content-Security-Policy
+        value: "frame-ancestors 'self';"
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(self), geolocation=(self), microphone=()

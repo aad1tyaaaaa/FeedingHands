@@ -30,7 +30,8 @@ func TestCanMove(t *testing.T) {
 func TestPermit(t *testing.T) {
 	donor := actor{role: "donor", userID: 1}
 	stranger := actor{role: "donor", userID: 9}
-	ngo := actor{role: "organization", userID: 2, orgID: 20}
+	ngo := actor{role: "organization", userID: 2, orgID: 20, orgVerified: true}
+	ngoPending := actor{role: "organization", userID: 7, orgID: 70}
 	ngoNoProfile := actor{role: "organization", userID: 3}
 	vol := actor{role: "volunteer", userID: 4, vol: 40}
 	otherVol := actor{role: "volunteer", userID: 5, vol: 50}
@@ -49,6 +50,8 @@ func TestPermit(t *testing.T) {
 	}{
 		{"ngo claims", ngo, fresh, "requested", true},
 		{"ngo without profile can't claim", ngoNoProfile, fresh, "requested", false},
+		{"unverified ngo can't claim", ngoPending, fresh, "requested", false},
+		{"unverified ngo can still cancel its claim", ngoPending, parties{donor: 1, org: 70}, "cancelled", true},
 		{"donor can't claim", donor, fresh, "requested", false},
 		{"volunteer picks up claimed food", vol, claimed, "picked_up", true},
 		{"volunteer picks up unclaimed food", vol, fresh, "picked_up", true},
