@@ -101,7 +101,7 @@ function SignUp() {
   return (
     <div className="signin-page">
       <div className="signin-panel">
-        <div className="signin-container">
+        <div className="signin-container signup">
           <img className="signin-logo" src="/logo/logo-with-text.png" alt="FeedingHands" />
           <Illustration name={step === "verify" ? "hero-email" : "hero-welcome"} className="signin-art signin-art--wide" />
           <h2>{step === "verify" ? "Verify Email" : "Create Account"}</h2>
@@ -130,24 +130,26 @@ function SignUp() {
                 <input type="tel" id="phone" name="phone" placeholder="+919876543210" autoComplete="tel"
                   value={formData.phone} onChange={handleChange} />
               </div>
-              <div className="form-group">
-                <label htmlFor="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="At least 8 characters"
-                  autoComplete="new-password" value={formData.password} onChange={handleChange} required
-                  minLength={8} maxLength={72} />
+              <div className="signin-row">
+                <div className="form-group">
+                  <label htmlFor="password">Password</label>
+                  <input type="password" id="password" name="password" placeholder="8+ characters"
+                    autoComplete="new-password" value={formData.password} onChange={handleChange} required
+                    minLength={8} maxLength={72} />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="confirmPassword">Confirm Password</label>
+                  <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter it"
+                    autoComplete="new-password" value={formData.confirmPassword} onChange={handleChange} required />
+                </div>
               </div>
-              <div className="form-group">
-                <label htmlFor="confirmPassword">Confirm Password</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter your password"
-                  autoComplete="new-password" value={formData.confirmPassword} onChange={handleChange} required />
-              </div>
-              <label htmlFor="agree" style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: "0.9rem", color: "#2e3b2f" }}>
-                <input type="checkbox" id="agree" required style={{ marginTop: 3, accentColor: "#2e7d32" }} />
+              <label htmlFor="agree" className="signin-agree">
+                <input type="checkbox" id="agree" required />
                 <span>
                   I agree to the{" "}
-                  <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: "#2e7d32", fontWeight: 600 }}>Terms</a>
+                  <a href="/terms" target="_blank" rel="noopener noreferrer">Terms</a>
                   {" "}and{" "}
-                  <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: "#2e7d32", fontWeight: 600 }}>Privacy Policy</a>
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
                 </span>
               </label>
               <button type="submit" disabled={loading}>{loading ? "Creating account..." : "Sign Up"}</button>

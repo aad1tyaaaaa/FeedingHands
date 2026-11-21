@@ -18,38 +18,24 @@
   object-fit: contain;
 }
 
-/* Right half: the framed card fills it edge to edge. */
+/* Right half: carries the vegetable frame, which never scrolls. */
 .signin-panel {
   flex: 1;
   display: flex;
   min-height: 0;
+  min-width: 0;
+  position: relative;
+  /* --u = on-screen size of 100 image px of the frame (shared by ::before and the container's margin). */
+  --u: clamp(24px, 5vh, 45px);
   /* even soft brand-green tint (no white centre, so no visible "card" behind the form) */
   background-color: #eef7ee;
 }
 
-/* The content area: fills the right half; the frame is drawn behind it by ::before. */
-.signin-container {
-  flex: 1;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  /* --u = on-screen size of 100 image px of the frame (shared with ::before below).
-     Padding = how deep the vegetables reach (~1.65 units top/bottom, ~1.5 sides) + a gap,
-     so text and fields always stay inside the frame, at every screen size. */
-  --u: clamp(24px, 5vh, 45px);
-  padding: calc(var(--u) * 1.7 + 4px) calc(var(--u) * 1.6 + 8px);
-  overflow-y: auto; /* safety net only: e.g. a long error on a tiny screen */
-}
-
-/* The vegetable frame is a background layer behind the content, not a box around it.
+/* The vegetable frame is a background layer around the content, not a box around it.
    9-slice "round" keeps each vegetable at its natural shape (no squashing). */
 /* Slice = how far the vegetables reach into the 1448x1086 image (measured): 280px top/bottom,
-   250px sides, so no vegetable is cut off. --u is the on-screen size of 100 image px; widths keep
-   the same ratio as the slice so corners are never distorted. */
-.signin-container::before {
+   250px sides, so no vegetable is cut off. Widths keep the same ratio as the slice so corners are never distorted. */
+.signin-panel::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -61,10 +47,26 @@
   z-index: 0;
 }
 
-/* All content sits above the frame. */
-.signin-container > * {
+/* The content area sits inside the frame: margin = how deep the vegetables reach (~1.65 units top/bottom,
+   ~1.5 sides) + a gap. When the content is taller than that space (long signup form, short screen), it
+   scrolls here, inside the frame, so text and fields can never slide over the vegetables. */
+.signin-container {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  justify-content: safe center; /* overflowing content starts at the top instead of being cut off above it */
   position: relative;
   z-index: 1;
+  margin: calc(var(--u) * 1.7) calc(var(--u) * 1.6 + 4px);
+  padding: 6px 10px; /* room for focus rings and the button shadow inside the scroll area */
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #a5d6a7 transparent;
 }
 
 .signin-logo {
@@ -126,6 +128,38 @@
   font-size: 1rem;
   color: #1f2a20;
   transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+/* Two short fields side by side (password + confirm) to keep the signup form within one screen. */
+.signin-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(8px, 1.9vh, 18px) 12px;
+}
+
+/* Terms checkbox row */
+.signin-agree {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  font-size: 0.9rem;
+  color: #2e3b2f;
+  cursor: pointer;
+}
+
+.signin-agree input {
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+  flex: none;
+  accent-color: #2e7d32;
+  cursor: pointer;
+}
+
+.signin-agree a {
+  color: #2e7d32;
+  font-weight: 600;
 }
 
 .signin-container .form-group input::placeholder {
@@ -283,7 +317,7 @@
     max-width: 45vw;
   }
 
-  .signin-container {
+  .signin-panel {
     --u: clamp(24px, 4.5vh, 40px);
   }
 }
@@ -301,7 +335,7 @@
     display: none;
   }
 
-  .signin-container {
+  .signin-panel {
     --u: clamp(16px, 3.4vh, 28px);
   }
 
@@ -312,7 +346,43 @@
 
 /* Small phones: thinnest frame so the inputs keep their width. */
 @media (max-width: 420px) {
-  .signin-container {
+  .signin-panel {
     --u: clamp(14px, 3vh, 18px);
+  }
+
+  .signin-row {
+    grid-template-columns: 1fr; /* passwords stack on narrow phones */
+  }
+}
+
+/* ---------- Signup: the longest form, so it gets extra room on shorter screens ---------- */
+
+/* The team illustration only fits above the 5-field form on tall screens. */
+@media (max-height: 900px) {
+  .signup .signin-art--wide {
+    display: none;
+  }
+}
+
+/* Short laptop windows: tighter spacing so "Sign Up" and the sign-in link fit without scrolling. */
+@media (max-height: 640px) {
+  .signup .signin-logo {
+    height: clamp(36px, 8vh, 52px);
+  }
+
+  .signup .signin-subtitle {
+    display: none;
+  }
+
+  .signup h2 {
+    margin-bottom: 6px;
+  }
+
+  .signup form {
+    gap: clamp(6px, 1.3vh, 10px);
+  }
+
+  .signup .signin-switch {
+    margin-top: 8px;
   }
 }
