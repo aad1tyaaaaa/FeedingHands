@@ -1,14 +1,20 @@
 import { useCallback, useEffect, useState } from "react";
-import { FaHeart, FaHandHoldingHeart, FaInfoCircle, FaLock, FaRupeeSign, FaUsers } from "react-icons/fa";
+import { FaBoxOpen, FaHeart, FaHandHoldingHeart, FaInfoCircle, FaLock, FaRupeeSign, FaSnowflake, FaTruck, FaUsers } from "react-icons/fa";
 import "./PersonaTheme.css";
 import "./FundraisingPage.css";
 import { apiFetch } from "../api/client";
 import { useAuth } from "./AuthContext";
 import Illustration from "./Illustration";
 
-const PRESETS = [500, 1000, 2500];
+const PRESETS = [250, 500, 1000, 2500];
 const MAX_AMOUNT = 500000; // the API's per-payment limit, in rupees
 const inr = (n) => `₹${Number(n).toLocaleString("en-IN")}`;
+const day = (d) => new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+const USES = [
+  [FaTruck, "Transport", "Getting pickups to NGOs while the food is fresh."],
+  [FaBoxOpen, "Packaging", "Clean, sealed containers for every meal."],
+  [FaSnowflake, "Cold storage", "Keeping perishables safe until they're delivered."],
+];
 
 // Razorpay's checkout script is only fetched when someone actually pays.
 let razorpayScript = null;
@@ -41,7 +47,8 @@ const FundraisingPage = () => {
   const [done, setDone] = useState(null); // {amount, demo}
 
   const loadMine = useCallback(() => {
-    apiFetch("/api/payments/mine").then((data) => setMine(data.payments || [])).catch(() => {});
+    // "created" = checkout opened but never paid (abandoned or still being confirmed), so not listed
+    apiFetch("/api/payments/mine").then((data) => setMine((data.payments || []).filter((p) => p.status !== "created"))).catch(() => {});
   }, []);
 
   const loadStats = useCallback(() => {
@@ -129,97 +136,112 @@ const FundraisingPage = () => {
           </div>
         </div>
 
-        <div className="donation-content">
-          <div className="impact-stats">
-            {stats?.raisedRupees != null && (
-              <div className="stat-card">
-                <FaRupeeSign className="stat-icon" aria-hidden="true" />
-                <h3>{inr(stats.raisedRupees)}</h3>
-                <p>Raised so far</p>
-              </div>
-            )}
+        <div className="impact-stats">
+          {stats?.raisedRupees > 0 && (
             <div className="stat-card">
-              <FaHandHoldingHeart className="stat-icon" aria-hidden="true" />
-              <h3>{stats ? stats.delivered : "—"}</h3>
-              <p>Donations delivered</p>
+              <FaRupeeSign className="stat-icon" aria-hidden="true" />
+              <h3>{inr(stats.raisedRupees)}</h3>
+              <p>Raised so far</p>
             </div>
-            <div className="stat-card">
-              <FaUsers className="stat-icon" aria-hidden="true" />
-              <h3>{stats ? stats.volunteers : "—"}</h3>
-              <p>Volunteers</p>
-            </div>
+          )}
+          <div className="stat-card">
+            <FaHandHoldingHeart className="stat-icon" aria-hidden="true" />
+            <h3>{stats ? stats.delivered : "—"}</h3>
+            <p>Donations delivered</p>
           </div>
+          <div className="stat-card">
+            <FaUsers className="stat-icon" aria-hidden="true" />
+            <h3>{stats ? stats.volunteers : "—"}</h3>
+            <p>Volunteers</p>
+          </div>
+        </div>
 
-          <div>
-            {done ? (
-              <div className="success-message fh-card" role="status">
-                <h2>Thank you, {user.fullName.split(" ")[0]}!</h2>
-                {done.demo ? (
-                  <p>
-                    Demo: we've noted your {inr(done.amount)} pledge on this screen only. Online payments aren't switched on
-                    yet, so no money was taken.
-                  </p>
-                ) : (
-                  <p>We've received your {inr(done.amount)} contribution. A receipt is on its way to your email.</p>
-                )}
-                <button type="button" className="fh-btn" onClick={() => setDone(null)}>
-                  {done.demo ? "Make another pledge" : "Give again"}
-                </button>
+        <div className="donation-content">
+          {done ? (
+            <div className="success-message fh-card" role="status">
+              <FaHeart className="success-icon" aria-hidden="true" />
+              <h2>Thank you, {user.fullName.split(" ")[0]}!</h2>
+              {done.demo ? (
+                <p>
+                  Demo: we've noted your {inr(done.amount)} pledge on this screen only. Online payments aren't switched on
+                  yet, so no money was taken.
+                </p>
+              ) : (
+                <p>We've received your {inr(done.amount)} contribution. A receipt is on its way to your email.</p>
+              )}
+              <button type="button" className="fh-btn" onClick={() => setDone(null)}>
+                {done.demo ? "Make another pledge" : "Give again"}
+              </button>
+            </div>
+          ) : (
+            <form className="donation-form fh-card" onSubmit={handleSubmit}>
+              <h2>Choose an amount</h2>
+              <div className="preset-amounts">
+                {PRESETS.map((p) => (
+                  <button
+                    type="button"
+                    key={p}
+                    aria-pressed={!custom && amount === p}
+                    className={`amount-btn ${!custom && amount === p ? "selected" : ""}`}
+                    onClick={() => {
+                      setAmount(p);
+                      setCustom("");
+                    }}
+                  >
+                    {inr(p)}
+                  </button>
+                ))}
               </div>
-            ) : (
-              <form className="donation-form fh-card" onSubmit={handleSubmit}>
-                <div className="amount-selection">
-                  <h2>Choose an amount</h2>
-                  <div className="preset-amounts">
-                    {PRESETS.map((p) => (
-                      <button
-                        type="button"
-                        key={p}
-                        aria-pressed={!custom && amount === p}
-                        className={`amount-btn ${!custom && amount === p ? "selected" : ""}`}
-                        onClick={() => {
-                          setAmount(p);
-                          setCustom("");
-                        }}
-                      >
-                        {inr(p)}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="custom-amount">
-                    <input
-                      type="number"
-                      min="1"
-                      max={MAX_AMOUNT}
-                      step="1"
-                      aria-label="Other amount in rupees"
-                      placeholder="Other amount"
-                      value={custom}
-                      onChange={(e) => setCustom(e.target.value)}
-                    />
-                    <span className="fh-label">Rupees</span>
-                  </div>
-                  {custom && !valid && <p role="alert">Enter a whole number of rupees from 1 to {inr(MAX_AMOUNT)}.</p>}
-                </div>
+              <label className="fh-label" htmlFor="custom-amount">Or enter your own amount</label>
+              <div className={`custom-amount ${custom ? "active" : ""}`}>
+                <span aria-hidden="true">₹</span>
+                <input
+                  id="custom-amount"
+                  type="number"
+                  inputMode="numeric"
+                  min="1"
+                  max={MAX_AMOUNT}
+                  step="1"
+                  placeholder="e.g. 750"
+                  value={custom}
+                  onChange={(e) => setCustom(e.target.value)}
+                />
+              </div>
+              {custom && !valid && <p className="form-error" role="alert">Enter a whole number of rupees from 1 to {inr(MAX_AMOUNT)}.</p>}
+              {error && <p className="form-error" role="alert">{error}</p>}
 
-                <div className="security-info">
-                  {live ? <FaLock className="lock-icon" aria-hidden="true" /> : <FaInfoCircle className="lock-icon" aria-hidden="true" />}
-                  <span>
-                    {!config
-                      ? "Checking payment options…"
-                      : live
-                        ? "Secure payment by Razorpay. FeedingHands never sees your card or UPI details."
-                        : "Demo mode: online payments aren't switched on yet. No payment is taken and no card details are collected."}
-                  </span>
-                </div>
+              <button type="submit" className="donate-btn fh-btn" disabled={!config || !valid || busy}>
+                {busy ? "Opening payment…" : `${live ? "Donate" : "Pledge (demo)"} ${valid ? inr(value) : ""}`}
+              </button>
 
-                {error && <p role="alert">{error}</p>}
+              <p className="security-info">
+                {live ? <FaLock aria-hidden="true" /> : <FaInfoCircle aria-hidden="true" />}
+                <span>
+                  {!config
+                    ? "Checking payment options…"
+                    : live
+                      ? "Secure payment by Razorpay (UPI, cards, netbanking). FeedingHands never sees your card or UPI details."
+                      : "Demo mode: online payments aren't switched on yet. No payment is taken and no card details are collected."}
+                </span>
+              </p>
+            </form>
+          )}
 
-                <button type="submit" className="donate-btn fh-btn" disabled={!config || !valid || busy}>
-                  {busy ? "Opening payment…" : `${live ? "Donate" : "Pledge (demo)"} ${valid ? inr(value) : ""}`}
-                </button>
-              </form>
-            )}
+          <aside className="fundraising-side">
+            <section className="fh-card fundraising-uses" aria-label="Where your money goes">
+              <h2>Where it goes</h2>
+              <ul>
+                {USES.map(([Icon, title, text]) => (
+                  <li key={title}>
+                    <Icon className="use-icon" aria-hidden="true" />
+                    <div>
+                      <strong>{title}</strong>
+                      <span>{text}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
 
             {live && mine.length > 0 && (
               <section className="fh-card fundraising-history" aria-label="Your contributions">
@@ -228,7 +250,7 @@ const FundraisingPage = () => {
                   {mine.map((p) => (
                     <li key={p.id}>
                       <strong>{inr(p.amount)}</strong>
-                      <span>{new Date(p.paid_at || p.created_at).toLocaleDateString()}</span>
+                      <span>{day(p.paid_at || p.created_at)}</span>
                       <span className={`status-pill ${p.status === "paid" ? "delivered" : p.status === "failed" ? "cancelled" : "available"}`}>
                         {p.status === "paid" ? "Paid" : p.status === "failed" ? "Failed" : "Pending"}
                       </span>
@@ -237,7 +259,7 @@ const FundraisingPage = () => {
                 </ul>
               </section>
             )}
-          </div>
+          </aside>
         </div>
       </div>
     </div>
