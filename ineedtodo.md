@@ -6,7 +6,7 @@ Tick them off as I go. Full deployment details are in [README.md](README.md#depl
 ## 1. Check it locally first
 - [ ] Run `docker compose up --build`, then open http://localhost:3000
 - [ ] Sign in as each demo account (password `Demo@1234`) and click through:
-  - [ ] `donor1@feedinghands.dev`: donate with photos and the freshness check, then tracking, rewards, fundraising (demo mode) and settings
+  - [ ] `donor1@feedinghands.dev`: donate with photos, then tracking, rewards, fundraising (demo mode) and settings
   - [ ] `ngo1@feedinghands.dev`: claim a donation and edit the profile with the document upload
   - [ ] `volunteer1@feedinghands.dev`: pick up and deliver a donation, and check the map
   - [ ] `biogas1@feedinghands.dev`: collect a pickup
@@ -76,6 +76,16 @@ Tick them off as I go. Full deployment details are in [README.md](README.md#depl
 - [ ] Brevo: under 300 emails a day. If signups grow past that, emails stop until the next day.
 - [ ] Render: the API uses about 730 of the 750 free hours a month. Don't add a second free web service to the same workspace.
 - [ ] Back up the database now and then. Neon free has a short restore window; for a full copy run `pg_dump "<neon url>" > backup.sql`.
+
+## 6b. Retrain the freshness model (it fails testing today)
+Tested on 90 public food photos, the current model rated 0 of 56 fresh dishes "Fresh" and called most moldy food "Semi-Fresh". It is now labelled experimental and removed from the donate form.
+- [ ] Take your own phone photos, the kind donors will send: at least **100 per category**, varied lighting, plates, dishes and angles
+  - [ ] `Fresh`, `Semi-Fresh`, `Spoiled`, plus **`Not food`** (hands, tables, empty plates, random rooms) so random photos stop scoring as spoiled
+- [ ] Put **20% of each category aside** for testing. Never upload those to Teachable Machine
+- [ ] Train at https://teachablemachine.withgoogle.com (Image project), export as TensorFlow.js, and replace `frontend/public/model.json`, `weights.bin`, `metadata.json`
+- [ ] Grade it on the held-back photos (one folder per category, folder names exactly like the labels, e.g. `Not food`):
+  `cd frontend && node scripts/eval-freshness.mjs path/to/test-photos`
+- [ ] Only if it prints **PASS** (80% overall and in every category): tell Claude to put the check back in the donate form and drop the "Experimental" warning
 
 ## Not built yet (ask Claude when wanted)
 - Sentry error tracking (needs a free Sentry account and its DSN)

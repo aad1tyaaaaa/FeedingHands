@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import * as tf from "@tensorflow/tfjs";
 import {
-  AlertTriangle, ArrowRight, Camera, CameraOff, CheckCircle2, HelpCircle, ImageUp, Lightbulb, Loader2, RefreshCw, Wifi, XCircle,
+  AlertTriangle, Camera, CameraOff, CheckCircle2, HelpCircle, ImageUp, Lightbulb, Loader2, RefreshCw, Wifi, XCircle,
 } from "lucide-react";
 import "./PersonaTheme.css";
 import "./ImageRecognition.css";
@@ -12,28 +11,13 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const LIVE_INTERVAL_MS = 300; // camera predictions per second ≈ 3: smooth enough, light on battery
 export const MIN_CONFIDENCE = 0.6; // below this the top label is a coin toss, so say so
 
-// What each model label means for the user, and what to do next.
+// What each model label means for the user. Hints only: the model failed a real-photo test (see
+// scripts/eval-freshness.mjs), so no result may steer the user to donate or discard food.
 export const VERDICTS = {
-  Fresh: {
-    tone: "fresh", icon: CheckCircle2, title: "Looks fresh",
-    advice: "Good to donate. Pack it covered and note when it was cooked.",
-    action: { to: "/donate", label: "Donate this food" },
-  },
-  "Semi-Fresh": {
-    tone: "semi", icon: AlertTriangle, title: "Eat or donate today",
-    advice: "Still safe if it's picked up soon. Mention the timing in your donation notes.",
-    action: { to: "/donate", label: "Donate it now" },
-  },
-  Spoiled: {
-    tone: "spoiled", icon: XCircle, title: "Not safe to eat",
-    advice: "Please don't donate this as food. It can still become clean energy.",
-    action: { to: "/biogas", label: "Schedule a biogas pickup" },
-  },
-  unsure: {
-    tone: "unsure", icon: HelpCircle, title: "Not sure",
-    advice: "The model can't tell from this photo. Try daylight and a closer shot of one dish, or check by smell and look.",
-    action: null,
-  },
+  Fresh: { tone: "fresh", icon: CheckCircle2, title: "Model guess: fresh", advice: "Still check it yourself: look, smell and how long ago it was cooked." },
+  "Semi-Fresh": { tone: "semi", icon: AlertTriangle, title: "Model guess: semi-fresh", advice: "If it's still good, mention when it was cooked in your donation notes." },
+  Spoiled: { tone: "spoiled", icon: XCircle, title: "Model guess: spoiled", advice: "Check it yourself. If it smells off or shows mould, don't donate it as food; a biogas pickup can take it." },
+  unsure: { tone: "unsure", icon: HelpCircle, title: "Not sure", advice: "The model can't tell from this photo. Judge by look, smell and time since cooking." },
 };
 
 // Loads the Teachable Machine export (a plain Keras model) with TF.js itself, then runs one throwaway
@@ -71,9 +55,9 @@ async function classify(model, source) {
   return { label: best.label, confidence: best.value, scores };
 }
 
-// The freshness checker: photo upload, live camera or an ESP32 snapshot URL, classified in the browser.
-// Used as the /ImageRecognition page and as the optional step in Donate (onResult gets {label, confidence, scores} or null).
-export default function FreshnessCheck({ onResult, showActions = true }) {
+// The /freshness page: photo upload, live camera or an ESP32 snapshot URL, classified in the browser.
+// Experimental until a retrained model passes scripts/eval-freshness.mjs.
+export default function FreshnessCheck() {
   const [model, setModel] = useState(null);
   const [mode, setMode] = useState("upload");
   const [preview, setPreview] = useState(null);
@@ -88,13 +72,6 @@ export default function FreshnessCheck({ onResult, showActions = true }) {
   const videoRef = useRef(null);
   const [cameraUrl, setCameraUrl] = useState("http://192.168.163.130/capture");
   const [snapshot, setSnapshot] = useState(null);
-
-  // Tell the parent about every new result (the live camera updates it a few times a second).
-  const onResultRef = useRef(onResult);
-  onResultRef.current = onResult;
-  useEffect(() => {
-    onResultRef.current?.(result);
-  }, [result]);
 
   useEffect(() => {
     let alive = true;
@@ -189,11 +166,14 @@ export default function FreshnessCheck({ onResult, showActions = true }) {
     setError("");
   };
 
-  const verdict = result && (result.confidence < MIN_CONFIDENCE ? VERDICTS.unsure : VERDICTS[result.label]);
+  const verdict = result && (result.confidence < MIN_CONFIDENCE ? VERDICTS.unsure : VERDICTS[result.label] ?? VERDICTS.unsure);
   const Icon = verdict?.icon;
 
   return (
     <div className="freshness-check">
+      <p className="freshness-error" role="note">
+        Experimental: in testing on real food photos this model was wrong most of the time. Treat its answer as a rough hint, never as a safety check.
+      </p>
       {error && <p className="freshness-error" role="alert">{error}</p>}
       <div className="freshness-layout">
         <section className="workspace-panel freshness-input">
@@ -340,11 +320,6 @@ export default function FreshnessCheck({ onResult, showActions = true }) {
                 ))}
               </ul>
 
-              {showActions && verdict.action && (
-                <Link className="workspace-primary" to={verdict.action.to}>
-                  {verdict.action.label} <ArrowRight size={16} />
-                </Link>
-              )}
             </>
           ) : (
             <div className="workspace-empty">
@@ -355,7 +330,7 @@ export default function FreshnessCheck({ onResult, showActions = true }) {
 
           <div className="freshness-tips">
             <Lightbulb size={17} aria-hidden="true" />
-            <p>For the best result, use daylight, fill the frame with one dish, and avoid heavy filters. The model is a guide; trust your nose too.</p>
+            <p>For the best result, use daylight, fill the frame with one dish, and avoid heavy filters. Always trust your own eyes and nose over the model.</p>
           </div>
         </section>
       </div>
