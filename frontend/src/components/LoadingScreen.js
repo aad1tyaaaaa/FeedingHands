@@ -44,7 +44,7 @@ const STEP_MS = 850;
 // Side scenery: one card per stage of a donation, two per side.
 const SIDE_CARDS = [
   { side: "left", icon: HandHeart, title: "Surplus meals ready", meta: "Veg thali · 40 portions", tag: "Donor" },
-  { side: "left", icon: ScanSearch, title: "Freshness check", meta: "Looks fresh, safe to share", tag: "AI scan", fresh: true },
+  { side: "left", icon: ScanSearch, title: "Freshness check", meta: "A quick photo hint, then your own check", tag: "Experimental", fresh: true },
   { side: "right", icon: Truck, title: "Volunteer on the way", meta: "Pickup in 12 min", tag: "Volunteer", live: true },
   { side: "right", icon: CircleCheck, title: "Delivered to shelter", meta: "Shared with families nearby", tag: "NGO" },
 ];

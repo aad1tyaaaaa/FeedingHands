@@ -10,7 +10,7 @@ function ImageRecognition() {
       <section className="workspace-heading">
         <div>
           <h1>Freshness check</h1>
-          <p>Snap or upload a photo of the food. Our model rates it fresh, semi-fresh or spoiled before you donate.</p>
+          <p>Snap or upload a photo of the food for a rough, experimental guess at how fresh it looks.</p>
         </div>
         <Illustration name="hero-freshness" className="workspace-heading-art" />
       </section>

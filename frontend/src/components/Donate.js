@@ -1,6 +1,6 @@
-import { Suspense, lazy, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Check, Copy, LocateFixed, MapPin, Minus, Plus, ScanSearch, Trash2 } from "lucide-react";
+import { ArrowRight, Check, Copy, LocateFixed, MapPin, Minus, Plus, Trash2 } from "lucide-react";
 import "./PersonaTheme.css";
 import "./Donate.css";
 import { apiFetch } from "../api/client";
@@ -20,9 +20,6 @@ const NEXT_STEPS = [
   { art: "volunteer-scooter", title: "A volunteer picks it up", text: "They'll call you before arriving." },
   { art: "trophy", title: "Delivered: +10 Puniya points", text: "Track every step live." },
 ];
-
-// TensorFlow and the model only download if the donor opens the optional freshness check.
-const FreshnessCheck = lazy(() => import("./FreshnessCheck"));
 
 const blankItem = () => ({ name: "", quantity: 10 });
 
@@ -53,8 +50,6 @@ function Donate() {
   const [photos, setPhotos] = useState([]); // [{file, url}] url = local preview
   const [photoMsg, setPhotoMsg] = useState("");
   const [uploadNote, setUploadNote] = useState("");
-  const [checkFresh, setCheckFresh] = useState(false);
-  const [freshness, setFreshness] = useState(null);
 
   // Release the previews' memory when the donor leaves the page.
   const photosRef = useRef(photos);
@@ -79,11 +74,6 @@ function Donate() {
     URL.revokeObjectURL(photos[i].url);
     setPhotos((list) => list.filter((_, j) => j !== i));
     setPhotoMsg("");
-  };
-
-  const toggleFreshness = () => {
-    setCheckFresh((open) => !open);
-    setFreshness(null);
   };
 
   const setItem = (i, patch) => setItems((list) => list.map((it, j) => (j === i ? { ...it, ...patch } : it)));
@@ -132,8 +122,6 @@ function Donate() {
           contact: contact.trim(),
           notes: notes.trim(),
           foodDetails: JSON.stringify(namedItems.map((it) => ({ name: it.name.trim(), quantity: String(it.quantity) }))),
-          freshness: checkFresh && freshness ? freshness.label : null,
-          freshnessConfidence: checkFresh && freshness ? freshness.confidence : null,
         }),
       });
       // The donation is already posted; a failed photo only earns a note, never a lost donation.
@@ -166,8 +154,6 @@ function Donate() {
     setPhotos([]);
     setPhotoMsg("");
     setUploadNote("");
-    setCheckFresh(false);
-    setFreshness(null);
   };
 
   if (posted) {
@@ -301,7 +287,7 @@ function Donate() {
           </section>
 
           <section className="workspace-panel donate-step" id="donate-extras">
-            <header><span className="donate-step-no">4</span><h2>Photos and freshness <span className="donate-optional">(optional)</span></h2></header>
+            <header><span className="donate-step-no">4</span><h2>Photos <span className="donate-optional">(optional)</span></h2></header>
             <label className="donate-label" htmlFor="donate-photos">Food photos</label>
             {photos.length < MAX_PHOTOS && (
               <input
@@ -330,22 +316,6 @@ function Donate() {
                 ))}
               </ul>
             )}
-
-            <div className="donate-freshness">
-              <button type="button" className="workspace-secondary" aria-expanded={checkFresh} onClick={toggleFreshness}>
-                <ScanSearch size={16} /> {checkFresh ? "Skip the freshness check" : "Check freshness"}
-              </button>
-              {checkFresh && (
-                <Suspense fallback={<p role="status">Loading the freshness check…</p>}>
-                  <FreshnessCheck onResult={setFreshness} showActions={false} />
-                </Suspense>
-              )}
-              {checkFresh && freshness && (
-                <p className="donate-hint is-ok" role="status">
-                  <Check size={14} /> Attached to this donation: {freshness.label}, {Math.round(freshness.confidence * 100)}% confident
-                </p>
-              )}
-            </div>
           </section>
 
           {error && <p className="donate-error" role="alert">{error}</p>}
@@ -380,19 +350,6 @@ function Donate() {
               ))}
             </ol>
           </section>
-
-          <button
-            type="button"
-            className="workspace-panel donate-fresh"
-            onClick={() => {
-              setCheckFresh(true);
-              document.getElementById("donate-extras")?.scrollIntoView({ behavior: "smooth" });
-            }}
-          >
-            <Illustration name="scan-tomato" className="donate-fresh-art" />
-            <div><strong>Not sure it's still fresh?</strong><span><ScanSearch size={14} /> Run a quick freshness check</span></div>
-            <ArrowRight size={18} />
-          </button>
         </aside>
       </div>
     </div>

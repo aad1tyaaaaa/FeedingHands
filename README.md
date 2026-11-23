@@ -11,13 +11,13 @@ A food donation and redistribution platform. Donors post surplus food, NGOs clai
 - **Maps & routing**: open pickups on a map sorted by distance, and driving routes from you → donor → NGO (Leaflet + OpenStreetMap + OSRM, no API keys).
 - **Biogas pickups**: anyone schedules a food-waste pickup; biogas partners mark it collected.
 - **Analytics & forecast**: weekly donation history and a 4-week trend forecast for NGOs.
-- **Freshness check**: TensorFlow.js / Teachable Machine camera model, runs in the browser.
+- **Freshness check** (experimental, `/freshness` only): TensorFlow.js / Teachable Machine camera model, runs in the browser. The current model fails a real-photo test, so it shows hints only and is not part of donating. Grade a retrained model with `node scripts/eval-freshness.mjs <photos-dir>` from `frontend/`.
 - **Fundraising**: Razorpay checkout with signature-verified webhook and emailed receipts (falls back to a clearly labelled demo pledge when Razorpay keys are unset).
 - **Rewards**: server-issued reward codes unlock at 10 / 50 / 100 Puniya points; admins redeem them.
 - **Trust and safety**: NGOs upload a registration document and must be verified by an admin before claiming food; anyone involved in a donation can report a problem; admins can suspend users.
 - **Accounts**: forgot / reset password by emailed code, edit profile, change password (signs out other devices), delete account, email notification opt-out.
 - **Notifications**: emails when a donation is claimed, picked up and delivered, and to verified NGOs within `NOTIFY_RADIUS_KM` of a new donation. Dashboards refresh every 30 s.
-- **Food photos**: up to 3 photos per donation plus an optional freshness check result.
+- **Food photos**: up to 3 photos per donation.
 
 ## Tech Stack
 
